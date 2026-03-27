@@ -1,0 +1,5 @@
+Patient_Cohort,Baseline_Count,Progression_to_T2D_%,Time_to_Progression_Years,Complications_Rate_%
+Gestational Diabetes,25000,30.5,5,12.0
+Prediabetes,45000,58.2,3,25.5
+Type 2 Early,35000,100.0,0,45.8
+Type 2 Advanced,15000,100.0,0,78.3

@@ -1,0 +1,56 @@
+$color-primary: #4b4ad5;
+$color-accent-100: #a461d8;
+$color-accent-80: #ba7de9;
+
+$text-100: #171725;
+$text-80: #454551;
+$text-10: #e2e2ea;
+
+$bg-10: #f1f1f5;
+$bg-100: #fafafb;
+$white: #ffffff;
+
+$success: #19bb7a;
+$success-alt: #4caf50;
+$success-bg: #edf7ed;
+
+$danger: #dc3545;
+$danger-alt: #fc5a5a;
+$danger-bg: #fceded;
+
+$warning: #ed8a00;
+$warning-alt: #ffc107;
+$warning-bg: #fdf7d7;
+
+$info: #0d6efd;
+
+$stroke-grey: #eaecf0;
+
+$overlay-primary-03: rgba(75, 74, 213, 0.03);
+$overlay-primary-06: rgba(75, 74, 213, 0.06);
+$overlay-primary-10: rgba(75, 74, 213, 0.10);
+$overlay-black-10: rgba(0, 0, 0, 0.10);
+$overlay-black-25: rgba(0, 0, 0, 0.25);
+$overlay-black-32: rgba(0, 0, 0, 0.32);
+$overlay-white-25: rgba(255, 255, 255, 0.25);
+$overlay-white-55: rgba(255, 255, 255, 0.55);
+
+:root {
+  --P-CTA-100: #4b4ad5;
+  --T-Text-100: #171725;
+  --T-Text-80: #454551;
+  --T-Text-10: #e2e2ea;
+  --T-BG-10: #f1f1f5;
+  --T-BG-100: #fafafb;
+  --T-White-100: #ffffff;
+  --S-Icon-100: #a461d8;
+  --S-Icon-80: #ba7de9;
+  --S-BG-50: #ffe8ae;
+  --Stroke-Grey: #eaecf0;
+  --Colour-Red-Red---10: #fceded;
+  --Colour-Orange-Orange---10: #feeee9;
+  --Colour-Yellow-Yellow---20: #fdf7d7;
+  --Colour-Green-Green---10: #edf7ed;
+  --White-Gradient: linear-gradient(180deg, #ffffff 0%, #e2e2ea 100%);
+}
+

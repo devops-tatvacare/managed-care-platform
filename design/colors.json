@@ -1,0 +1,83 @@
+{
+  "brand": {
+    "primary": "#4b4ad5",
+    "accentPurple100": "#a461d8",
+    "accentPurple80": "#ba7de9"
+  },
+  "neutrals": {
+    "text100": "#171725",
+    "text80": "#454551",
+    "text10": "#e2e2ea",
+    "bg10": "#f1f1f5",
+    "bg100": "#fafafb",
+    "white": "#ffffff"
+  },
+  "semantic": {
+    "success": "#19bb7a",
+    "successAlt": "#4caf50",
+    "successBg": "#edf7ed",
+    "danger": "#dc3545",
+    "dangerAlt": "#fc5a5a",
+    "dangerBg": "#fceded",
+    "warning": "#ed8a00",
+    "warningAlt": "#ffc107",
+    "warningBg": "#fdf7d7",
+    "info": "#0d6efd"
+  },
+  "borders": {
+    "stroke": "#eaecf0"
+  },
+  "overlays": {
+    "primary03": "rgba(75,74,213,0.03)",
+    "primary06": "rgba(75,74,213,0.06)",
+    "primary10": "rgba(75,74,213,0.10)",
+    "black10": "rgba(0,0,0,0.10)",
+    "black25": "rgba(0,0,0,0.25)",
+    "black32": "rgba(0,0,0,0.32)",
+    "white25": "rgba(255,255,255,0.25)",
+    "white55": "rgba(255,255,255,0.55)"
+  },
+  "graysCommon": [
+    "#101828",
+    "#111827",
+    "#212529",
+    "#333333",
+    "#444444",
+    "#475467",
+    "#495057",
+    "#667085",
+    "#6b7280",
+    "#a2a2a8",
+    "#adb5bd",
+    "#d0d5dd",
+    "#dee2e6",
+    "#e4e7ec",
+    "#eaecf0",
+    "#f0f0f0",
+    "#f3f4f6",
+    "#f5f5f5",
+    "#f9fafb"
+  ],
+  "gradients": {
+    "whiteGradient": "linear-gradient(180deg,#ffffff 0%,#e2e2ea 100%)"
+  },
+  "tokens": {
+    "P-CTA-100": "#4b4ad5",
+    "T-Text-100": "#171725",
+    "T-Text-80": "#454551",
+    "T-Text-10": "#e2e2ea",
+    "T-BG-10": "#f1f1f5",
+    "T-BG-100": "#fafafb",
+    "T-White-100": "#ffffff",
+    "S-Icon-100": "#a461d8",
+    "S-Icon-80": "#ba7de9",
+    "S-BG-50": "#ffe8ae",
+    "Stroke-Grey": "#eaecf0",
+    "Colour-Red-Red---10": "#fceded",
+    "Colour-Orange-Orange---10": "#feeee9",
+    "Colour-Yellow-Yellow---20": "#fdf7d7",
+    "Colour-Green-Green---10": "#edf7ed",
+    "White-Gradient": "linear-gradient(180deg,#ffffff 0%,#e2e2ea 100%)"
+  }
+}
+

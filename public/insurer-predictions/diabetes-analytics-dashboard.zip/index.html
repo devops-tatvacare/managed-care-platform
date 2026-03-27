@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetes Analytics Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="dashboard-header">
+        <div class="container">
+            <h1>Diabetes Analytics Dashboard</h1>
+            <h2>Chronicity, Gestational Risk & Trimester Analysis</h2>
+            <p class="subtitle">Population Health Management and Risk Stratification for Indian Healthcare</p>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">89.8M</div>
+                    <div class="metric-label">Total Diabetic Population</div>
+                    <div class="metric-change">+46.4% since 2011</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">26.1%</div>
+                    <div class="metric-label">GDM Prevalence</div>
+                    <div class="metric-change">Gestational Diabetes</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">43%</div>
+                    <div class="metric-label">Undiagnosed Rate</div>
+                    <div class="metric-change status--error">Critical Gap</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">3</div>
+                    <div class="metric-label">High-Risk States</div>
+                    <div class="metric-change">ASPR >6000</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="dashboard-main">
+        <div class="container">
+            <!-- Filters Section -->
+            <div class="filters-section">
+                <div class="filter-group">
+                    <label class="form-label">Filter by State:</label>
+                    <select id="stateFilter" class="form-control">
+                        <option value="all">All States</option>
+                        <option value="Tamil Nadu">Tamil Nadu</option>
+                        <option value="Goa">Goa</option>
+                        <option value="Karnataka">Karnataka</option>
+                        <option value="Punjab">Punjab</option>
+                        <option value="Haryana">Haryana</option>
+                        <option value="Uttar Pradesh">Uttar Pradesh</option>
+                        <option value="Kerala">Kerala</option>
+                        <option value="Bihar">Bihar</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="form-label">Risk Level:</label>
+                    <select id="riskFilter" class="form-control">
+                        <option value="all">All Risk Levels</option>
+                        <option value="Low Risk">Low Risk</option>
+                        <option value="Medium Risk">Medium Risk</option>
+                        <option value="High Risk">High Risk</option>
+                        <option value="Very High Risk">Very High Risk</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="form-label">Trimester:</label>
+                    <select id="trimesterFilter" class="form-control">
+                        <option value="all">All Trimesters</option>
+                        <option value="First">First Trimester</option>
+                        <option value="Second">Second Trimester</option>
+                        <option value="Third">Third Trimester</option>
+                    </select>
+                </div>
+                <button class="btn btn--secondary" id="resetFilters">Reset Filters</button>
+                <button class="btn btn--primary" id="exportData">Export Insights</button>
+            </div>
+
+            <!-- Section 1: Population Overview -->
+            <section class="dashboard-section" id="populationSection">
+                <div class="section-header">
+                    <h3>Population Overview</h3>
+                    <p>Diabetes types breakdown and growth trends in India</p>
+                </div>
+                <div class="section-content">
+                    <div class="chart-grid">
+                        <div class="chart-container-large">
+                            <h4>Diabetes Population Distribution by Type (2024)</h4>
+                            <div class="chart-placeholder" style="position: relative; height: 400px;">
+                                <img src="https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/ac938bd1092ba7508bc12cd362137bf0/e36e0867-eb62-432e-bc8e-2c948d1fdb50/66d1354a.png" 
+                                     alt="Diabetes Population Distribution by Type" 
+                                     class="chart-image"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <div class="chart-fallback" style="display: none; padding: 20px; text-align: center; background: var(--color-bg-1); border-radius: var(--radius-base);">
+                                    <canvas id="populationChart" style="max-height: 350px;"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stats-panel">
+                            <h4>Key Statistics</h4>
+                            <div class="stat-item">
+                                <span class="stat-label">Type 2 Diabetes:</span>
+                                <span class="stat-value">80.8M cases (90%)</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Prediabetes:</span>
+                                <span class="stat-value">127.3M cases (15.3%)</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Undiagnosed:</span>
+                                <span class="stat-value">38.6M cases (43%)</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Gestational:</span>
+                                <span class="stat-value">6.27M cases (26.1%)</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Type 1:</span>
+                                <span class="stat-value">0.94M cases (5%)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="trend-section">
+                        <h4>Growth Trends (2000-2050)</h4>
+                        <div class="chart-placeholder" style="position: relative; height: 300px;">
+                            <img src="https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/ac938bd1092ba7508bc12cd362137bf0/90742eb0-6c1c-44fc-adbb-626a19f91857/81b1723a.png" 
+                                 alt="Diabetes Growth Trends" 
+                                 class="chart-image"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="chart-fallback" style="display: none; padding: 20px; text-align: center; background: var(--color-bg-2); border-radius: var(--radius-base);">
+                                <canvas id="trendsChart" style="max-height: 250px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Gestational Diabetes Analysis -->
+            <section class="dashboard-section" id="gestationalSection">
+                <div class="section-header">
+                    <h3>Gestational Diabetes Analysis</h3>
+                    <p>Trimester distribution, at-risk patients, and screening protocols</p>
+                </div>
+                <div class="section-content">
+                    <div class="chart-grid">
+                        <div class="chart-container-large">
+                            <h4>GDM Distribution and At-Risk Patients by Trimester</h4>
+                            <div class="chart-placeholder" style="position: relative; height: 400px;">
+                                <img src="https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/ac938bd1092ba7508bc12cd362137bf0/3e753a6f-c74b-483d-88fd-54db2cf735e7/a90efd4b.png" 
+                                     alt="GDM Trimester Distribution" 
+                                     class="chart-image"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <div class="chart-fallback" style="display: none; padding: 20px; text-align: center; background: var(--color-bg-3); border-radius: var(--radius-base);">
+                                    <canvas id="gdmChart" style="max-height: 350px;"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="recommendations-panel">
+                            <h4>Screening Recommendations</h4>
+                            <div class="recommendation-item">
+                                <h5>First Trimester (0-12 weeks)</h5>
+                                <p><strong>High Risk Only:</strong> 11.4% of GDM diagnoses</p>
+                                <p>2,850 at-risk patients</p>
+                                <div class="status status--warning">Early Detection Critical</div>
+                            </div>
+                            <div class="recommendation-item">
+                                <h5>Second Trimester (13-28 weeks)</h5>
+                                <p><strong>Universal Screening:</strong> 60% of GDM diagnoses</p>
+                                <p>15,000 at-risk patients</p>
+                                <div class="status status--info">Peak Screening Period</div>
+                            </div>
+                            <div class="recommendation-item">
+                                <h5>Third Trimester (29-40 weeks)</h5>
+                                <p><strong>Follow-up Only:</strong> 28.6% of GDM diagnoses</p>
+                                <p>7,150 at-risk patients</p>
+                                <div class="status status--success">Monitoring Phase</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Risk Stratification Matrix -->
+            <section class="dashboard-section" id="riskSection">
+                <div class="section-header">
+                    <h3>Risk Stratification Matrix</h3>
+                    <p>Patient classification by diabetes and GDM risk levels</p>
+                </div>
+                <div class="section-content">
+                    <div class="chart-grid">
+                        <div class="chart-container-large">
+                            <h4>Patient Risk Distribution Heatmap</h4>
+                            <div class="chart-placeholder" style="position: relative; height: 400px;">
+                                <img src="https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/ac938bd1092ba7508bc12cd362137bf0/70bd4d36-8642-487b-be87-d931fc400f15/30e5ba62.png" 
+                                     alt="Risk Stratification Heatmap" 
+                                     class="chart-image"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <div class="chart-fallback" style="display: none; padding: 20px; text-align: center; background: var(--color-bg-4); border-radius: var(--radius-base);">
+                                    <canvas id="riskChart" style="max-height: 350px;"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="risk-factors-panel">
+                            <h4>Risk Factor Breakdown</h4>
+                            <div class="risk-level-item" data-risk="low">
+                                <h5>Low Risk (12.5k patients)</h5>
+                                <p>Diabetes: 5.2% | GDM: 8.5%</p>
+                                <p class="risk-factors">Age <25, Normal BMI, No Family History</p>
+                            </div>
+                            <div class="risk-level-item" data-risk="medium">
+                                <h5>Medium Risk (15.8k patients)</h5>
+                                <p>Diabetes: 12.8% | GDM: 18.3%</p>
+                                <p class="risk-factors">Age 25-30, BMI 25-30, Some Risk Factors</p>
+                            </div>
+                            <div class="risk-level-item" data-risk="high">
+                                <h5>High Risk (8.2k patients)</h5>
+                                <p>Diabetes: 24.5% | GDM: 35.7%</p>
+                                <p class="risk-factors">Age >30, BMI >30, Family History</p>
+                            </div>
+                            <div class="risk-level-item" data-risk="very-high">
+                                <h5>Very High Risk (3.5k patients)</h5>
+                                <p>Diabetes: 45.2% | GDM: 52.1%</p>
+                                <p class="risk-factors">Previous GDM, Multiple Risk Factors</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Chronicity & Progression Analysis -->
+            <section class="dashboard-section" id="progressionSection">
+                <div class="section-header">
+                    <h3>Chronicity & Progression Analysis</h3>
+                    <p>Disease progression pathways and complication rates</p>
+                </div>
+                <div class="section-content">
+                    <div class="chart-grid">
+                        <div class="chart-container-large">
+                            <h4>Progression Pathways to Type 2 Diabetes</h4>
+                            <div class="chart-placeholder" style="position: relative; height: 400px;">
+                                <img src="https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/ac938bd1092ba7508bc12cd362137bf0/9a9c3272-cea2-4eb8-bdbf-1d6af3460bdf/a084a263.png" 
+                                     alt="Diabetes Progression Pathways" 
+                                     class="chart-image"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <div class="chart-fallback" style="display: none; padding: 20px; text-align: center; background: var(--color-bg-5); border-radius: var(--radius-base);">
+                                    <canvas id="progressionChart" style="max-height: 350px;"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="progression-stats">
+                            <h4>Progression Insights</h4>
+                            <div class="progression-item">
+                                <h5>Gestational Diabetes Cohort</h5>
+                                <p>Baseline: 25,000 patients</p>
+                                <p>Progression Rate: 30.5% → Type 2 (5 years)</p>
+                                <p>Complications: 12.0%</p>
+                                <div class="status status--warning">Monitor Post-Partum</div>
+                            </div>
+                            <div class="progression-item">
+                                <h5>Prediabetes Cohort</h5>
+                                <p>Baseline: 45,000 patients</p>
+                                <p>Progression Rate: 58.2% → Type 2 (3 years)</p>
+                                <p>Complications: 25.5%</p>
+                                <div class="status status--error">High Conversion Risk</div>
+                            </div>
+                            <div class="progression-item">
+                                <h5>Type 2 Early Stage</h5>
+                                <p>Baseline: 35,000 patients</p>
+                                <p>Complications: 45.8%</p>
+                                <div class="status status--info">Intervention Opportunity</div>
+                            </div>
+                            <div class="progression-item">
+                                <h5>Type 2 Advanced</h5>
+                                <p>Baseline: 15,000 patients</p>
+                                <p>Complications: 78.3%</p>
+                                <div class="status status--error">Critical Management</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Geographic Analysis -->
+            <section class="dashboard-section" id="geographicSection">
+                <div class="section-header">
+                    <h3>Geographic Analysis</h3>
+                    <p>State-wise diabetes burden, ASPR, and DALY indicators</p>
+                </div>
+                <div class="section-content">
+                    <div class="chart-grid">
+                        <div class="chart-container-large">
+                            <h4>State-wise Diabetes Burden Analysis</h4>
+                            <div class="chart-placeholder" style="position: relative; height: 400px;">
+                                <img src="https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/ac938bd1092ba7508bc12cd362137bf0/e8668179-a8b3-4813-88c8-03e02a1e4acc/d9ed78fc.png" 
+                                     alt="State-wise Diabetes Burden" 
+                                     class="chart-image"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <div class="chart-fallback" style="display: none; padding: 20px; text-align: center; background: var(--color-bg-6); border-radius: var(--radius-base);">
+                                    <canvas id="geographicChart" style="max-height: 350px;"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="geographic-stats">
+                            <h4>State Rankings</h4>
+                            <div class="state-ranking">
+                                <div class="ranking-item rank-1">
+                                    <span class="rank">#1</span>
+                                    <div class="state-info">
+                                        <h5>Tamil Nadu</h5>
+                                        <p>ASPR: 8,299.55 per 100k</p>
+                                        <p>DALY: 1,893.11</p>
+                                        <p>Growth: 0.78%</p>
+                                    </div>
+                                </div>
+                                <div class="ranking-item rank-2">
+                                    <span class="rank">#2</span>
+                                    <div class="state-info">
+                                        <h5>Goa</h5>
+                                        <p>ASPR: 6,675.33 per 100k</p>
+                                        <p>DALY: 1,650.0</p>
+                                        <p>Growth: 1.12%</p>
+                                    </div>
+                                </div>
+                                <div class="ranking-item rank-3">
+                                    <span class="rank">#3</span>
+                                    <div class="state-info">
+                                        <h5>Karnataka</h5>
+                                        <p>ASPR: 6,663.54 per 100k</p>
+                                        <p>DALY: 1,580.0</p>
+                                        <p>Growth: 0.95%</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+        <div class="container">
+            <p>Data Sources: National Family Health Survey (NFHS), Indian Council of Medical Research (ICMR), International Diabetes Federation</p>
+            <p>Dashboard generated on September 5, 2025 | Last updated: Real-time</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
