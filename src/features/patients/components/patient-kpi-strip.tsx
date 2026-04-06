@@ -17,7 +17,7 @@ function daysAgo(dateStr: string | null): string {
   );
   if (diff === 0) return "Today";
   if (diff === 1) return "1 day ago";
-  return `${diff} days ago`;
+  return `${diff}d ago`;
 }
 
 function lowestPdc(
@@ -30,23 +30,39 @@ function lowestPdc(
   );
 }
 
+interface KpiItem {
+  label: string;
+  value: string;
+  sub?: string;
+  valueClass?: string;
+}
+
 export function PatientKpiStrip({ patient }: PatientKpiStripProps) {
   const tier = getTier(patient.tier);
   const tierStyle = TIER_BADGE_STYLES[patient.tier];
   const careGapCount = patient.care_gaps?.length ?? 0;
   const worstPdc = lowestPdc(patient.active_medications);
 
-  const items: Array<{ label: string; value: string; sub?: string; className?: string }> = [
+  const pdcValueClass = worstPdc
+    ? worstPdc.pdc >= 0.8
+      ? "text-status-success"
+      : worstPdc.pdc >= 0.6
+        ? "text-status-warning"
+        : "text-status-error"
+    : undefined;
+
+  const kpis: KpiItem[] = [
     {
       label: "CRS Score",
       value: String(patient.crs_score),
       sub: tier.label,
-      className: tierStyle?.className,
+      valueClass: tierStyle?.className,
     },
     {
       label: "Care Gaps",
       value: String(careGapCount),
       sub: patient.care_gaps?.slice(0, 2).join(", ") || undefined,
+      valueClass: careGapCount > 0 ? "text-status-warning" : undefined,
     },
     {
       label: "Last Contact",
@@ -56,18 +72,13 @@ export function PatientKpiStrip({ patient }: PatientKpiStripProps) {
       label: "Pathway",
       value: patient.pathway_status ?? "--",
       sub: patient.pathway_name ?? undefined,
+      valueClass: "text-brand-primary",
     },
     {
       label: "Lowest PDC",
       value: worstPdc ? `${Math.round(worstPdc.pdc * 100)}%` : "--",
       sub: worstPdc?.name,
-      className: worstPdc
-        ? worstPdc.pdc >= 0.8
-          ? "text-green-700"
-          : worstPdc.pdc >= 0.6
-            ? "text-yellow-700"
-            : "text-red-700"
-        : undefined,
+      valueClass: pdcValueClass,
     },
     {
       label: "Assigned To",
@@ -79,22 +90,22 @@ export function PatientKpiStrip({ patient }: PatientKpiStripProps) {
   ];
 
   return (
-    <div className="mt-4 flex gap-6 rounded-lg border border-border-default bg-bg-secondary px-5 py-3">
-      {items.map((item) => (
-        <div key={item.label} className="min-w-0">
-          <p className="text-[10px] font-medium uppercase tracking-wide text-text-placeholder">
+    <div className="mt-3 grid grid-cols-6 divide-x divide-border-default rounded-lg border border-border-default bg-bg-primary shadow-sm">
+      {kpis.map((item) => (
+        <div key={item.label} className="px-4 py-2.5">
+          <p className="text-[10px] font-medium uppercase tracking-wider text-text-placeholder">
             {item.label}
           </p>
           <p
             className={cn(
               "mt-0.5 text-sm font-semibold text-text-primary",
-              item.className,
+              item.valueClass,
             )}
           >
             {item.value}
           </p>
           {item.sub && (
-            <p className="truncate text-[11px] text-text-muted">{item.sub}</p>
+            <p className="mt-0.5 truncate text-[11px] text-text-muted">{item.sub}</p>
           )}
         </div>
       ))}

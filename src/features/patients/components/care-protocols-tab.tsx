@@ -1,6 +1,5 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,47 +39,50 @@ export function CareProtocolsTab({ patient }: CareProtocolsTabProps) {
 
   return (
     <div className="space-y-6">
-      {/* AI Summary Card */}
-      <Card className={cn("border-ai-border bg-gradient-to-br from-indigo-50 to-purple-50")}>
-        <CardContent className="p-5 space-y-4">
-          <div className="flex items-center justify-between">
-            <Badge variant="outline" className="border-ai-border bg-white/60 text-brand-primary text-[10px] font-semibold">
+      {/* AI Summary Card — compact */}
+      <div className="rounded-lg border border-ai-border bg-gradient-to-br from-indigo-50/60 to-purple-50/40 px-4 py-3">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3 min-w-0">
+            <Badge className="shrink-0 bg-brand-primary text-white text-[10px] font-semibold px-2 py-0.5">
               <Icons.ai className="mr-1 h-3 w-3" />
-              AI CARE SUMMARY
+              AI SUMMARY
             </Badge>
-            <span className="text-[11px] text-text-muted">Updated today</span>
+            <p className="text-[13px] text-text-secondary leading-snug">
+              {patient.first_name} is a {patient.tier >= 3 ? "high-complexity" : "moderate-complexity"} patient
+              in the {patient.pathway_name ?? "standard care"} pathway.
+              {patient.care_gaps && patient.care_gaps.length > 0
+                ? ` ${patient.care_gaps.length} open care gaps (${gapList}).`
+                : " No open care gaps."}{" "}
+              {patient.active_medications && patient.active_medications.length > 0
+                ? `${patient.active_medications.length} active medications tracked.`
+                : ""}{" "}
+              Next: complete adherence barrier assessment, schedule overdue specialist referrals.
+            </p>
           </div>
+          <span className="shrink-0 text-[10px] text-text-placeholder whitespace-nowrap">Updated today</span>
+        </div>
 
-          <p className="text-sm text-text-secondary leading-relaxed">
-            {patient.first_name} is a {patient.tier >= 3 ? "high-complexity" : "moderate-complexity"} patient
-            currently enrolled in the {patient.pathway_name ?? "standard care"} pathway.
-            {patient.care_gaps && patient.care_gaps.length > 0
-              ? ` There are ${patient.care_gaps.length} open care gaps (${gapList}) requiring attention.`
-              : " No open care gaps have been identified."}{" "}
-            Medication adherence tracking shows{" "}
-            {patient.active_medications && patient.active_medications.length > 0
-              ? `${patient.active_medications.length} active medications being monitored.`
-              : "no active medications currently being monitored."}{" "}
-            The recommended next step is to complete the adherence barrier assessment
-            and schedule any overdue specialist referrals.
-          </p>
-
-          <div className="flex flex-wrap gap-2">
-            <Button size="sm">Schedule Ophthalmology</Button>
-            <Button size="sm">Order uACR Lab</Button>
-            <Button size="sm" variant="outline">Assign Pharmacist Review</Button>
-          </div>
-
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-              <Icons.thumbsUp className="h-3.5 w-3.5 text-text-muted" />
+        <div className="mt-2.5 flex items-center gap-2">
+          <Button size="xs" variant="outline" className="border-brand-primary text-brand-primary hover:bg-brand-primary-light">
+            Schedule Ophthalmology
+          </Button>
+          <Button size="xs" variant="outline" className="border-brand-primary text-brand-primary hover:bg-brand-primary-light">
+            Order uACR Lab
+          </Button>
+          <Button size="xs" variant="outline" className="border-border-default text-text-secondary hover:bg-bg-hover">
+            Assign Pharmacist Review
+          </Button>
+          <div className="flex-1" />
+          <div className="flex items-center gap-0.5">
+            <Button variant="ghost" size="icon-xs">
+              <Icons.thumbsUp className="text-text-placeholder" />
             </Button>
-            <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-              <Icons.thumbsDown className="h-3.5 w-3.5 text-text-muted" />
+            <Button variant="ghost" size="icon-xs">
+              <Icons.thumbsDown className="text-text-placeholder" />
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Protocol Steps */}
       <div>

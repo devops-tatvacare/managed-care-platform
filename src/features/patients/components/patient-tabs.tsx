@@ -16,14 +16,27 @@ interface PatientTabsProps {
 export function PatientTabs({ patient, labs }: PatientTabsProps) {
   return (
     <Tabs defaultValue="care-protocols" className="mt-6">
-      <TabsList>
-        <TabsTrigger value="care-protocols">Care Protocols</TabsTrigger>
-        <TabsTrigger value="clinical-data">Clinical Data</TabsTrigger>
-        <TabsTrigger value="timeline">Timeline</TabsTrigger>
-        <TabsTrigger value="communications">Communications</TabsTrigger>
-        <TabsTrigger value="risk-crs">Risk & CRS</TabsTrigger>
-        <TabsTrigger value="claims">Claims</TabsTrigger>
-        <TabsTrigger value="documents">Documents</TabsTrigger>
+      <TabsList
+        variant="line"
+        className="w-full justify-start gap-0 rounded-none border-b border-border-default bg-bg-primary px-0"
+      >
+        {[
+          { value: "care-protocols", label: "Care Protocols" },
+          { value: "clinical-data", label: "Clinical Data" },
+          { value: "timeline", label: "Timeline" },
+          { value: "communications", label: "Communications" },
+          { value: "risk-crs", label: "Risk & CRS" },
+          { value: "claims", label: "Claims" },
+          { value: "documents", label: "Documents" },
+        ].map((tab) => (
+          <TabsTrigger
+            key={tab.value}
+            value={tab.value}
+            className="rounded-none px-4 py-2.5 text-xs font-semibold text-text-muted data-[state=active]:text-brand-primary data-[state=active]:shadow-none data-[state=active]:after:bg-brand-primary"
+          >
+            {tab.label}
+          </TabsTrigger>
+        ))}
       </TabsList>
 
       <TabsContent value="care-protocols" className="mt-4">

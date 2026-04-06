@@ -83,53 +83,56 @@ export default function PatientsPage() {
   const Spinner = Icons.spinner;
 
   return (
-    <div>
-      <PageHeader
-        title="Patients"
-        description={loading ? "Loading..." : `${formatNumber(total)} patients`}
-      />
+    <div className="flex h-full flex-col">
+      {/* Fixed top: header + filters + pagination */}
+      <div className="shrink-0">
+        <PageHeader
+          title="Patients"
+          description={loading ? "Loading..." : `${formatNumber(total)} patients`}
+        />
 
-      {/* Filters */}
-      <div className="mt-4 flex items-center gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Icons.search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-placeholder" />
-          <Input
-            ref={searchRef}
-            placeholder="Search by name, EMPI, or phone..."
-            defaultValue={filters.search}
-            onChange={handleSearchChange}
-            onKeyDown={handleSearchKeyDown}
-            className="pl-9"
-          />
+        {/* Filters */}
+        <div className="mt-4 flex items-center gap-3">
+          <div className="relative flex-1 max-w-sm">
+            <Icons.search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-placeholder" />
+            <Input
+              ref={searchRef}
+              placeholder="Search by name, EMPI, or phone..."
+              defaultValue={filters.search}
+              onChange={handleSearchChange}
+              onKeyDown={handleSearchKeyDown}
+              className="pl-9"
+            />
+          </div>
+          <Select
+            value={filters.tier !== undefined ? String(filters.tier) : "all"}
+            onValueChange={handleTierChange}
+          >
+            <SelectTrigger className="w-36">
+              <SelectValue placeholder="All Tiers" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Tiers</SelectItem>
+              <SelectItem value="0">Tier 0</SelectItem>
+              <SelectItem value="1">Tier 1</SelectItem>
+              <SelectItem value="2">Tier 2</SelectItem>
+              <SelectItem value="3">Tier 3</SelectItem>
+              <SelectItem value="4">Tier 4</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <Select
-          value={filters.tier !== undefined ? String(filters.tier) : "all"}
-          onValueChange={handleTierChange}
-        >
-          <SelectTrigger className="w-36">
-            <SelectValue placeholder="All Tiers" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Tiers</SelectItem>
-            <SelectItem value="0">Tier 0</SelectItem>
-            <SelectItem value="1">Tier 1</SelectItem>
-            <SelectItem value="2">Tier 2</SelectItem>
-            <SelectItem value="3">Tier 3</SelectItem>
-            <SelectItem value="4">Tier 4</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       {/* Error */}
       {error && (
-        <div className="mt-4 rounded-md border border-status-error-border bg-status-error-bg p-3 text-sm text-status-error">
+        <div className="mt-4 shrink-0 rounded-md border border-status-error-border bg-status-error-bg p-3 text-sm text-status-error">
           {error}
         </div>
       )}
 
       {/* Loading */}
       {loading && (
-        <div className="mt-12 flex items-center justify-center">
+        <div className="mt-12 flex flex-1 items-center justify-center">
           <Spinner className="h-6 w-6 animate-spin text-text-muted" />
         </div>
       )}
@@ -144,64 +147,66 @@ export default function PatientsPage() {
         />
       )}
 
-      {/* Table */}
+      {/* Table — scrollable within remaining viewport */}
       {!loading && patients.length > 0 && (
         <>
-          <div className="mt-4 rounded-md border border-border-default">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>EMPI</TableHead>
-                  <TableHead>Tier</TableHead>
-                  <TableHead className="text-right">CRS</TableHead>
-                  <TableHead>Pathway</TableHead>
-                  <TableHead className="text-right">Care Gaps</TableHead>
-                  <TableHead>Last Contact</TableHead>
-                  <TableHead>Assigned To</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {patients.map((p) => (
-                  <TableRow
-                    key={p.id}
-                    onClick={() => handleRowClick(p.id)}
-                    className="cursor-pointer"
-                  >
-                    <TableCell className="font-medium text-text-primary">
-                      {p.first_name} {p.last_name}
-                    </TableCell>
-                    <TableCell className="text-text-muted font-mono text-xs">
-                      {p.empi_id}
-                    </TableCell>
-                    <TableCell>
-                      <TierBadge tier={p.tier} />
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      {p.crs_score}
-                    </TableCell>
-                    <TableCell className="text-text-secondary text-sm">
-                      {p.pathway_status ?? "--"}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      {p.care_gaps?.length ?? 0}
-                    </TableCell>
-                    <TableCell className="text-text-muted text-sm">
-                      {p.last_contact_date
-                        ? formatDate(p.last_contact_date)
-                        : "--"}
-                    </TableCell>
-                    <TableCell className="text-text-secondary text-sm">
-                      {p.assigned_to ?? "--"}
-                    </TableCell>
+          <div className="mt-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border-default shadow-sm">
+            <div className="flex-1 overflow-y-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>EMPI</TableHead>
+                    <TableHead>Tier</TableHead>
+                    <TableHead className="text-right">CRS</TableHead>
+                    <TableHead>Pathway</TableHead>
+                    <TableHead className="text-right">Care Gaps</TableHead>
+                    <TableHead>Last Contact</TableHead>
+                    <TableHead>Assigned To</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {patients.map((p) => (
+                    <TableRow
+                      key={p.id}
+                      onClick={() => handleRowClick(p.id)}
+                      className="cursor-pointer"
+                    >
+                      <TableCell className="font-medium text-text-primary">
+                        {p.first_name} {p.last_name}
+                      </TableCell>
+                      <TableCell className="text-text-muted font-mono text-xs">
+                        {p.empi_id}
+                      </TableCell>
+                      <TableCell>
+                        <TierBadge tier={p.tier} />
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums">
+                        {p.crs_score}
+                      </TableCell>
+                      <TableCell className="text-text-secondary text-sm">
+                        {p.pathway_status ?? "--"}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums">
+                        {p.care_gaps?.length ?? 0}
+                      </TableCell>
+                      <TableCell className="text-text-muted text-sm">
+                        {p.last_contact_date
+                          ? formatDate(p.last_contact_date)
+                          : "--"}
+                      </TableCell>
+                      <TableCell className="text-text-secondary text-sm">
+                        {p.assigned_to ?? "--"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
 
-          {/* Pagination */}
-          <div className="mt-4 flex items-center justify-between">
+          {/* Pagination — fixed at bottom */}
+          <div className="mt-3 flex shrink-0 items-center justify-between pb-1">
             <p className="text-sm text-text-muted">
               Page {page} of {pages}
             </p>

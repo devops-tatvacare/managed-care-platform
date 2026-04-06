@@ -63,7 +63,7 @@ export default function PatientDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div>
+    <div className="h-full overflow-y-auto">
       {/* Breadcrumb */}
       <Breadcrumb className="mb-4">
         <BreadcrumbList>

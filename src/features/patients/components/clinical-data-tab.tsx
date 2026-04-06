@@ -49,7 +49,7 @@ export function ClinicalDataTab({ patient, labs }: ClinicalDataTabProps) {
             description="Lab results will appear here once available."
           />
         ) : (
-          <div className="rounded-md border border-border-default">
+          <div className="overflow-hidden rounded-lg border border-border-default shadow-sm">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -95,7 +95,7 @@ export function ClinicalDataTab({ patient, labs }: ClinicalDataTabProps) {
             description="Medication data will appear here once available."
           />
         ) : (
-          <div className="rounded-md border border-border-default">
+          <div className="overflow-hidden rounded-lg border border-border-default shadow-sm">
             <Table>
               <TableHeader>
                 <TableRow>

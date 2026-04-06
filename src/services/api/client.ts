@@ -14,7 +14,8 @@ function getToken(): string | null {
 }
 
 export async function apiRequest<T>(config: RequestConfig): Promise<T> {
-  const url = new URL(`${API_BASE}${config.path}`);
+  const base = API_BASE || window.location.origin;
+  const url = new URL(`${base}${config.path}`);
 
   if (config.params) {
     for (const [key, value] of Object.entries(config.params)) {
