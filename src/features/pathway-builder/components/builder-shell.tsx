@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { PATHWAY_STATUS } from "@/config/status";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { AIBuilder } from "./ai-builder";
 
 const MODE_TABS = [
   { value: "ai", label: "AI Builder" },
@@ -82,11 +83,7 @@ export function BuilderShell() {
 
       {/* Content Area */}
       <div className="flex-1 overflow-hidden">
-        {builderMode === "ai" && (
-          <div className="flex h-full items-center justify-center text-sm text-text-muted">
-            AI Builder mode
-          </div>
-        )}
+        {builderMode === "ai" && <AIBuilder />}
 
         {builderMode === "canvas" && (
           <div className="flex h-full">

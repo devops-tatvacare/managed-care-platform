@@ -77,3 +77,33 @@ export interface PathwayGenerateRequest {
   prompt: string;
   pathway_id?: string;
 }
+
+export interface AIGeneratedBlock {
+  block_type: string;
+  category: string;
+  label: string;
+  config: Record<string, unknown>;
+  order_index: number;
+}
+
+export interface AIGeneratedEdge {
+  source_index: number;
+  target_index: number;
+  edge_type: string;
+  label?: string;
+}
+
+export interface AIGeneratedPathway {
+  name: string;
+  description: string;
+  condition: string;
+  target_tiers: number[];
+  blocks: AIGeneratedBlock[];
+  edges: AIGeneratedEdge[];
+}
+
+export interface PathwayGenerateResponse {
+  message: string;
+  is_complete: boolean;
+  pathway: AIGeneratedPathway;
+}

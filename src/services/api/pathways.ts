@@ -10,6 +10,7 @@ import type {
   BlockCreate,
   BlockUpdate,
   PathwayGenerateRequest,
+  PathwayGenerateResponse,
 } from "@/services/types/pathway";
 
 export async function fetchPathways(): Promise<PathwayListResponse> {
@@ -80,8 +81,8 @@ export async function saveEdges(pathwayId: string, edges: PathwayEdgeSchema[]): 
   });
 }
 
-export async function generatePathway(data: PathwayGenerateRequest): Promise<PathwayDetail> {
-  return apiRequest<PathwayDetail>({
+export async function generatePathway(data: PathwayGenerateRequest): Promise<PathwayGenerateResponse> {
+  return apiRequest<PathwayGenerateResponse>({
     method: "POST",
     path: API_ENDPOINTS.ai.pathwayGenerate,
     body: data,
