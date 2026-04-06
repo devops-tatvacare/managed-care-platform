@@ -1,0 +1,219 @@
+<h2>Patient Detail Screen</h2>
+<p class="subtitle">Reached from Command Center action queue, patient registry, or search. The core care manager workspace.</p>
+
+<div class="mockup">
+  <div class="mockup-header">Patient Detail — Maria Santos (Tier 3)</div>
+  <div class="mockup-body" style="background:#f8fafc;padding:20px;font-size:13px">
+
+    <!-- Patient Header -->
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <div style="width:48px;height:48px;border-radius:50%;background:#e0e7ff;display:flex;align-items:center;justify-content:center;color:#4f46e5;font-weight:700;font-size:16px;flex-shrink:0">MS</div>
+          <div>
+            <div style="font-size:18px;font-weight:700;color:#0f172a">Maria Santos</div>
+            <div style="color:#64748b;font-size:12px;margin-top:2px">EMPI: BRD-2024-00847 · DOB: 1968-03-14 (58y) · Female · PCP: Dr. Ricardo Almeida</div>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <span style="background:#fef2f2;color:#dc2626;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600">Tier 3</span>
+              <span style="background:#fefce8;color:#a16207;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:500">CRS: 62</span>
+              <span style="background:#fef2f2;color:#dc2626;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:500">T2DM · E11.65</span>
+              <span style="background:#f0f9ff;color:#0369a1;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:500">CKD G3a</span>
+              <span style="background:#faf5ff;color:#7c3aed;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:500">Hypertension</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <div style="padding:6px 14px;background:#fff;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;color:#374151;cursor:pointer;display:flex;align-items:center;gap:6px">
+            <span style="font-size:14px">📋</span> Care Plan
+          </div>
+          <div style="padding:6px 14px;background:#fff;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;color:#374151;cursor:pointer;display:flex;align-items:center;gap:6px">
+            <span style="font-size:14px">✏️</span> Edit
+          </div>
+          <div style="padding:6px 14px;background:#4f46e5;border-radius:6px;font-size:12px;color:#fff;cursor:pointer;display:flex;align-items:center;gap:6px">
+            <span style="font-size:14px">💬</span> Send Outreach
+          </div>
+        </div>
+      </div>
+
+      <!-- Mini KPIs -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid #f1f5f9">
+        <div style="text-align:center">
+          <div style="font-size:10px;color:#64748b;text-transform:uppercase">CRS Score</div>
+          <div style="font-size:20px;font-weight:700;color:#ef4444">62</div>
+          <div style="font-size:10px;color:#ef4444">↑ from 48</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:10px;color:#64748b;text-transform:uppercase">Care Gaps</div>
+          <div style="font-size:20px;font-weight:700;color:#f59e0b">3</div>
+          <div style="font-size:10px;color:#64748b">Eye, uACR, Foot</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:10px;color:#64748b;text-transform:uppercase">Last Contact</div>
+          <div style="font-size:20px;font-weight:700;color:#0f172a">12d</div>
+          <div style="font-size:10px;color:#64748b">RN call Mar 26</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:10px;color:#64748b;text-transform:uppercase">Pathway</div>
+          <div style="font-size:20px;font-weight:700;color:#4f46e5">Active</div>
+          <div style="font-size:10px;color:#64748b">Diabetes T3</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div style="display:flex;gap:0;border-bottom:2px solid #e2e8f0;margin-bottom:16px">
+      <div style="padding:10px 18px;font-size:13px;font-weight:600;color:#4f46e5;border-bottom:2px solid #4f46e5;margin-bottom:-2px;cursor:pointer">AI Summary</div>
+      <div style="padding:10px 18px;font-size:13px;color:#64748b;cursor:pointer">Care Protocols</div>
+      <div style="padding:10px 18px;font-size:13px;color:#64748b;cursor:pointer">Clinical Data</div>
+      <div style="padding:10px 18px;font-size:13px;color:#64748b;cursor:pointer">Timeline</div>
+      <div style="padding:10px 18px;font-size:13px;color:#64748b;cursor:pointer">Communications</div>
+    </div>
+
+    <!-- AI Summary Tab Content -->
+    <div style="display:grid;grid-template-columns:1fr 340px;gap:16px">
+
+      <!-- Left: AI Narrative + Actions -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <!-- AI Care Summary -->
+        <div style="background:linear-gradient(135deg,#eef2ff,#faf5ff);border:1px solid #c7d2fe;border-radius:8px;padding:16px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <span style="background:#4f46e5;color:#fff;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600">AI CARE SUMMARY</span>
+            <span style="font-size:11px;color:#64748b">Generated today at 06:00</span>
+          </div>
+          <div style="font-size:13px;color:#1e1b4b;line-height:1.8">
+            Maria Santos is a 58-year-old female with T2DM (Tier 3, CRS 62) who was <strong>auto-escalated from Tier 1 last month</strong> following an HbA1c spike from 6.4% to 8.1%. She has comorbid CKD stage 3a (eGFR 52) and hypertension (BP 142/88 at last visit). <strong>Metformin PDC has dropped to 71%</strong> — pharmacy claims show a 23-day gap in February, coinciding with a plan copay structure change. Eye exam is 14 months overdue (HEDIS gap). uACR screening is 8 months overdue — critical given CKD status. Current regimen: Metformin 1000mg BID, Lisinopril 10mg daily, Atorvastatin 20mg daily. <strong>Recommended actions:</strong> SGLT2i initiation (eGFR qualifies, CKD + T2DM indication), pharmacist barrier assessment for Metformin adherence, urgent ophthalmology referral, uACR lab order.
+          </div>
+        </div>
+
+        <!-- AI Action Chips -->
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px">
+          <div style="font-weight:600;color:#0f172a;margin-bottom:12px">Recommended Interventions</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px">
+              <div>
+                <div style="font-weight:500;color:#0f172a;font-size:12px">Schedule ophthalmology referral</div>
+                <div style="color:#64748b;font-size:11px">HEDIS CDC-Eye gap · 14 months overdue</div>
+              </div>
+              <div style="display:flex;gap:6px">
+                <span style="background:#4f46e5;color:#fff;padding:4px 12px;border-radius:4px;font-size:11px;cursor:pointer">Send Referral</span>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px">
+              <div>
+                <div style="font-weight:500;color:#0f172a;font-size:12px">Order uACR screening</div>
+                <div style="color:#64748b;font-size:11px">Nephropathy monitoring · CKD G3a requires q6mo</div>
+              </div>
+              <div style="display:flex;gap:6px">
+                <span style="background:#4f46e5;color:#fff;padding:4px 12px;border-radius:4px;font-size:11px;cursor:pointer">Order Lab</span>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#fefce8;border:1px solid #fde68a;border-radius:6px">
+              <div>
+                <div style="font-weight:500;color:#0f172a;font-size:12px">Pharmacist adherence review</div>
+                <div style="color:#64748b;font-size:11px">Metformin PDC 71% · Likely cost barrier</div>
+              </div>
+              <div style="display:flex;gap:6px">
+                <span style="background:#4f46e5;color:#fff;padding:4px 12px;border-radius:4px;font-size:11px;cursor:pointer">Assign</span>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px">
+              <div>
+                <div style="font-weight:500;color:#0f172a;font-size:12px">Discuss SGLT2i initiation with PCP</div>
+                <div style="color:#64748b;font-size:11px">CKD + T2DM indication · eGFR 52 qualifies · Est. savings $3,200/yr</div>
+              </div>
+              <div style="display:flex;gap:6px">
+                <span style="background:#4f46e5;color:#fff;padding:4px 12px;border-radius:4px;font-size:11px;cursor:pointer">Draft Message</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: CRS Breakdown + Quick Facts -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <!-- CRS Breakdown -->
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px">
+          <div style="font-weight:600;color:#0f172a;margin-bottom:12px">CRS Breakdown (62/100)</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+                <span style="color:#64748b">Glycaemic (35%)</span><span style="font-weight:600">70 → 24.5</span>
+              </div>
+              <div style="height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden"><div style="width:70%;height:100%;background:#ef4444;border-radius:3px"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+                <span style="color:#64748b">Complication (25%)</span><span style="font-weight:600">35 → 8.75</span>
+              </div>
+              <div style="height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden"><div style="width:35%;height:100%;background:#f59e0b;border-radius:3px"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+                <span style="color:#64748b">Adherence (20%)</span><span style="font-weight:600">40 → 8.0</span>
+              </div>
+              <div style="height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden"><div style="width:40%;height:100%;background:#f59e0b;border-radius:3px"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+                <span style="color:#64748b">Utilisation (15%)</span><span style="font-weight:600">50 → 7.5</span>
+              </div>
+              <div style="height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden"><div style="width:50%;height:100%;background:#ef4444;border-radius:3px"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+                <span style="color:#64748b">SDOH (5%)</span><span style="font-weight:600">66 → 3.3</span>
+              </div>
+              <div style="height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden"><div style="width:66%;height:100%;background:#f59e0b;border-radius:3px"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Key Labs -->
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px">
+          <div style="font-weight:600;color:#0f172a;margin-bottom:12px">Key Lab Values</div>
+          <div style="display:flex;flex-direction:column;gap:6px;font-size:12px">
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f8fafc">
+              <span style="color:#64748b">HbA1c</span>
+              <span style="font-weight:600;color:#ef4444">8.1% <span style="font-weight:400;color:#94a3b8">(Mar 15)</span></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f8fafc">
+              <span style="color:#64748b">eGFR</span>
+              <span style="font-weight:600;color:#f59e0b">52 <span style="font-weight:400;color:#94a3b8">(Feb 28)</span></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f8fafc">
+              <span style="color:#64748b">BP</span>
+              <span style="font-weight:600;color:#ef4444">142/88 <span style="font-weight:400;color:#94a3b8">(Mar 26)</span></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f8fafc">
+              <span style="color:#64748b">LDL-C</span>
+              <span style="font-weight:600;color:#22c55e">92 <span style="font-weight:400;color:#94a3b8">(Jan 10)</span></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f8fafc">
+              <span style="color:#64748b">BMI</span>
+              <span style="font-weight:600;color:#f59e0b">31.4 <span style="font-weight:400;color:#94a3b8">(Mar 26)</span></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0">
+              <span style="color:#64748b">Metformin PDC</span>
+              <span style="font-weight:600;color:#ef4444">71% <span style="font-weight:400;color:#94a3b8">(rolling 90d)</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px">
+  <h3>Tab Structure</h3>
+  <div style="font-size:13px;line-height:1.8">
+    <ul style="margin:0;padding-left:18px">
+      <li><strong>AI Summary</strong> (default) — LLM-generated narrative + action chips + CRS breakdown + key labs. The "what's going on and what to do" tab.</li>
+      <li><strong>Care Protocols</strong> — Full protocol checklist from the assigned pathway. Completed, pending, overdue steps. Custom tasks addable.</li>
+      <li><strong>Clinical Data</strong> — Full lab history, vitals trends (charts), medication list with PDC, complication codes. The raw data tab.</li>
+      <li><strong>Timeline</strong> — Chronological feed: encounters, lab results, tier changes, outreach events, escalations. Activity log.</li>
+      <li><strong>Communications</strong> — All outreach threads (WhatsApp, SMS, calls). AI comms agent history. Embedded message composer.</li>
+    </ul>
+  </div>
+</div>

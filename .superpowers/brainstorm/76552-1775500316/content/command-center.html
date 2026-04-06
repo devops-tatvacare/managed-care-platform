@@ -1,0 +1,220 @@
+<h2>Command Center — Home Screen</h2>
+<p class="subtitle">The first thing a care manager sees. AI-driven, action-oriented.</p>
+
+<div class="mockup">
+  <div class="mockup-header">Command Center</div>
+  <div class="mockup-body" style="background:#f8fafc;padding:24px;font-size:13px">
+
+    <!-- Top KPI Strip -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px">
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px">
+        <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.5px">Total Members</div>
+        <div style="font-size:24px;font-weight:700;color:#0f172a;margin-top:4px">4,218</div>
+        <div style="font-size:11px;color:#22c55e;margin-top:2px">↑ 127 this month</div>
+      </div>
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px">
+        <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.5px">Avg CRS Score</div>
+        <div style="font-size:24px;font-weight:700;color:#0f172a;margin-top:4px">42.6</div>
+        <div style="font-size:11px;color:#22c55e;margin-top:2px">↓ 3.2 from baseline</div>
+      </div>
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px">
+        <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.5px">HbA1c &lt; 7% Rate</div>
+        <div style="font-size:24px;font-weight:700;color:#0f172a;margin-top:4px">58.3%</div>
+        <div style="font-size:11px;color:#f59e0b;margin-top:2px">Target: 65%</div>
+      </div>
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px">
+        <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.5px">Open Care Gaps</div>
+        <div style="font-size:24px;font-weight:700;color:#ef4444;margin-top:4px">312</div>
+        <div style="font-size:11px;color:#ef4444;margin-top:2px">89 overdue &gt; 30 days</div>
+      </div>
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px">
+        <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.5px">PDC ≥ 80%</div>
+        <div style="font-size:24px;font-weight:700;color:#0f172a;margin-top:4px">68.1%</div>
+        <div style="font-size:11px;color:#f59e0b;margin-top:2px">Target: 70%</div>
+      </div>
+    </div>
+
+    <!-- Main Two-Column Layout -->
+    <div style="display:grid;grid-template-columns:1fr 380px;gap:16px">
+
+      <!-- Left Column -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <!-- AI Action Queue -->
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden">
+          <div style="padding:14px 16px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="background:#eef2ff;color:#4f46e5;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600">AI</span>
+              <span style="font-weight:600;color:#0f172a">Action Queue</span>
+              <span style="background:#fef2f2;color:#ef4444;font-size:11px;padding:1px 8px;border-radius:10px;font-weight:500">12 pending</span>
+            </div>
+            <div style="font-size:12px;color:#64748b">Updated 3 min ago</div>
+          </div>
+
+          <!-- Action Items -->
+          <div style="padding:0">
+            <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:flex-start;gap:12px">
+              <div style="width:8px;height:8px;border-radius:50%;background:#ef4444;margin-top:5px;flex-shrink:0"></div>
+              <div style="flex:1">
+                <div style="font-weight:500;color:#0f172a">Maria Santos — HbA1c spike 6.4% → 8.1%</div>
+                <div style="color:#64748b;font-size:12px;margin-top:2px">Auto-escalated Tier 1 → Tier 3. CRS recalculated: 62. Endocrinologist referral recommended.</div>
+                <div style="display:flex;gap:6px;margin-top:8px">
+                  <span style="background:#eef2ff;color:#4f46e5;padding:3px 10px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500">View Patient</span>
+                  <span style="background:#f0fdf4;color:#16a34a;padding:3px 10px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500">Approve Tier Change</span>
+                  <span style="background:#fefce8;color:#a16207;padding:3px 10px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500">Send Outreach</span>
+                </div>
+              </div>
+              <div style="color:#64748b;font-size:11px;white-space:nowrap">2h ago</div>
+            </div>
+
+            <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:flex-start;gap:12px">
+              <div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-top:5px;flex-shrink:0"></div>
+              <div style="flex:1">
+                <div style="font-weight:500;color:#0f172a">João Pereira — PDC dropped to 62% (Metformin)</div>
+                <div style="color:#64748b;font-size:12px;margin-top:2px">Non-adherent 45 days. AI suggests: cost barrier likely (income bracket + no refill claim). Pharmacist review flagged.</div>
+                <div style="display:flex;gap:6px;margin-top:8px">
+                  <span style="background:#eef2ff;color:#4f46e5;padding:3px 10px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500">View Patient</span>
+                  <span style="background:#fefce8;color:#a16207;padding:3px 10px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500">Assign Pharmacist</span>
+                </div>
+              </div>
+              <div style="color:#64748b;font-size:11px;white-space:nowrap">4h ago</div>
+            </div>
+
+            <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:flex-start;gap:12px">
+              <div style="width:8px;height:8px;border-radius:50%;background:#22c55e;margin-top:5px;flex-shrink:0"></div>
+              <div style="flex:1">
+                <div style="font-weight:500;color:#0f172a">Ana Oliveira — HbA1c reached target (6.8%)</div>
+                <div style="color:#64748b;font-size:12px;margin-top:2px">Tier 3, 2nd consecutive quarter below 7%. Down-tier to Tier 2 recommended. Meets all gate criteria.</div>
+                <div style="display:flex;gap:6px;margin-top:8px">
+                  <span style="background:#eef2ff;color:#4f46e5;padding:3px 10px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500">View Patient</span>
+                  <span style="background:#f0fdf4;color:#16a34a;padding:3px 10px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500">Approve Down-Tier</span>
+                </div>
+              </div>
+              <div style="color:#64748b;font-size:11px;white-space:nowrap">6h ago</div>
+            </div>
+
+            <div style="padding:10px 16px;text-align:center">
+              <span style="color:#4f46e5;font-size:12px;cursor:pointer;font-weight:500">View all 12 actions →</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tier Distribution -->
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px">
+          <div style="font-weight:600;color:#0f172a;margin-bottom:12px">Population by Tier</div>
+          <div style="display:flex;gap:8px;align-items:flex-end;height:120px;padding-bottom:8px">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <div style="font-size:11px;font-weight:600;color:#0f172a">842</div>
+              <div style="width:100%;background:#86efac;border-radius:4px 4px 0 0;height:80px"></div>
+              <div style="font-size:10px;color:#64748b">Tier 0</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <div style="font-size:11px;font-weight:600;color:#0f172a">1,106</div>
+              <div style="width:100%;background:#93c5fd;border-radius:4px 4px 0 0;height:105px"></div>
+              <div style="font-size:10px;color:#64748b">Tier 1</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <div style="font-size:11px;font-weight:600;color:#0f172a">1,284</div>
+              <div style="width:100%;background:#fcd34d;border-radius:4px 4px 0 0;height:120px"></div>
+              <div style="font-size:10px;color:#64748b">Tier 2</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <div style="font-size:11px;font-weight:600;color:#0f172a">672</div>
+              <div style="width:100%;background:#fdba74;border-radius:4px 4px 0 0;height:64px"></div>
+              <div style="font-size:10px;color:#64748b">Tier 3</div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <div style="font-size:11px;font-weight:600;color:#0f172a">314</div>
+              <div style="width:100%;background:#fca5a5;border-radius:4px 4px 0 0;height:30px"></div>
+              <div style="font-size:10px;color:#64748b">Tier 4</div>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:8px">
+            <span style="color:#4f46e5;font-size:12px;cursor:pointer;font-weight:500">View cohortisation details →</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <!-- AI Insights Panel -->
+        <div style="background:linear-gradient(135deg,#eef2ff,#faf5ff);border:1px solid #c7d2fe;border-radius:8px;padding:16px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <span style="background:#4f46e5;color:#fff;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600">AI INSIGHTS</span>
+            <span style="font-size:11px;color:#64748b">Daily digest</span>
+          </div>
+          <div style="font-size:13px;color:#1e1b4b;line-height:1.7">
+            <p style="margin:0 0 10px"><strong>Tier 3 adherence declining.</strong> PDC across Tier 3 dropped 4.2pp this month. 38 members below 70%. Correlates with Q4 insurance plan changes — likely copay increase impact.</p>
+            <p style="margin:0 0 10px"><strong>Eye exam gap widening.</strong> 186 T2DM members overdue for annual dilated exam. HEDIS CDC-Eye target at risk (currently 71%, target 80%).</p>
+            <p style="margin:0"><strong>Positive signal:</strong> Tier 1→0 reversal rate at 28% — ahead of 25% annual target. DPP curriculum completion driving results.</p>
+          </div>
+        </div>
+
+        <!-- Upcoming Reviews -->
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px">
+          <div style="font-weight:600;color:#0f172a;margin-bottom:12px">Upcoming Reviews</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:#fef2f2;border-radius:6px">
+              <div>
+                <div style="font-weight:500;font-size:12px">Tier 4 weekly reviews</div>
+                <div style="color:#64748b;font-size:11px">18 members due</div>
+              </div>
+              <div style="color:#ef4444;font-size:11px;font-weight:600">Today</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:#f8fafc;border-radius:6px">
+              <div>
+                <div style="font-weight:500;font-size:12px">Tier 3 monthly reviews</div>
+                <div style="color:#64748b;font-size:11px">42 members due</div>
+              </div>
+              <div style="color:#64748b;font-size:11px">This week</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:#f8fafc;border-radius:6px">
+              <div>
+                <div style="font-weight:500;font-size:12px">Tier 2 quarterly reviews</div>
+                <div style="color:#64748b;font-size:11px">156 members due</div>
+              </div>
+              <div style="color:#64748b;font-size:11px">This month</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Communications -->
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px">
+          <div style="font-weight:600;color:#0f172a;margin-bottom:12px">AI Comms Agent</div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:10px">
+            <div style="text-align:center">
+              <div style="font-size:18px;font-weight:700;color:#0f172a">84</div>
+              <div style="color:#64748b">Sent today</div>
+            </div>
+            <div style="text-align:center">
+              <div style="font-size:18px;font-weight:700;color:#22c55e">62</div>
+              <div style="color:#64748b">Delivered</div>
+            </div>
+            <div style="text-align:center">
+              <div style="font-size:18px;font-weight:700;color:#4f46e5">23</div>
+              <div style="color:#64748b">Responded</div>
+            </div>
+            <div style="text-align:center">
+              <div style="font-size:18px;font-weight:700;color:#f59e0b">3</div>
+              <div style="color:#64748b">Escalated</div>
+            </div>
+          </div>
+          <span style="color:#4f46e5;font-size:12px;cursor:pointer;font-weight:500">Open Communications →</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px">
+  <h3>What makes this different from the old "Overview"</h3>
+  <div style="font-size:13px;line-height:1.8">
+    <ul style="margin:0;padding-left:18px">
+      <li><strong>AI Action Queue</strong> — not just metrics, but specific patients with specific problems and one-click actions. Each item is AI-generated with clinical reasoning.</li>
+      <li><strong>AI Insights Panel</strong> — daily LLM-generated narrative that synthesises population trends, flags risks to HEDIS targets, and highlights positive outcomes. Not a chart — a briefing.</li>
+      <li><strong>Everything is a drill-down</strong> — click a tier bar → cohortisation detail. Click a patient action → patient detail. Click comms stats → communications screen. No dead-end widgets.</li>
+      <li><strong>Review schedule is surfaced</strong> — care managers see what's due today/this week/this month, derived from tier review cadence rules in the pathway document.</li>
+    </ul>
+  </div>
+</div>

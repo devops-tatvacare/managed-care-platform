@@ -1,5 +1,0 @@
-Risk_Level,Diabetes_Prevalence_%,Patient_Count,GDM_Risk_%,Risk_Factors
-Low Risk,5.2,12500,8.5,"Age <25, Normal BMI, No Family History"
-Medium Risk,12.8,15800,18.3,"Age 25-30, BMI 25-30, Some Risk Factors"
-High Risk,24.5,8200,35.7,"Age >30, BMI >30, Family History"
-Very High Risk,45.2,3500,52.1,"Previous GDM, Multiple Risk Factors"

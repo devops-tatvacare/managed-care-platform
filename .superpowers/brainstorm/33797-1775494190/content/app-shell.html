@@ -1,0 +1,111 @@
+<h2>App Shell & Navigation Structure</h2>
+<p class="subtitle">The overall layout — how screens are organized and accessed</p>
+
+<div class="mockup">
+  <div class="mockup-header">App Shell — Collapsed Sidebar + Top Bar</div>
+  <div class="mockup-body" style="display:flex;min-height:500px;font-size:13px;background:#f8fafc">
+
+    <!-- Sidebar -->
+    <div style="width:220px;background:#0a1628;color:#94a3b8;display:flex;flex-direction:column;padding:16px 0;flex-shrink:0">
+      <div style="padding:0 16px 20px;border-bottom:1px solid #1e293b">
+        <div style="color:#fff;font-weight:700;font-size:15px">Tatva Care</div>
+        <div style="font-size:11px;color:#64748b;margin-top:2px">Bradesco Saúde</div>
+      </div>
+
+      <!-- Primary Nav -->
+      <div style="padding:16px 0;flex:1">
+        <div style="padding:8px 16px;color:#38bdf8;background:#1e293b;border-left:3px solid #38bdf8;font-weight:600;font-size:13px;display:flex;align-items:center;gap:8px">
+          <span>⚡</span> Command Center
+        </div>
+        <div style="padding:8px 16px;font-size:13px;display:flex;align-items:center;gap:8px;margin-top:2px">
+          <span>👥</span> Patients
+        </div>
+        <div style="padding:8px 16px;font-size:13px;display:flex;align-items:center;gap:8px;margin-top:2px">
+          <span>💬</span> Communications
+        </div>
+        <div style="padding:8px 16px;font-size:13px;display:flex;align-items:center;gap:8px;margin-top:2px">
+          <span>📊</span> Outcomes
+        </div>
+
+        <div style="margin:16px 16px;border-top:1px solid #1e293b"></div>
+        <div style="padding:4px 16px;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#475569">Configuration</div>
+
+        <div style="padding:8px 16px;font-size:13px;display:flex;align-items:center;gap:8px;margin-top:4px">
+          <span>🔬</span> Cohortisation
+        </div>
+        <div style="padding:8px 16px;font-size:13px;display:flex;align-items:center;gap:8px;margin-top:2px">
+          <span>🛤️</span> Pathway Builder
+        </div>
+      </div>
+
+      <!-- Bottom -->
+      <div style="padding:12px 16px;border-top:1px solid #1e293b;font-size:12px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:28px;height:28px;border-radius:50%;background:#334155;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px">CM</div>
+          <div>
+            <div style="color:#e2e8f0;font-size:12px">Care Manager</div>
+            <div style="color:#64748b;font-size:10px">admin@bradesco.com</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div style="flex:1;display:flex;flex-direction:column">
+      <!-- Top Bar -->
+      <div style="height:52px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:between;padding:0 24px;gap:16px">
+        <div style="flex:1;display:flex;align-items:center;gap:12px">
+          <div style="background:#f1f5f9;border-radius:8px;padding:8px 16px;font-size:13px;color:#64748b;width:320px;display:flex;align-items:center;gap:8px">
+            <span>🔍</span> Search patients, pathways, actions...
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;font-size:13px;color:#64748b">
+          <span style="position:relative">🔔 <span style="position:absolute;top:-4px;right:-6px;background:#ef4444;color:#fff;font-size:9px;border-radius:50%;width:14px;height:14px;display:flex;align-items:center;justify-content:center">7</span></span>
+          <span>⚙️</span>
+        </div>
+      </div>
+
+      <!-- Content Placeholder -->
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px">
+        <div style="text-align:center">
+          <div style="font-size:40px;margin-bottom:12px">⚡</div>
+          <div style="font-weight:600;color:#334155">Command Center</div>
+          <div style="font-size:12px;margin-top:4px">AI-driven population overview loads here</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:24px">
+  <h3>Navigation Logic</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:13px">
+    <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:16px">
+      <h4 style="margin:0 0 8px;color:#0369a1">Primary — Daily Use</h4>
+      <ul style="margin:0;padding-left:18px;line-height:1.8">
+        <li><strong>Command Center</strong> — Home. AI alerts, population KPIs, action queue</li>
+        <li><strong>Patients</strong> — Registry, search, patient detail with AI summary</li>
+        <li><strong>Communications</strong> — AI outreach agent, message threads, templates</li>
+        <li><strong>Outcomes</strong> — Clinical metrics, ROI, HEDIS, re-cohortisation logs</li>
+      </ul>
+    </div>
+    <div style="background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:16px">
+      <h4 style="margin:0 0 8px;color:#a16207">Configuration — Setup & Tuning</h4>
+      <ul style="margin:0;padding-left:18px;line-height:1.8">
+        <li><strong>Cohortisation</strong> — Tier definitions, CRS weights, scoring rules, overrides</li>
+        <li><strong>Pathway Builder</strong> — Create/edit pathways (voice + drag-drop + config)</li>
+      </ul>
+      <p style="margin:8px 0 0;color:#92400e;font-size:12px">These are accessed less frequently — by program architects, not daily care managers. Separated below a divider to signal this.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px">
+  <h3>Key Drill-Down Flows</h3>
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;font-size:13px;line-height:1.8">
+    <div><strong>Command Center alert</strong> → Patient detail → AI summary → Send outreach → Back to command center</div>
+    <div style="margin-top:8px"><strong>Command Center KPI card</strong> → Outcomes deep-dive (filtered to that metric)</div>
+    <div style="margin-top:8px"><strong>Patient detail</strong> → View assigned pathway → See care protocol timeline</div>
+    <div style="margin-top:8px"><strong>Outcomes re-cohortisation flag</strong> → Patient detail → Approve/override tier change</div>
+  </div>
+</div>

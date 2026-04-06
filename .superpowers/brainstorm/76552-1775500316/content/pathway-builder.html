@@ -1,0 +1,240 @@
+<h2>Pathway Builder</h2>
+<p class="subtitle">Generic engine for creating care pathways. Three modes: AI/NLP, visual canvas, and configuration. Diabetes is the first pathway created through it.</p>
+
+<div class="mockup">
+  <div class="mockup-header">Pathway Builder — Create New Pathway</div>
+  <div class="mockup-body" style="background:#f8fafc;font-size:12px;display:flex;flex-direction:column;min-height:580px">
+
+    <!-- Top Bar -->
+    <div style="background:#fff;border-bottom:1px solid #e2e8f0;padding:10px 20px;display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:14px;font-weight:700;color:#0f172a">Diabetes Advanced Care — Tier 3</span>
+        <span style="background:#fefce8;color:#a16207;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500">Draft</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <span style="padding:5px 14px;background:#fff;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;color:#374151;cursor:pointer">Preview</span>
+        <span style="padding:5px 14px;background:#fff;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;color:#374151;cursor:pointer">Save Draft</span>
+        <span style="padding:5px 14px;background:#4f46e5;border-radius:6px;font-size:11px;color:#fff;cursor:pointer">Publish & Rollout</span>
+      </div>
+    </div>
+
+    <!-- Mode Switcher -->
+    <div style="background:#fff;border-bottom:1px solid #e2e8f0;padding:6px 20px;display:flex;gap:0">
+      <div style="padding:8px 16px;font-size:12px;font-weight:600;color:#4f46e5;border-bottom:2px solid #4f46e5;cursor:pointer;display:flex;align-items:center;gap:6px">
+        <span style="font-size:13px">✨</span> AI Builder
+      </div>
+      <div style="padding:8px 16px;font-size:12px;color:#64748b;cursor:pointer;display:flex;align-items:center;gap:6px">
+        <span style="font-size:13px">⬡</span> Visual Canvas
+      </div>
+      <div style="padding:8px 16px;font-size:12px;color:#64748b;cursor:pointer;display:flex;align-items:center;gap:6px">
+        <span style="font-size:13px">⚙</span> Configuration
+      </div>
+    </div>
+
+    <!-- AI Builder Mode -->
+    <div style="flex:1;display:grid;grid-template-columns:1fr 400px;overflow:hidden">
+
+      <!-- Left: AI Conversation -->
+      <div style="display:flex;flex-direction:column;border-right:1px solid #e2e8f0">
+
+        <!-- Chat History -->
+        <div style="flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:16px">
+
+          <!-- User message -->
+          <div style="display:flex;gap:10px;justify-content:flex-end">
+            <div style="background:#4f46e5;color:#fff;padding:10px 14px;border-radius:12px 12px 2px 12px;max-width:80%;font-size:12px;line-height:1.6">
+              Create a pathway for Tier 3 diabetes patients. HbA1c between 8 and 10. They need monthly RN reviews, quarterly endocrinologist consults, pharmacist medication reviews monthly. If HbA1c goes above 10 or they have a DKA event, escalate to Tier 4. Start with adherence barrier assessment before adding new medications.
+            </div>
+          </div>
+
+          <!-- AI response -->
+          <div style="display:flex;gap:10px">
+            <div style="width:28px;height:28px;border-radius:8px;background:#eef2ff;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <span style="font-size:12px">✨</span>
+            </div>
+            <div style="background:#fff;border:1px solid #e2e8f0;padding:12px 14px;border-radius:2px 12px 12px 12px;max-width:85%;font-size:12px;line-height:1.7">
+              <p style="margin:0 0 8px">I've drafted the <strong>Diabetes Advanced Care — Tier 3</strong> pathway. Here's what I've built:</p>
+              <p style="margin:0 0 6px"><strong>Eligibility:</strong> T2DM (E11.x) + HbA1c 8.0–10.0% OR PDC &lt;80% OR active complication OR ≥1 DM-related ER visit in 12mo</p>
+              <p style="margin:0 0 6px"><strong>Care team:</strong> Dedicated RN (monthly), Clinical Pharmacist (monthly), RD/CDCES (q6wk), Endocrinologist (quarterly), BH specialist (if PHQ-9 ≥10)</p>
+              <p style="margin:0 0 6px"><strong>Protocol steps:</strong></p>
+              <ol style="margin:0 0 8px;padding-left:16px;line-height:1.8">
+                <li>Chart review & eligibility verification</li>
+                <li>Patient contact & enrollment</li>
+                <li>AI careplan generation</li>
+                <li>Adherence barrier assessment (before medication escalation)</li>
+                <li>Monthly clinical review (recurring)</li>
+                <li>Specialist referrals (ophthalmology, nephrology per gaps)</li>
+                <li>Medication intensification (if adherence resolved + HbA1c still elevated)</li>
+                <li>Quarterly outcome review & re-cohortisation check</li>
+              </ol>
+              <p style="margin:0 0 8px"><strong>Escalation triggers:</strong> HbA1c &gt;10% → Tier 4 auto-promote. DKA event → Tier 4 immediate. PDC &lt;70% for 60d → pharmacist escalation.</p>
+              <p style="margin:0"><strong>One clarification:</strong> Should the adherence barrier assessment block medication escalation entirely, or should it be a parallel track where urgent clinical needs (e.g., HbA1c 9.5%+) can bypass the wait?</p>
+            </div>
+          </div>
+
+          <!-- User reply -->
+          <div style="display:flex;gap:10px;justify-content:flex-end">
+            <div style="background:#4f46e5;color:#fff;padding:10px 14px;border-radius:12px 12px 2px 12px;max-width:80%;font-size:12px;line-height:1.6">
+              Good question. If HbA1c is above 9.5%, allow parallel medication escalation. Otherwise adherence assessment must complete first.
+            </div>
+          </div>
+
+          <!-- AI confirms -->
+          <div style="display:flex;gap:10px">
+            <div style="width:28px;height:28px;border-radius:8px;background:#eef2ff;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <span style="font-size:12px">✨</span>
+            </div>
+            <div style="background:#fff;border:1px solid #e2e8f0;padding:12px 14px;border-radius:2px 12px 12px 12px;max-width:85%;font-size:12px;line-height:1.7">
+              <p style="margin:0 0 8px">Updated. I've added a conditional gate:</p>
+              <p style="margin:0 0 8px">• <strong>HbA1c &lt; 9.5%:</strong> Adherence assessment must complete before Step 7 (medication intensification) unlocks<br>• <strong>HbA1c ≥ 9.5%:</strong> Step 4 and Step 7 run in parallel — adherence + medication escalation simultaneously</p>
+              <p style="margin:0">The pathway is ready for review on the canvas. I've rendered it on the right →</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Input -->
+        <div style="border-top:1px solid #e2e8f0;padding:12px 16px;background:#fff;display:flex;gap:8px;align-items:center">
+          <div style="flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:12px;color:#94a3b8;display:flex;align-items:center;gap:8px">
+            <span>🎤</span>
+            Describe your pathway or ask a question...
+          </div>
+          <div style="width:32px;height:32px;background:#4f46e5;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:14px">↑</div>
+        </div>
+      </div>
+
+      <!-- Right: Live Preview -->
+      <div style="background:#f8fafc;padding:16px;overflow-y:auto">
+        <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px">Live Preview</div>
+
+        <!-- Flow diagram -->
+        <div style="display:flex;flex-direction:column;gap:4px;align-items:center">
+
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;width:100%;display:flex;align-items:center;gap:8px">
+            <div style="width:18px;height:18px;border-radius:4px;background:#22c55e;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px">1</div>
+            <div>
+              <div style="font-weight:600;font-size:11px;color:#0f172a">Chart Review & Eligibility</div>
+              <div style="color:#64748b;font-size:10px">Auto · E11.x + HbA1c 8–10%</div>
+            </div>
+          </div>
+          <div style="color:#c7d2fe;font-size:16px">↓</div>
+
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;width:100%;display:flex;align-items:center;gap:8px">
+            <div style="width:18px;height:18px;border-radius:4px;background:#3b82f6;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px">2</div>
+            <div>
+              <div style="font-weight:600;font-size:11px;color:#0f172a">Patient Contact & Enrollment</div>
+              <div style="color:#64748b;font-size:10px">RN · Phone/app · Within 5 business days</div>
+            </div>
+          </div>
+          <div style="color:#c7d2fe;font-size:16px">↓</div>
+
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;width:100%;display:flex;align-items:center;gap:8px">
+            <div style="width:18px;height:18px;border-radius:4px;background:#8b5cf6;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px">3</div>
+            <div>
+              <div style="font-weight:600;font-size:11px;color:#0f172a">AI Careplan Generation</div>
+              <div style="color:#64748b;font-size:10px">Auto · RN approval required</div>
+            </div>
+          </div>
+          <div style="color:#c7d2fe;font-size:16px">↓</div>
+
+          <!-- Conditional branch -->
+          <div style="background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:8px 14px;width:100%;text-align:center">
+            <div style="font-size:10px;font-weight:600;color:#a16207">IF HbA1c ≥ 9.5%</div>
+          </div>
+
+          <div style="display:flex;gap:8px;width:100%">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <div style="font-size:9px;color:#64748b;font-weight:500">YES — PARALLEL</div>
+              <div style="background:#fff;border:1px solid #f59e0b;border-radius:6px;padding:8px 10px;width:100%">
+                <div style="font-weight:600;font-size:10px;color:#0f172a">4a. Adherence Assessment</div>
+                <div style="color:#64748b;font-size:9px">Pharmacist · Barrier ID</div>
+              </div>
+              <div style="background:#fff;border:1px solid #f59e0b;border-radius:6px;padding:8px 10px;width:100%;margin-top:2px">
+                <div style="font-weight:600;font-size:10px;color:#0f172a">4b. Medication Escalation</div>
+                <div style="color:#64748b;font-size:9px">PCP/Endo · Parallel track</div>
+              </div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <div style="font-size:9px;color:#64748b;font-weight:500">NO — SEQUENTIAL</div>
+              <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px;width:100%">
+                <div style="font-weight:600;font-size:10px;color:#0f172a">4. Adherence Assessment</div>
+                <div style="color:#64748b;font-size:9px">Must complete first</div>
+              </div>
+              <div style="color:#c7d2fe;font-size:12px">↓</div>
+              <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px;width:100%">
+                <div style="font-weight:600;font-size:10px;color:#0f172a">7. Medication Intensification</div>
+                <div style="color:#64748b;font-size:9px">Unlocks after Step 4</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="color:#c7d2fe;font-size:16px">↓</div>
+
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;width:100%;display:flex;align-items:center;gap:8px">
+            <div style="width:18px;height:18px;border-radius:4px;background:#0891b2;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px">5</div>
+            <div>
+              <div style="font-weight:600;font-size:11px;color:#0f172a">Monthly Clinical Review</div>
+              <div style="color:#64748b;font-size:10px">RN · Recurring · Video/phone</div>
+            </div>
+            <span style="margin-left:auto;background:#eef2ff;color:#4f46e5;font-size:9px;padding:1px 6px;border-radius:4px">♻ Recurring</span>
+          </div>
+          <div style="color:#c7d2fe;font-size:16px">↓</div>
+
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;width:100%;display:flex;align-items:center;gap:8px">
+            <div style="width:18px;height:18px;border-radius:4px;background:#0891b2;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px">6</div>
+            <div>
+              <div style="font-weight:600;font-size:11px;color:#0f172a">Specialist Referrals</div>
+              <div style="color:#64748b;font-size:10px">Per care gap analysis · Ophtho, Nephro, Podiatry</div>
+            </div>
+          </div>
+          <div style="color:#c7d2fe;font-size:16px">↓</div>
+
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;width:100%;display:flex;align-items:center;gap:8px">
+            <div style="width:18px;height:18px;border-radius:4px;background:#0891b2;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px">8</div>
+            <div>
+              <div style="font-weight:600;font-size:11px;color:#0f172a">Quarterly Outcome Review</div>
+              <div style="color:#64748b;font-size:10px">Re-cohortisation check · CRS recalc</div>
+            </div>
+            <span style="margin-left:auto;background:#eef2ff;color:#4f46e5;font-size:9px;padding:1px 6px;border-radius:4px">♻ Recurring</span>
+          </div>
+
+          <!-- Escalation triggers -->
+          <div style="margin-top:12px;width:100%;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 14px">
+            <div style="font-size:10px;font-weight:600;color:#dc2626;margin-bottom:6px">⚡ ESCALATION TRIGGERS → Tier 4</div>
+            <div style="font-size:10px;color:#7f1d1d;line-height:1.6">
+              • HbA1c &gt; 10.0% · • DKA event · • PDC &lt;70% for 60 days · • PHQ-9 ≥ 15 unresolved 30d
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px">
+  <h3>Three Modes</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;font-size:13px">
+    <div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;padding:14px">
+      <h4 style="margin:0 0 6px;color:#4f46e5">✨ AI Builder (shown above)</h4>
+      <p style="margin:0;color:#374151;line-height:1.6;font-size:12px">Describe the pathway in plain language or voice. AI drafts the full pathway, asks one clarification, renders it as a flow diagram. Fastest path from idea to pathway.</p>
+    </div>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px">
+      <h4 style="margin:0 0 6px;color:#374151">⬡ Visual Canvas</h4>
+      <p style="margin:0;color:#374151;line-height:1.6;font-size:12px">Drag-and-drop editing. Component library on the left: eligibility blocks, action blocks (outreach, lab order, referral, escalation), logic blocks (if/else, wait, timer), message templates. Connect with arrows on a canvas.</p>
+    </div>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px">
+      <h4 style="margin:0 0 6px;color:#374151">⚙ Configuration</h4>
+      <p style="margin:0;color:#374151;line-height:1.6;font-size:12px">Click any block to open its config drawer. Set channel (WhatsApp/SMS/call), language, message template, cadence for outreach blocks. Set test type, frequency, threshold triggers for lab blocks. Set escalation rules.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:16px">
+  <h3>Publish & Rollout</h3>
+  <div style="font-size:13px;line-height:1.8">
+    <ul style="margin:0;padding-left:18px">
+      <li><strong>Draft → Review → Published</strong> lifecycle. Pathways can be versioned.</li>
+      <li><strong>Auto-rollout:</strong> When published, the cohortisation engine automatically assigns eligible patients to the pathway. No manual enrollment.</li>
+      <li><strong>Pathway is generic:</strong> The builder doesn't know about diabetes specifically. It works with blocks: eligibility criteria, actions, logic gates, escalation triggers, recurring schedules. Diabetes is just the first pathway built through it.</li>
+    </ul>
+  </div>
+</div>

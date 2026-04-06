@@ -1,0 +1,363 @@
+<h2>AI Concierge — Orchestration Engine</h2>
+<p class="subtitle">Two surfaces: Outreach block config in Pathway Builder (design time) and live orchestration view in Communications (runtime).</p>
+
+<!-- Part 1: Pathway Builder — Outreach Block Config Drawer -->
+<h3>1. Pathway Builder — Outreach Block Configuration</h3>
+<p style="font-size:12px;color:#64748b;margin-bottom:12px">When a care team member drags an Outreach block onto the canvas and clicks it, this config drawer opens. It defines the AI concierge sequence for that pathway step.</p>
+
+<div class="mockup">
+  <div class="mockup-header">Config Drawer — Outreach Block: "HbA1c Lab Reminder"</div>
+  <div class="mockup-body" style="background:#fff;font-size:12px;padding:16px;max-width:340px;overflow-y:auto">
+
+    <!-- Block Name -->
+    <div style="margin-bottom:14px">
+      <div style="font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Block Name</div>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:7px 10px;font-size:11px;color:#0f172a">HbA1c Lab Reminder</div>
+    </div>
+
+    <!-- Trigger Condition -->
+    <div style="margin-bottom:14px">
+      <div style="font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Trigger Condition</div>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:7px 10px;font-size:11px;color:#0f172a;display:flex;justify-content:space-between">
+        HbA1c due within 14 days <span style="color:#94a3b8">▾</span>
+      </div>
+      <div style="font-size:9px;color:#94a3b8;margin-top:3px">Evaluates against patient's lab schedule from pathway</div>
+    </div>
+
+    <div style="border-top:1px solid #e2e8f0;padding-top:14px;margin-bottom:14px">
+      <div style="font-size:10px;font-weight:700;color:#4f46e5;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+        <span>✨</span> AI Concierge Sequence
+      </div>
+    </div>
+
+    <!-- Step 1: Initial outreach -->
+    <div style="border-left:2px solid #4f46e5;padding-left:12px;margin-bottom:14px;margin-left:4px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+        <div style="width:18px;height:18px;border-radius:50%;background:#4f46e5;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px;font-weight:700;margin-left:-22px">1</div>
+        <span style="font-weight:600;color:#0f172a;font-size:11px">Initial Outreach</span>
+        <span style="background:#eef2ff;color:#4f46e5;padding:1px 6px;border-radius:3px;font-size:9px">Auto</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+        <div>
+          <div style="font-size:9px;color:#94a3b8;margin-bottom:2px">Channel</div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px 8px;font-size:10px;display:flex;justify-content:space-between;align-items:center">
+            WhatsApp <span style="color:#94a3b8">▾</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:9px;color:#94a3b8;margin-bottom:2px">Language</div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px 8px;font-size:10px;display:flex;justify-content:space-between;align-items:center">
+            Patient pref. <span style="color:#94a3b8">▾</span>
+          </div>
+        </div>
+      </div>
+      <div style="margin-bottom:6px">
+        <div style="font-size:9px;color:#94a3b8;margin-bottom:2px">Template</div>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px 8px;font-size:10px;display:flex;justify-content:space-between;align-items:center">
+          hba1c_lab_reminder_v2 <span style="color:#94a3b8">▾</span>
+        </div>
+      </div>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:8px;font-size:10px;color:#374151;line-height:1.5;margin-bottom:6px">
+        <div style="font-size:9px;color:#94a3b8;margin-bottom:3px">Preview:</div>
+        Olá <span style="background:#eef2ff;color:#4f46e5;padding:0 3px;border-radius:2px;font-size:9px">{{firstName}}</span>! Seu exame de HbA1c está agendado para <span style="background:#eef2ff;color:#4f46e5;padding:0 3px;border-radius:2px;font-size:9px">{{labDate}}</span>. Confirme respondendo SIM ou ligue <span style="background:#eef2ff;color:#4f46e5;padding:0 3px;border-radius:2px;font-size:9px">{{careLinePhone}}</span>.
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input type="checkbox" checked style="margin:0" />
+        <span style="font-size:10px;color:#374151">AI personalisation (LLM rewrites template per patient context)</span>
+      </div>
+    </div>
+
+    <!-- Wait -->
+    <div style="border-left:2px solid #f59e0b;padding-left:12px;margin-bottom:14px;margin-left:4px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+        <div style="width:18px;height:18px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px;font-weight:700;margin-left:-22px">⏱</div>
+        <span style="font-weight:600;color:#0f172a;font-size:11px">Wait for Response</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div>
+          <div style="font-size:9px;color:#94a3b8;margin-bottom:2px">Timeout</div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px 8px;font-size:10px;display:flex;align-items:center;gap:4px">
+            <span style="color:#0f172a;font-weight:500">48</span> <span style="color:#94a3b8">hours</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:9px;color:#94a3b8;margin-bottom:2px">On reply</div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px 8px;font-size:10px;display:flex;justify-content:space-between;align-items:center">
+            AI processes <span style="color:#94a3b8">▾</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Follow-up -->
+    <div style="border-left:2px solid #4f46e5;padding-left:12px;margin-bottom:14px;margin-left:4px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+        <div style="width:18px;height:18px;border-radius:50%;background:#4f46e5;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px;font-weight:700;margin-left:-22px">2</div>
+        <span style="font-weight:600;color:#0f172a;font-size:11px">Follow-up (if no response)</span>
+        <span style="background:#eef2ff;color:#4f46e5;padding:1px 6px;border-radius:3px;font-size:9px">Auto</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+        <div>
+          <div style="font-size:9px;color:#94a3b8;margin-bottom:2px">Channel</div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px 8px;font-size:10px;display:flex;justify-content:space-between;align-items:center">
+            SMS <span style="color:#94a3b8">▾</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:9px;color:#94a3b8;margin-bottom:2px">Template</div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px 8px;font-size:10px;display:flex;justify-content:space-between;align-items:center">
+            hba1c_followup_sms <span style="color:#94a3b8">▾</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wait 2 -->
+    <div style="border-left:2px solid #f59e0b;padding-left:12px;margin-bottom:14px;margin-left:4px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+        <div style="width:18px;height:18px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px;font-weight:700;margin-left:-22px">⏱</div>
+        <span style="font-weight:600;color:#0f172a;font-size:11px">Wait for Response</span>
+      </div>
+      <div>
+        <div style="font-size:9px;color:#94a3b8;margin-bottom:2px">Timeout</div>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px 8px;font-size:10px;display:flex;align-items:center;gap:4px">
+          <span style="color:#0f172a;font-weight:500">24</span> <span style="color:#94a3b8">hours</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Escalation -->
+    <div style="border-left:2px solid #ef4444;padding-left:12px;margin-bottom:14px;margin-left:4px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+        <div style="width:18px;height:18px;border-radius:50%;background:#ef4444;display:flex;align-items:center;justify-content:center;color:#fff;font-size:8px;font-weight:700;margin-left:-22px">⚡</div>
+        <span style="font-weight:600;color:#0f172a;font-size:11px">Escalate (if still no response)</span>
+        <span style="background:#fef2f2;color:#dc2626;padding:1px 6px;border-radius:3px;font-size:9px">Handoff</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div>
+          <div style="font-size:9px;color:#94a3b8;margin-bottom:2px">Escalation Action</div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px 8px;font-size:10px;display:flex;justify-content:space-between;align-items:center">
+            Assign to care manager <span style="color:#94a3b8">▾</span>
+          </div>
+          <div style="font-size:9px;color:#94a3b8;margin-top:3px">Options: Assign care manager, Schedule RN call, Voice call (AI), Flag in command center</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="checkbox" checked style="margin:0" />
+          <span style="font-size:10px;color:#374151">Create action item in Command Center</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="checkbox" checked style="margin:0" />
+          <span style="font-size:10px;color:#374151">Notify assigned RN via platform alert</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Safety Keywords -->
+    <div style="border-top:1px solid #e2e8f0;padding-top:14px;margin-bottom:14px">
+      <div style="font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Safety & Routing Keywords</div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:4px;padding:5px 8px;font-size:10px;display:flex;justify-content:space-between;align-items:center">
+          <span style="color:#7f1d1d">"dor", "emergência", "hospital", "desmaio" → <strong>Immediate RN flag</strong></span>
+          <span style="color:#94a3b8;cursor:pointer;font-size:8px">✕</span>
+        </div>
+        <div style="background:#fefce8;border:1px solid #fde68a;border-radius:4px;padding:5px 8px;font-size:10px;display:flex;justify-content:space-between;align-items:center">
+          <span style="color:#92400e">"custo", "caro", "não posso pagar" → <strong>Route to pharmacist</strong></span>
+          <span style="color:#94a3b8;cursor:pointer;font-size:8px">✕</span>
+        </div>
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;padding:5px 8px;font-size:10px;display:flex;justify-content:space-between;align-items:center">
+          <span style="color:#14532d">"sim", "confirmo", "ok" → <strong>Mark confirmed, close sequence</strong></span>
+          <span style="color:#94a3b8;cursor:pointer;font-size:8px">✕</span>
+        </div>
+        <div style="color:#4f46e5;font-size:10px;cursor:pointer;margin-top:2px">+ Add keyword rule</div>
+      </div>
+    </div>
+
+    <!-- Max Attempts -->
+    <div style="margin-bottom:14px">
+      <div style="font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Global Settings</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div>
+          <div style="font-size:9px;color:#94a3b8;margin-bottom:2px">Max attempts</div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px 8px;font-size:10px">3</div>
+        </div>
+        <div>
+          <div style="font-size:9px;color:#94a3b8;margin-bottom:2px">Cooldown between</div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px 8px;font-size:10px">24 hours</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">
+        <div>
+          <div style="font-size:9px;color:#94a3b8;margin-bottom:2px">Quiet hours</div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px 8px;font-size:10px">21:00–08:00</div>
+        </div>
+        <div>
+          <div style="font-size:9px;color:#94a3b8;margin-bottom:2px">Best time</div>
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px 8px;font-size:10px;display:flex;justify-content:space-between;align-items:center">
+            Patient pref. <span style="color:#94a3b8">▾</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="border-top:1px solid #e2e8f0;padding-top:12px;display:flex;gap:8px">
+      <span style="flex:1;padding:6px;background:#4f46e5;border-radius:6px;font-size:11px;color:#fff;text-align:center;cursor:pointer;font-weight:500">Save Block</span>
+      <span style="padding:6px 14px;background:#fff;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;color:#64748b;cursor:pointer">Delete</span>
+    </div>
+  </div>
+</div>
+
+<!-- Part 2: Communications — Live Orchestration View -->
+<h3 style="margin-top:28px">2. Communications — Live Orchestration View</h3>
+<p style="font-size:12px;color:#64748b;margin-bottom:12px">The Communications screen now has two sub-views: the existing thread view and a new Orchestration tab showing the AI concierge state machine running across all patients.</p>
+
+<div class="mockup">
+  <div class="mockup-header">Communications — Orchestration View</div>
+  <div class="mockup-body" style="background:#f8fafc;font-size:12px;padding:16px">
+
+    <!-- Tab Row -->
+    <div style="display:flex;gap:0;border-bottom:2px solid #e2e8f0;margin-bottom:16px">
+      <div style="padding:8px 16px;font-size:12px;color:#64748b;cursor:pointer">Threads</div>
+      <div style="padding:8px 16px;font-size:12px;font-weight:600;color:#4f46e5;border-bottom:2px solid #4f46e5;margin-bottom:-2px;cursor:pointer;display:flex;align-items:center;gap:6px">
+        <span>✨</span> AI Orchestration
+        <span style="background:#fef2f2;color:#ef4444;font-size:9px;padding:1px 6px;border-radius:8px">3 escalated</span>
+      </div>
+    </div>
+
+    <!-- Stats Strip -->
+    <div style="display:flex;gap:16px;margin-bottom:16px;font-size:11px">
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:10px 14px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:20px;font-weight:700;color:#0f172a">142</span>
+        <div style="color:#64748b;line-height:1.2;font-size:10px">Active<br>sequences</div>
+      </div>
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:10px 14px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:20px;font-weight:700;color:#22c55e">84</span>
+        <div style="color:#64748b;line-height:1.2;font-size:10px">Sent<br>today</div>
+      </div>
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:10px 14px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:20px;font-weight:700;color:#4f46e5">23</span>
+        <div style="color:#64748b;line-height:1.2;font-size:10px">Patient<br>responded</div>
+      </div>
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:10px 14px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:20px;font-weight:700;color:#22c55e">18</span>
+        <div style="color:#64748b;line-height:1.2;font-size:10px">Confirmed<br>/ completed</div>
+      </div>
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:10px 14px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:20px;font-weight:700;color:#f59e0b">37</span>
+        <div style="color:#64748b;line-height:1.2;font-size:10px">Awaiting<br>response</div>
+      </div>
+      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:10px 14px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:20px;font-weight:700;color:#ef4444">3</span>
+        <div style="color:#64748b;line-height:1.2;font-size:10px">Escalated<br>to human</div>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div style="display:flex;gap:6px;margin-bottom:12px">
+      <div style="background:#4f46e5;color:#fff;padding:4px 12px;border-radius:4px;font-size:10px;font-weight:500;cursor:pointer">All</div>
+      <div style="background:#fff;border:1px solid #e2e8f0;padding:4px 12px;border-radius:4px;font-size:10px;color:#64748b;cursor:pointer">Awaiting Response</div>
+      <div style="background:#fff;border:1px solid #fecaca;padding:4px 12px;border-radius:4px;font-size:10px;color:#dc2626;cursor:pointer">Escalated</div>
+      <div style="background:#fff;border:1px solid #e2e8f0;padding:4px 12px;border-radius:4px;font-size:10px;color:#64748b;cursor:pointer">Completed</div>
+      <div style="flex:1"></div>
+      <div style="background:#fff;border:1px solid #e2e8f0;padding:4px 12px;border-radius:4px;font-size:10px;color:#64748b;cursor:pointer;display:flex;align-items:center;gap:4px">
+        Pathway: <strong>All</strong> <span style="color:#94a3b8">▾</span>
+      </div>
+      <div style="background:#fff;border:1px solid #e2e8f0;padding:4px 12px;border-radius:4px;font-size:10px;color:#64748b;cursor:pointer;display:flex;align-items:center;gap:4px">
+        Tier: <strong>All</strong> <span style="color:#94a3b8">▾</span>
+      </div>
+    </div>
+
+    <!-- Orchestration Table -->
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden">
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead>
+          <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc">
+            <th style="padding:8px 12px;text-align:left;color:#64748b;font-weight:600;font-size:10px">Patient</th>
+            <th style="padding:8px 12px;text-align:left;color:#64748b;font-weight:600;font-size:10px">Tier</th>
+            <th style="padding:8px 12px;text-align:left;color:#64748b;font-weight:600;font-size:10px">Pathway Step</th>
+            <th style="padding:8px 12px;text-align:center;color:#64748b;font-weight:600;font-size:10px">Channel</th>
+            <th style="padding:8px 12px;text-align:center;color:#64748b;font-weight:600;font-size:10px">Attempt</th>
+            <th style="padding:8px 12px;text-align:left;color:#64748b;font-weight:600;font-size:10px">State</th>
+            <th style="padding:8px 12px;text-align:left;color:#64748b;font-weight:600;font-size:10px">Last Activity</th>
+            <th style="padding:8px 12px;text-align:center;color:#64748b;font-weight:600;font-size:10px"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid #f1f5f9;background:#fef2f2">
+            <td style="padding:8px 12px;font-weight:500;color:#0f172a">Maria Santos</td>
+            <td style="padding:8px 12px"><span style="background:#fef2f2;color:#dc2626;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:600">T3</span></td>
+            <td style="padding:8px 12px;color:#374151">HbA1c Lab Reminder</td>
+            <td style="padding:8px 12px;text-align:center"><span style="color:#22c55e">WA</span> → <span style="color:#64748b">SMS</span></td>
+            <td style="padding:8px 12px;text-align:center;color:#ef4444;font-weight:600">2/2</td>
+            <td style="padding:8px 12px"><span style="background:#fef2f2;color:#dc2626;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500">⚡ Escalated</span></td>
+            <td style="padding:8px 12px;color:#64748b">No response 3d · Assigned to Ana Santos RN</td>
+            <td style="padding:8px 12px;text-align:center"><span style="color:#4f46e5;cursor:pointer;font-size:10px">View →</span></td>
+          </tr>
+          <tr style="border-bottom:1px solid #f1f5f9">
+            <td style="padding:8px 12px;font-weight:500;color:#0f172a">João Pereira</td>
+            <td style="padding:8px 12px"><span style="background:#fefce8;color:#a16207;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:600">T2</span></td>
+            <td style="padding:8px 12px;color:#374151">Medication Refill</td>
+            <td style="padding:8px 12px;text-align:center"><span style="color:#22c55e">WA</span></td>
+            <td style="padding:8px 12px;text-align:center;color:#0f172a">1/3</td>
+            <td style="padding:8px 12px"><span style="background:#f0fdf4;color:#16a34a;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500">✓ Confirmed</span></td>
+            <td style="padding:8px 12px;color:#64748b">Replied "Sim" · 5h ago</td>
+            <td style="padding:8px 12px;text-align:center"><span style="color:#4f46e5;cursor:pointer;font-size:10px">View →</span></td>
+          </tr>
+          <tr style="border-bottom:1px solid #f1f5f9">
+            <td style="padding:8px 12px;font-weight:500;color:#0f172a">Carlos Ferreira</td>
+            <td style="padding:8px 12px"><span style="background:#fef2f2;color:#dc2626;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:600">T3</span></td>
+            <td style="padding:8px 12px;color:#374151">Eye Exam Scheduling</td>
+            <td style="padding:8px 12px;text-align:center"><span style="color:#22c55e">WA</span></td>
+            <td style="padding:8px 12px;text-align:center;color:#0f172a">1/3</td>
+            <td style="padding:8px 12px"><span style="background:#fefce8;color:#a16207;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500">⏳ Needs Review</span></td>
+            <td style="padding:8px 12px;color:#64748b">Replied with question about cost · Yesterday</td>
+            <td style="padding:8px 12px;text-align:center"><span style="color:#4f46e5;cursor:pointer;font-size:10px">View →</span></td>
+          </tr>
+          <tr style="border-bottom:1px solid #f1f5f9">
+            <td style="padding:8px 12px;font-weight:500;color:#0f172a">Ana Oliveira</td>
+            <td style="padding:8px 12px"><span style="background:#fef2f2;color:#dc2626;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:600">T3</span></td>
+            <td style="padding:8px 12px;color:#374151">Monthly RN Check-in</td>
+            <td style="padding:8px 12px;text-align:center"><span style="color:#22c55e">WA</span></td>
+            <td style="padding:8px 12px;text-align:center;color:#0f172a">1/3</td>
+            <td style="padding:8px 12px"><span style="background:#eef2ff;color:#4f46e5;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500">● Sent · Awaiting</span></td>
+            <td style="padding:8px 12px;color:#64748b">Sent 4h ago · Delivered ✓✓</td>
+            <td style="padding:8px 12px;text-align:center"><span style="color:#4f46e5;cursor:pointer;font-size:10px">View →</span></td>
+          </tr>
+          <tr style="border-bottom:1px solid #f1f5f9;background:#fef2f2">
+            <td style="padding:8px 12px;font-weight:500;color:#0f172a">Roberto Silva</td>
+            <td style="padding:8px 12px"><span style="background:#fef2f2;color:#dc2626;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:600">T4</span></td>
+            <td style="padding:8px 12px;color:#374151">Post-Discharge Follow-up</td>
+            <td style="padding:8px 12px;text-align:center"><span style="color:#22c55e">WA</span> → <span style="color:#64748b">SMS</span> → <span style="color:#f59e0b">Call</span></td>
+            <td style="padding:8px 12px;text-align:center;color:#ef4444;font-weight:600">3/3</td>
+            <td style="padding:8px 12px"><span style="background:#fef2f2;color:#dc2626;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500">⚡ Escalated</span></td>
+            <td style="padding:8px 12px;color:#64748b">All channels exhausted · Assigned to care manager</td>
+            <td style="padding:8px 12px;text-align:center"><span style="color:#4f46e5;cursor:pointer;font-size:10px">View →</span></td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px;font-weight:500;color:#0f172a">Lucia Mendes</td>
+            <td style="padding:8px 12px"><span style="background:#f0f9ff;color:#0369a1;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:600">T1</span></td>
+            <td style="padding:8px 12px;color:#374151">DPP Session Reminder</td>
+            <td style="padding:8px 12px;text-align:center"><span style="color:#22c55e">WA</span></td>
+            <td style="padding:8px 12px;text-align:center;color:#0f172a">1/3</td>
+            <td style="padding:8px 12px"><span style="background:#f0fdf4;color:#16a34a;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500">✓ Confirmed</span></td>
+            <td style="padding:8px 12px;color:#64748b">Replied "Confirmado" · 2d ago</td>
+            <td style="padding:8px 12px;text-align:center"><span style="color:#4f46e5;cursor:pointer;font-size:10px">View →</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px">
+  <h3>How it connects</h3>
+  <div style="font-size:13px;line-height:1.8">
+    <ul style="margin:0;padding-left:18px">
+      <li><strong>Design time (Pathway Builder):</strong> The Outreach block config defines the concierge sequence — steps, channels, templates, timeouts, escalation rules, safety keywords. This is the equivalent of the concierge template registry + triage config from the spec.</li>
+      <li><strong>Runtime (Communications → Orchestration):</strong> When a patient hits a pathway step that has an Outreach block, the orchestration engine fires the sequence. The table shows every active sequence with its state machine position (Sent → Awaiting → Confirmed / Escalated).</li>
+      <li><strong>Escalation → Thread view:</strong> Clicking "View" on an escalated row opens the thread view (the earlier Communications mockup) with full message history and patient context panel. Care manager takes over from there.</li>
+      <li><strong>Escalation → Command Center:</strong> Escalated sequences also surface as action items in the Command Center's AI Action Queue.</li>
+      <li><strong>State machine:</strong> Idle → WA Sent → Awaiting → (Confirmed / Needs Review / Follow-up Sent → Awaiting → Escalated). Append-only action log per the concierge spec pattern.</li>
+      <li><strong>Safety keywords:</strong> Patient replies containing emergency/cost/confirmation keywords get routed immediately — before the timeout. LLM classifies ambiguous replies.</li>
+    </ul>
+  </div>
+</div>

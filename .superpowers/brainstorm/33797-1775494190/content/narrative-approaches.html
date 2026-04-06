@@ -1,0 +1,68 @@
+<h2>Three Narrative Approaches for the Admin App</h2>
+<p class="subtitle">How should the app's information architecture tell the story? Pick the structure that best matches how you'd walk someone through it.</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Pipeline Flow — Left to Right</h3>
+      <p>The sidebar mirrors the care delivery pipeline in order: <strong>Data Ingestion → Cohortisation → Pathway Builder → Patient Registry → Care Delivery (AI Summary + Comms) → Outcomes</strong></p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul>
+          <li>Tells the story linearly — "data comes in, patients get scored, pathways get built, care gets delivered, outcomes get measured"</li>
+          <li>Natural demo flow — walk top-to-bottom through the sidebar</li>
+          <li>Maps 1:1 to the document's module structure</li>
+        </ul></div>
+        <div class="cons"><h4>Cons</h4><ul>
+          <li>Daily users (care managers) don't think in pipeline order — they think in tasks</li>
+          <li>Builder and Cohortisation are setup-once activities, not daily screens</li>
+        </ul></div>
+      </div>
+      <p style="margin-top:12px;color:#6b7280;font-size:13px"><strong>Best for:</strong> When the primary goal is storytelling and the app is still more pitch than daily tool</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Role-Based Workspaces</h3>
+      <p>Two distinct workspace modes: <strong>Program Architect</strong> (Cohortisation config, Pathway Builder, Outcomes) and <strong>Care Manager</strong> (Patient Registry, AI Summary, Comms Agent). User switches between them.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul>
+          <li>Reflects real-world roles — clinical directors design programs, care managers execute them</li>
+          <li>Each workspace is focused and uncluttered</li>
+          <li>Scales naturally when more roles are added (pharmacist, CHW)</li>
+        </ul></div>
+        <div class="cons"><h4>Cons</h4><ul>
+          <li>Two separate navigation trees to build and maintain</li>
+          <li>Demo requires switching contexts — harder to tell one linear story</li>
+          <li>More complex for a baseline app</li>
+        </ul></div>
+      </div>
+      <p style="margin-top:12px;color:#6b7280;font-size:13px"><strong>Best for:</strong> When you want to demonstrate role-based access control and operational realism</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Command Center + Deep Dives</h3>
+      <p>A single <strong>AI-powered command center</strong> as the home screen — population health overview with live KPIs, AI-surfaced alerts, and intervention recommendations. Every other screen (Cohortisation, Builder, Patients, Comms, Outcomes) is a deep-dive accessible from the command center's cards and alerts.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul>
+          <li>Opens with impact — "here's your population, here's what needs attention NOW"</li>
+          <li>AI is front-and-center from the first screen, not buried in a tab</li>
+          <li>Natural drill-down: alert → patient → action → outcome</li>
+          <li>Demo story writes itself: "You log in. AI tells you 12 patients need attention. Click one. See the summary. Send the outreach. Done."</li>
+        </ul></div>
+        <div class="cons"><h4>Cons</h4><ul>
+          <li>Command center is the most complex single screen to build</li>
+          <li>Builder and Cohortisation config feel less prominent (accessed via settings/config area)</li>
+        </ul></div>
+      </div>
+      <p style="margin-top:12px;color:#6b7280;font-size:13px"><strong>Best for:</strong> When you want AI to be the headline capability and the app to feel like an intelligent system, not a dashboard</p>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:24px">My recommendation: <strong>Option C</strong>. The biggest criticism was "no AI, insipid." A command center that opens with AI-driven insights immediately signals this is an intelligent platform. The builder and cohortisation engine become the "how it works" layer underneath — powerful when shown, but the daily experience leads with intelligence.</p>
