@@ -35,3 +35,10 @@ export const ORCHESTRATION_STATUS: Record<string, StatusConfig> = {
   escalated: { label: "Escalated", variant: "outline", className: "border-red-300 bg-red-50 text-red-700" },
   declined: { label: "Declined", variant: "outline", className: "border-slate-200 bg-slate-50 text-slate-500" },
 };
+
+export const PATHWAY_STATUS: Record<string, StatusConfig> = {
+  draft: { label: "Draft", variant: "outline", className: "bg-slate-100 text-slate-700 border-slate-200" },
+  review: { label: "Review", variant: "outline", className: "bg-amber-50 text-amber-700 border-amber-200" },
+  published: { label: "Published", variant: "outline", className: "bg-green-50 text-green-700 border-green-200" },
+  archived: { label: "Archived", variant: "outline", className: "bg-neutral-100 text-neutral-500 border-neutral-200" },
+};
