@@ -223,7 +223,7 @@ export function AIBuilder() {
       </div>
 
       {/* ── Right Panel: Preview ─────────────────────────────────────── */}
-      <div className="flex w-1/2 flex-col">
+      <div className="flex w-1/2 flex-col overflow-hidden">
         {generatedPathway ? (
           <>
             <div className="border-b border-border-default px-4 py-3">

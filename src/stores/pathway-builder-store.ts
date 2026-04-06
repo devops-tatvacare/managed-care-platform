@@ -123,17 +123,31 @@ export const usePathwayBuilderStore = create<PathwayBuilderState>((set, get) => 
 
   addBlock: async (data) => {
     const { selectedPathway } = get();
-    if (!selectedPathway) return;
-    set({ builderLoading: true, error: null });
-    try {
-      const block = await pathwaysApi.addBlock(selectedPathway.id, data);
-      set((state) => ({
-        blocks: [...state.blocks, block],
-        isDirty: true,
-        builderLoading: false,
-      }));
-    } catch (err) {
-      set({ builderLoading: false, error: err instanceof Error ? err.message : "Failed to add block" });
+    // Create block locally first so drag-and-drop is instant
+    const localBlock = {
+      id: crypto.randomUUID(),
+      block_type: data.block_type,
+      category: data.category,
+      label: data.label,
+      config: data.config ?? {},
+      position: data.position ?? null,
+      order_index: data.order_index ?? get().blocks.length,
+    };
+    set((state) => ({
+      blocks: [...state.blocks, localBlock],
+      isDirty: true,
+    }));
+    // Persist to backend if pathway exists
+    if (selectedPathway) {
+      try {
+        const savedBlock = await pathwaysApi.addBlock(selectedPathway.id, data);
+        // Replace local block with server-assigned ID
+        set((state) => ({
+          blocks: state.blocks.map((b) => (b.id === localBlock.id ? savedBlock : b)),
+        }));
+      } catch {
+        // Keep local block — will be saved on next "Save Draft"
+      }
     }
   },
 
