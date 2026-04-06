@@ -16,7 +16,7 @@ export function AppShell({ children }: AppShellProps) {
       <AppSidebar collapsed={!sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
       <div className="flex flex-1 flex-col overflow-hidden">
         <AppTopbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
-        <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-bg-secondary p-6">
+        <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-bg-secondary p-4 lg:p-6">
           {children}
         </main>
       </div>

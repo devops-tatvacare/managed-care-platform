@@ -235,7 +235,7 @@ export function AIBuilder() {
               </p>
             </div>
 
-            <ScrollArea className="flex-1 p-4">
+            <div className="flex-1 overflow-y-auto p-4">
               <div className="flex flex-col items-center gap-0">
                 {generatedPathway.blocks.map((block, i) => {
                   const catDef = getCategoryDef(
@@ -306,7 +306,7 @@ export function AIBuilder() {
                   );
                 })}
               </div>
-            </ScrollArea>
+            </div>
 
             {/* Accept button */}
             <div className="border-t border-border-default p-3">
