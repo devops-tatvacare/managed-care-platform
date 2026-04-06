@@ -2,5 +2,6 @@ from app.models.base import Base
 from app.models.tenant import Tenant, TenantConfig
 from app.models.user import User, RefreshToken
 from app.models.role import Role
+from app.models.patient import Patient, PatientLab, PatientDiagnosis
 
-__all__ = ["Base", "Tenant", "TenantConfig", "User", "RefreshToken", "Role"]
+__all__ = ["Base", "Tenant", "TenantConfig", "User", "RefreshToken", "Role", "Patient", "PatientLab", "PatientDiagnosis"]
