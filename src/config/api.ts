@@ -21,6 +21,7 @@ export const API_ENDPOINTS = {
     publish: (id: string) => `/api/pathways/${id}/publish`,
     blocks: (id: string) => `/api/pathways/${id}/blocks`,
     block: (id: string, blockId: string) => `/api/pathways/${id}/blocks/${blockId}`,
+    edges: (id: string) => `/api/pathways/${id}/edges`,
   },
   cohortisation: {
     tiers: "/api/cohortisation/tiers",
