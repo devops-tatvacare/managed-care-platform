@@ -75,3 +75,6 @@ async def seed_all(db: AsyncSession) -> None:
 
     from app.services.patient_seed import seed_patients
     await seed_patients(db)
+
+    from app.services.pathway_seed import seed_pathways
+    await seed_pathways(db)
