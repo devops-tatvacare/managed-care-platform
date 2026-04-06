@@ -72,3 +72,6 @@ async def seed_all(db: AsyncSession) -> None:
     db.add(admin)
 
     await db.commit()
+
+    from app.services.patient_seed import seed_patients
+    await seed_patients(db)
