@@ -7,6 +7,9 @@ import { PATHWAY_STATUS } from "@/config/status";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { AIBuilder } from "./ai-builder";
+import { ComponentLibrary } from "./component-library";
+import { VisualCanvas } from "./visual-canvas";
+import { ConfigDrawer } from "./config-drawer";
 
 const MODE_TABS = [
   { value: "ai", label: "AI Builder" },
@@ -87,23 +90,20 @@ export function BuilderShell() {
 
         {builderMode === "canvas" && (
           <div className="flex h-full">
-            <div className="flex w-64 shrink-0 items-center justify-center border-r border-border-default text-sm text-text-muted">
-              Component Library
+            <ComponentLibrary />
+            <div className="flex-1">
+              <VisualCanvas />
             </div>
-            <div className="flex flex-1 items-center justify-center text-sm text-text-muted">
-              Canvas
-            </div>
-            {selectedBlockId && (
-              <div className="flex w-80 shrink-0 items-center justify-center border-l border-border-default text-sm text-text-muted">
-                Config Drawer
-              </div>
-            )}
+            {selectedBlockId && <ConfigDrawer />}
           </div>
         )}
 
         {builderMode === "config" && (
-          <div className="flex h-full items-center justify-center text-sm text-text-muted">
-            Configuration mode
+          <div className="flex h-full">
+            <ConfigDrawer />
+            <div className="flex-1 flex items-center justify-center text-sm text-text-muted">
+              Select a block from the list to configure
+            </div>
           </div>
         )}
       </div>
