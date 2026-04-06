@@ -8,7 +8,6 @@ import { TierBadge } from "@/components/shared/tier-badge";
 import { Icons } from "@/config/icons";
 import { buildPath } from "@/config/routes";
 import { formatDate, formatNumber } from "@/lib/format";
-import { cn } from "@/lib/cn";
 import { usePatientsStore } from "@/stores/patients-store";
 import { Input } from "@/components/ui/input";
 import {

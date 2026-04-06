@@ -3,7 +3,6 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/cn";
 import { Icons } from "@/config/icons";
 import type { PatientDetail, PatientDiagnosisRecord } from "@/services/types/patient";
 
