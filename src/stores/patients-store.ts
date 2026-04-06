@@ -1,0 +1,124 @@
+import { create } from "zustand";
+import type {
+  PatientListItem,
+  PatientDetail,
+  PatientLabRecord,
+  PatientDiagnosisRecord,
+} from "@/services/types/patient";
+import * as patientsApi from "@/services/api/patients";
+
+interface PatientFilters {
+  search: string;
+  tier: number | undefined;
+  pathwayStatus: string | undefined;
+}
+
+interface PatientsState {
+  // List
+  patients: PatientListItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+  pages: number;
+  filters: PatientFilters;
+  loading: boolean;
+  error: string | null;
+
+  // Detail
+  selectedPatient: PatientDetail | null;
+  labs: PatientLabRecord[];
+  diagnoses: PatientDiagnosisRecord[];
+  detailLoading: boolean;
+
+  // Actions
+  loadPatients: () => Promise<void>;
+  loadPatient: (id: string) => Promise<void>;
+  loadLabs: (id: string) => Promise<void>;
+  loadDiagnoses: (id: string) => Promise<void>;
+  setPage: (page: number) => void;
+  setFilters: (filters: Partial<PatientFilters>) => void;
+  resetDetail: () => void;
+}
+
+export const usePatientsStore = create<PatientsState>((set, get) => ({
+  patients: [],
+  total: 0,
+  page: 1,
+  pageSize: 50,
+  pages: 0,
+  filters: { search: "", tier: undefined, pathwayStatus: undefined },
+  loading: false,
+  error: null,
+
+  selectedPatient: null,
+  labs: [],
+  diagnoses: [],
+  detailLoading: false,
+
+  loadPatients: async () => {
+    const { page, pageSize, filters } = get();
+    set({ loading: true, error: null });
+    try {
+      const res = await patientsApi.fetchPatients({
+        page,
+        page_size: pageSize,
+        search: filters.search || undefined,
+        tier: filters.tier,
+        pathway_status: filters.pathwayStatus,
+      });
+      set({
+        patients: res.items,
+        total: res.total,
+        pages: res.pages,
+        loading: false,
+      });
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : "Failed to load patients", loading: false });
+    }
+  },
+
+  loadPatient: async (id) => {
+    set({ detailLoading: true, selectedPatient: null, labs: [], diagnoses: [] });
+    try {
+      const patient = await patientsApi.fetchPatient(id);
+      set({ selectedPatient: patient, detailLoading: false });
+    } catch (err) {
+      set({ detailLoading: false, error: err instanceof Error ? err.message : "Failed to load patient" });
+    }
+  },
+
+  loadLabs: async (id) => {
+    try {
+      const labs = await patientsApi.fetchPatientLabs(id);
+      set({ labs });
+    } catch {
+      // silently fail — labs are supplementary
+    }
+  },
+
+  loadDiagnoses: async (id) => {
+    try {
+      const diagnoses = await patientsApi.fetchPatientDiagnoses(id);
+      set({ diagnoses });
+    } catch {
+      // silently fail
+    }
+  },
+
+  setPage: (page) => {
+    set({ page });
+    get().loadPatients();
+  },
+
+  setFilters: (filters) => {
+    set((state) => ({
+      filters: { ...state.filters, ...filters },
+      page: 1,
+    }));
+    get().loadPatients();
+  },
+
+  resetDetail: () => {
+    set({ selectedPatient: null, labs: [], diagnoses: [] });
+  },
+}));

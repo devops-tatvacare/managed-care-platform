@@ -5,7 +5,7 @@ import {
   Clock, Circle, ChevronRight, ChevronDown, MoreHorizontal,
   Send, Mic, Phone, FileText, Heart, Shield, Receipt,
   Calendar, Plus, X, Filter, Download, RefreshCw, GitBranch,
-  Pause, Play, LogOut, User, Loader2,
+  Pause, Play, LogOut, User, Loader2, ThumbsUp, ThumbsDown,
   type LucideIcon,
 } from "lucide-react";
 
@@ -50,6 +50,8 @@ export const Icons = {
   logout: LogOut,
   user: User,
   spinner: Loader2,
+  thumbsUp: ThumbsUp,
+  thumbsDown: ThumbsDown,
 } as const satisfies Record<string, LucideIcon>;
 
 export type IconName = keyof typeof Icons;
