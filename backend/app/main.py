@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import async_session, engine
 from app.models import Base
-from app.routers import auth
+from app.routers import auth, patients
 from app.services.seed_service import seed_all
 
 
@@ -33,6 +33,7 @@ app.add_middleware(
 
 ROUTER_REGISTRY = [
     (auth.router, "/api/auth", ["Auth"]),
+    (patients.router, "/api/patients", ["Patients"]),
 ]
 
 for router, prefix, tags in ROUTER_REGISTRY:
