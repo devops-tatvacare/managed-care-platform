@@ -10,7 +10,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/cn";
 import { useCohortisationStore } from "@/stores/cohortisation-store";
 import { getTier } from "@/config/tiers";
 
