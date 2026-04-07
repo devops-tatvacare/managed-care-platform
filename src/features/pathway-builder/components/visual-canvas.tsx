@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -8,24 +8,22 @@ import {
   Controls,
   MiniMap,
   useReactFlow,
-  useNodesState,
-  useEdgesState,
-  addEdge,
+  applyNodeChanges,
   type Node,
   type Edge,
   type Connection,
   type OnConnect,
+  type OnNodesChange,
+  type OnEdgesChange,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { PathwayBlockNode } from "./pathway-block-node";
 import { usePathwayBuilderStore } from "@/stores/pathway-builder-store";
-import type { PathwayEdgeSchema } from "@/services/types/pathway";
+import type { PathwayBlockSchema, PathwayEdgeSchema } from "@/services/types/pathway";
 
 // ── Helpers ─────────────────────────────────────────────────────────────
 
-function blocksToNodes(
-  blocks: ReturnType<typeof usePathwayBuilderStore.getState>["blocks"],
-): Node[] {
+function blocksToNodes(blocks: PathwayBlockSchema[]): Node[] {
   return blocks.map((b) => ({
     id: b.id,
     type: "pathwayBlock",
@@ -34,9 +32,7 @@ function blocksToNodes(
   }));
 }
 
-function storeEdgesToFlowEdges(
-  storeEdges: ReturnType<typeof usePathwayBuilderStore.getState>["edges"],
-): Edge[] {
+function storeEdgesToFlowEdges(storeEdges: PathwayEdgeSchema[]): Edge[] {
   return storeEdges.map((e) => ({
     id: e.id,
     source: e.source_block_id,
@@ -65,60 +61,64 @@ function VisualCanvasInner() {
   const addBlock = usePathwayBuilderStore((s) => s.addBlock);
   const setStoreBlocks = usePathwayBuilderStore((s) => s.setBlocks);
   const setStoreEdges = usePathwayBuilderStore((s) => s.setEdges);
-  const setDirty = usePathwayBuilderStore((s) => s.setDirty);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const { screenToFlowPosition, fitView } = useReactFlow();
+  const { screenToFlowPosition } = useReactFlow();
 
   const nodeTypes = useMemo(() => ({ pathwayBlock: PathwayBlockNode }), []);
 
-  // React Flow internal state
-  const [nodes, setNodes, onNodesChange] = useNodesState(blocksToNodes(storeBlocks));
-  const [edges, setEdges, onEdgesChange] = useEdgesState(storeEdgesToFlowEdges(storeEdges));
+  // Derive React Flow nodes/edges from store on every render — single source of truth
+  const nodes = useMemo(() => blocksToNodes(storeBlocks), [storeBlocks]);
+  const edges = useMemo(() => storeEdgesToFlowEdges(storeEdges), [storeEdges]);
 
-  // Sync store → React Flow when store blocks/edges change (e.g. from API load or AI accept)
-  const prevBlockIdsRef = useRef<string>("");
-  const prevEdgeIdsRef = useRef<string>("");
+  // Handle React Flow node changes (drag, select, remove) → write back to store
+  const onNodesChange: OnNodesChange = useCallback(
+    (changes) => {
+      const updatedNodes = applyNodeChanges(changes, nodes);
 
-  useEffect(() => {
-    const blockIds = storeBlocks.map((b) => b.id).join(",");
-    if (blockIds !== prevBlockIdsRef.current) {
-      prevBlockIdsRef.current = blockIds;
-      setNodes(blocksToNodes(storeBlocks));
-      // fitView after nodes update
-      setTimeout(() => fitView({ padding: 0.15 }), 100);
-    }
-  }, [storeBlocks, setNodes, fitView]);
+      // Check if positions changed (drag)
+      const positionChanged = changes.some((c) => c.type === "position" && c.dragging === false);
+      if (positionChanged) {
+        const updatedBlocks = storeBlocks.map((block) => {
+          const node = updatedNodes.find((n) => n.id === block.id);
+          if (node && node.position) {
+            return { ...block, position: node.position };
+          }
+          return block;
+        });
+        setStoreBlocks(updatedBlocks);
+      }
 
-  useEffect(() => {
-    const edgeIds = storeEdges.map((e) => e.id).join(",");
-    if (edgeIds !== prevEdgeIdsRef.current) {
-      prevEdgeIdsRef.current = edgeIds;
-      setEdges(storeEdgesToFlowEdges(storeEdges));
-    }
-  }, [storeEdges, setEdges]);
-
-  // Sync position changes back to store on drag stop
-  const onNodeDragStop = useCallback(
-    (_: React.MouseEvent, node: Node) => {
-      const updated = storeBlocks.map((b) =>
-        b.id === node.id ? { ...b, position: node.position } : b,
-      );
-      setStoreBlocks(updated);
-      setDirty(true);
+      // Check for removals
+      const removals = changes.filter((c) => c.type === "remove");
+      if (removals.length > 0) {
+        const removedIds = new Set(removals.map((c) => c.id));
+        const filteredBlocks = storeBlocks.filter((b) => !removedIds.has(b.id));
+        const filteredEdges = storeEdges.filter(
+          (e) => !removedIds.has(e.source_block_id) && !removedIds.has(e.target_block_id),
+        );
+        setStoreBlocks(filteredBlocks);
+        setStoreEdges(filteredEdges);
+      }
     },
-    [storeBlocks, setStoreBlocks, setDirty],
+    [nodes, storeBlocks, storeEdges, setStoreBlocks, setStoreEdges],
+  );
+
+  // Handle React Flow edge changes → write back to store
+  const onEdgesChange: OnEdgesChange = useCallback(
+    (changes) => {
+      const removals = changes.filter((c) => c.type === "remove");
+      if (removals.length > 0) {
+        const removedIds = new Set(removals.map((c) => c.id));
+        setStoreEdges(storeEdges.filter((e) => !removedIds.has(e.id)));
+      }
+    },
+    [storeEdges, setStoreEdges],
   );
 
   // New edge connection
   const onConnect: OnConnect = useCallback(
     (connection: Connection) => {
-      setEdges((eds) =>
-        addEdge(
-          { ...connection, type: "smoothstep", style: { stroke: "#94a3b8", strokeWidth: 2 } },
-          eds,
-        ),
-      );
       const newEdge: PathwayEdgeSchema = {
         id: `e-${connection.source}-${connection.target}`,
         source_block_id: connection.source,
@@ -127,9 +127,8 @@ function VisualCanvasInner() {
         label: null,
       };
       setStoreEdges([...storeEdges, newEdge]);
-      setDirty(true);
     },
-    [setEdges, storeEdges, setStoreEdges, setDirty],
+    [storeEdges, setStoreEdges],
   );
 
   // Click node → select block for config drawer
@@ -138,7 +137,7 @@ function VisualCanvasInner() {
     [selectBlock],
   );
 
-  // Drag-and-drop from component library
+  // Drag-and-drop from component library — only add to store, not to local React Flow state
   const onDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "copy";
@@ -152,26 +151,13 @@ function VisualCanvasInner() {
       try {
         const data = JSON.parse(raw) as { block_type: string; category: string; label: string };
         const position = screenToFlowPosition({ x: e.clientX, y: e.clientY });
-
-        // Add to React Flow immediately
-        const id = crypto.randomUUID();
-        setNodes((nds) => [
-          ...nds,
-          {
-            id,
-            type: "pathwayBlock",
-            position,
-            data: { label: data.label, block_type: data.block_type, category: data.category },
-          },
-        ]);
-
-        // Add to store (async, persists to backend)
+        // Only add to store — React Flow will pick it up via derived nodes
         addBlock({ block_type: data.block_type, category: data.category, label: data.label, position });
       } catch {
         // ignore
       }
     },
-    [screenToFlowPosition, setNodes, addBlock],
+    [screenToFlowPosition, addBlock],
   );
 
   return (
@@ -183,7 +169,6 @@ function VisualCanvasInner() {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeClick={onNodeClick}
-        onNodeDragStop={onNodeDragStop}
         nodeTypes={nodeTypes}
         fitView
         proOptions={{ hideAttribution: true }}
