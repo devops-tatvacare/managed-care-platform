@@ -84,6 +84,14 @@
 }
 
 @layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-border);
+  }
+
   body {
     font-family: var(--font-sans);
     color: var(--color-text-primary);
