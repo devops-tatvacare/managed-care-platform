@@ -11,6 +11,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  CommandSeparator,
   CommandShortcut,
 } from "@/components/ui/command";
 
@@ -49,11 +50,13 @@ export function SpotlightSearch() {
       onOpenChange={setOpen}
       title="Search"
       description="Search across patients, pathways, and actions"
+      className="sm:max-w-xl"
     >
       <CommandInput placeholder="Search patients, pathways, actions..." />
-      <CommandList>
+      <CommandList className="max-h-[400px]">
         <CommandEmpty>No results found.</CommandEmpty>
-        <CommandGroup heading="Navigation">
+
+        <CommandGroup heading="Pages">
           {NAV_ITEMS.map((item) => (
             <CommandItem
               key={item.path}
@@ -64,16 +67,19 @@ export function SpotlightSearch() {
             </CommandItem>
           ))}
         </CommandGroup>
+
+        <CommandSeparator />
+
         <CommandGroup heading="Quick Actions">
           <CommandItem onSelect={() => handleSelect(ROUTES.patients.path)}>
             <Icons.search className="h-4 w-4" />
             <span>Search Patients</span>
-            <CommandShortcut>Patients</CommandShortcut>
+            <CommandShortcut>Go</CommandShortcut>
           </CommandItem>
           <CommandItem onSelect={() => handleSelect(ROUTES.pathways.path)}>
             <Icons.plus className="h-4 w-4" />
             <span>Create Pathway</span>
-            <CommandShortcut>Builder</CommandShortcut>
+            <CommandShortcut>New</CommandShortcut>
           </CommandItem>
         </CommandGroup>
       </CommandList>
