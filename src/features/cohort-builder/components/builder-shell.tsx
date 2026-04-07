@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { AIBuilder } from "./ai-builder";
 import { CohortCards } from "./cohort-cards";
+import { ScoringEnginePanel } from "./scoring-engine-panel";
 
 const MODE_TABS = [
   { value: "ai", label: "AI Builder" },
@@ -125,9 +126,7 @@ export function BuilderShell() {
             {/* Config tab content */}
             <div className="flex-1 overflow-y-auto p-6">
               {configTab === "cohorts" && <CohortCards />}
-              {configTab === "scoring" && (
-                <div className="text-sm text-text-muted">Scoring engine — coming in Task 8</div>
-              )}
+              {configTab === "scoring" && <ScoringEnginePanel />}
               {configTab === "overrides" && (
                 <div className="text-sm text-text-muted">Override rules — coming in Task 9</div>
               )}
