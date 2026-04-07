@@ -3,40 +3,66 @@
 from __future__ import annotations
 
 import httpx
+from pydantic import BaseModel
 
 from app.config import settings
-from app.llm.base import LLMProvider
+from app.llm.base import LLMProvider, retry_with_backoff, validate_and_parse
 
 
 class GeminiProvider(LLMProvider):
     """Calls Google Gemini REST API (generateContent)."""
 
-    MODEL = "gemini-2.0-flash"
     BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models"
 
-    async def generate(self, prompt: str, *, system: str | None = None, max_tokens: int = 1024) -> str:
+    @retry_with_backoff
+    async def generate(
+        self,
+        prompt: str,
+        *,
+        system: str | None = None,
+        max_tokens: int = 1024,
+        response_schema: dict | None = None,
+        parse_json: bool = False,
+        response_model: type[BaseModel] | None = None,
+    ) -> str | dict:
         if not settings.gemini_api_key:
             raise RuntimeError("GEMINI_API_KEY not configured")
 
-        url = f"{self.BASE_URL}/{self.MODEL}:generateContent?key={settings.gemini_api_key}"
+        model = settings.llm_default_model
+        url = f"{self.BASE_URL}/{model}:generateContent?key={settings.gemini_api_key}"
+
         contents = []
         if system:
             contents.append({"role": "user", "parts": [{"text": system}]})
             contents.append({"role": "model", "parts": [{"text": "Understood."}]})
         contents.append({"role": "user", "parts": [{"text": prompt}]})
 
-        payload = {
-            "contents": contents,
-            "generationConfig": {"maxOutputTokens": max_tokens, "temperature": 0.7},
+        generation_config: dict = {
+            "maxOutputTokens": max_tokens,
+            "temperature": 0.7,
         }
 
-        async with httpx.AsyncClient(timeout=30) as client:
+        if response_schema is not None:
+            generation_config["responseMimeType"] = "application/json"
+            generation_config["responseSchema"] = response_schema
+
+        payload = {
+            "contents": contents,
+            "generationConfig": generation_config,
+        }
+
+        async with httpx.AsyncClient(timeout=settings.llm_timeout) as client:
             resp = await client.post(url, json=payload)
             resp.raise_for_status()
             data = resp.json()
 
         candidates = data.get("candidates", [])
         if not candidates:
-            return ""
+            return {} if (parse_json or response_schema) else ""
         parts = candidates[0].get("content", {}).get("parts", [])
-        return parts[0].get("text", "") if parts else ""
+        raw_text = parts[0].get("text", "") if parts else ""
+
+        if parse_json or response_schema is not None:
+            return validate_and_parse(raw_text, response_model=response_model)
+
+        return raw_text

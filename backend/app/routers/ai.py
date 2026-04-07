@@ -1,8 +1,19 @@
+import uuid
+
 from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.context import AuthContext
 from app.auth.dependencies import get_auth
+from app.database import get_db
+from app.schemas.communication import (
+    CommsDraftRequest,
+    CommsDraftResponse,
+    CommsRewriteRequest,
+    CommsRewriteResponse,
+)
 from app.schemas.pathway import PathwayGenerateRequest
+from app.services import ai_comms_service
 
 router = APIRouter()
 
@@ -78,3 +89,30 @@ async def generate_pathway(
             ],
         },
     }
+
+
+@router.post("/comms-draft", response_model=CommsDraftResponse)
+async def comms_draft(
+    body: CommsDraftRequest,
+    auth: AuthContext = Depends(get_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Draft an AI-personalised outreach message for a patient."""
+    result = await ai_comms_service.draft_message(
+        db,
+        auth.tenant_id,
+        uuid.UUID(body.patient_id),
+        template_id=uuid.UUID(body.template_id) if body.template_id else None,
+        context=body.context,
+    )
+    return CommsDraftResponse(**result)
+
+
+@router.post("/comms-rewrite", response_model=CommsRewriteResponse)
+async def comms_rewrite(
+    body: CommsRewriteRequest,
+    auth: AuthContext = Depends(get_auth),
+):
+    """Rewrite a message with a given instruction (simplify, formal, empathetic, translate)."""
+    result = await ai_comms_service.rewrite_message(body.text, body.instruction)
+    return CommsRewriteResponse(**result)

@@ -10,6 +10,7 @@ from app.models.cohort import (
     Cohort, CohortCriteria, ScoringEngine,
     CohortAssignment, CohortisationEvent,
 )
+from app.models.communication import ConciergeAction, MessageTemplate
 
 __all__ = [
     "Base", "Tenant", "TenantConfig", "User", "RefreshToken", "Role",
@@ -19,4 +20,5 @@ __all__ = [
     "Program", "ProgramVersion",
     "Cohort", "CohortCriteria", "ScoringEngine",
     "CohortAssignment", "CohortisationEvent",
+    "ConciergeAction", "MessageTemplate",
 ]

@@ -247,26 +247,19 @@ async def get_population_insights(
 
     try:
         from app.llm import get_provider
+        from app.llm.prompts import PROMPT_REGISTRY
+
         provider = get_provider()
-
-        system_prompt = (
-            "You are a clinical analytics AI assistant for a healthcare payer's care management platform. "
-            "Generate a concise daily digest (3-5 bullet points in markdown) summarizing the population health status. "
-            "Be specific with numbers. Use clinical terminology appropriate for care managers. "
-            "End with 1-2 recommended actions."
+        template = PROMPT_REGISTRY["population_insights"]
+        system_prompt, user_prompt = template.render(
+            total_members=kpis["total_members"],
+            avg_risk_score=kpis["avg_risk_score"],
+            hba1c_control_rate=kpis["hba1c_control_rate"],
+            open_care_gaps=kpis["open_care_gaps"],
+            pdc_above_80_rate=kpis["pdc_above_80_rate"],
         )
 
-        data_prompt = (
-            f"Population data as of today:\n"
-            f"- Total members: {kpis['total_members']}\n"
-            f"- Average risk score: {kpis['avg_risk_score']}\n"
-            f"- HbA1c <7% control rate: {kpis['hba1c_control_rate']}%\n"
-            f"- Patients with open care gaps: {kpis['open_care_gaps']}\n"
-            f"- PDC ≥80% adherence rate: {kpis['pdc_above_80_rate']}%\n"
-            f"\nGenerate a daily digest for the care management team."
-        )
-
-        markdown = await provider.generate(data_prompt, system=system_prompt, max_tokens=512)
+        markdown = await provider.generate(user_prompt, system=system_prompt, max_tokens=512)
     except Exception:
         markdown = _build_static_insights(kpis)
 

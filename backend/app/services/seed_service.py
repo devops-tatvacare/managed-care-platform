@@ -64,7 +64,7 @@ async def seed_all(db: AsyncSession) -> None:
     admin = User(
         id=DEFAULT_USER_ID,
         tenant_id=DEFAULT_TENANT_ID,
-        email="admin@bradesco.com",
+        email="admin@tatvacare.in",
         password_hash=hash_password("admin123"),
         display_name="Admin User",
         role_id=OWNER_ROLE_ID,
@@ -81,6 +81,9 @@ async def seed_all(db: AsyncSession) -> None:
 
     from app.services.cohort_seed import seed_diabetes_program
     await seed_diabetes_program(db)
+
+    from app.services.comms_seed import seed_comms
+    await seed_comms(db)
 
     # Emit events for initial cohortisation
     from app.workers.event_emitter import emit_bulk_events

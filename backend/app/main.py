@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import async_session, engine
 from app.models import Base
-from app.routers import ai, ai_sessions, auth, cohortisation, command_center, pathways, patients, programs
+from app.routers import ai, ai_sessions, auth, cohortisation, command_center, communications, pathways, patients, programs
 from app.services.seed_service import seed_all
 from app.workers import cohortisation_worker
 
@@ -52,6 +52,7 @@ ROUTER_REGISTRY = [
     (programs.router, "/api/programs", ["Programs"]),
     (cohortisation.router, "/api/cohortisation", ["Cohortisation"]),
     (command_center.router, "/api/command-center", ["Command Center"]),
+    (communications.router, "/api/communications", ["Communications"]),
     (ai.router, "/api/ai", ["AI"]),
     (ai_sessions.router, "/api/ai/sessions", ["AI Sessions"]),
 ]
