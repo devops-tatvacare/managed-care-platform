@@ -11,7 +11,7 @@ import { UpcomingReviews } from "@/features/command-center/components/upcoming-r
 
 export default function CommandCenterPage() {
   const {
-    kpis, kpisLoading,
+    kpis,
     actionQueue, actionQueueLoading,
     insights, insightsLoading,
     upcomingReviews, reviewsLoading,

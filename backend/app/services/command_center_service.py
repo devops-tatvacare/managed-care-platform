@@ -9,7 +9,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.models.cohort import Cohort, CohortAssignment
+from app.models.cohort import CohortAssignment
 from app.models.patient import Patient, PatientLab
 from app.models.program import Program
 
@@ -103,7 +103,7 @@ async def get_action_queue(
     db: AsyncSession, tenant_id: uuid.UUID, limit: int = 20,
 ) -> dict:
     items: list[dict] = []
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
 
     overdue_q = (
         select(CohortAssignment)
@@ -307,7 +307,7 @@ def _build_static_insights(kpis: dict) -> str:
 async def get_upcoming_reviews(
     db: AsyncSession, tenant_id: uuid.UUID, limit: int = 20,
 ) -> dict:
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
 
     q = (
         select(CohortAssignment)
