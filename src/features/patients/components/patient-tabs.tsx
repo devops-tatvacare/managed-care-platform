@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CareProtocolsTab } from "@/features/patients/components/care-protocols-tab";
 import { ClinicalDataTab } from "@/features/patients/components/clinical-data-tab";
 import { TimelineTab } from "@/features/patients/components/timeline-tab";
+import { RiskCRSTab } from "@/features/patients/components/risk-crs-tab";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Icons } from "@/config/icons";
 import type { PatientDetail, PatientLabRecord } from "@/services/types/patient";
@@ -60,11 +61,7 @@ export function PatientTabs({ patient, labs }: PatientTabsProps) {
       </TabsContent>
 
       <TabsContent value="risk-crs" className="mt-4">
-        <EmptyState
-          icon={Icons.risk}
-          title="Risk & CRS"
-          description="Clinical risk score breakdown will appear here."
-        />
+        <RiskCRSTab />
       </TabsContent>
 
       <TabsContent value="claims" className="mt-4">
