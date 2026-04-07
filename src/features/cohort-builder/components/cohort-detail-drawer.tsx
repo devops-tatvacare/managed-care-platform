@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { CriteriaNode } from "@/services/types/program";
 import { useCohortBuilderStore } from "@/stores/cohort-builder-store";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Icons } from "@/config/icons";
+import { CriteriaEditor } from "./criteria-editor";
 
 const REVIEW_CADENCE_OPTIONS = [
   { value: "7", label: "Weekly" },
@@ -25,7 +27,7 @@ const COLOR_SWATCHES = [
 ];
 
 export function CohortDetailDrawer() {
-  const { program, selectedCohortId, selectCohort, updateCohort, deleteCohort } = useCohortBuilderStore();
+  const { program, selectedCohortId, selectCohort, updateCohort, deleteCohort, saveCriteria } = useCohortBuilderStore();
 
   const cohort = program?.cohorts.find((c) => c.id === selectedCohortId) ?? null;
   const open = !!cohort;
@@ -37,6 +39,7 @@ export function CohortDetailDrawer() {
   const [reviewCadence, setReviewCadence] = useState("30");
   const [scoreMin, setScoreMin] = useState("");
   const [scoreMax, setScoreMax] = useState("");
+  const [criteria, setCriteria] = useState<CriteriaNode[]>([]);
 
   useEffect(() => {
     if (cohort) {
@@ -60,6 +63,7 @@ export function CohortDetailDrawer() {
       score_range_min: scoreMin ? Number(scoreMin) : undefined,
       score_range_max: scoreMax ? Number(scoreMax) : undefined,
     });
+    await saveCriteria(selectedCohortId, criteria);
     selectCohort(null);
   };
 
@@ -143,9 +147,7 @@ export function CohortDetailDrawer() {
           {/* Criteria placeholder */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-text-muted">Criteria</label>
-            <div className="rounded-lg border border-dashed border-border-default p-4 text-center text-xs text-text-muted">
-              Criteria editor coming in next task
-            </div>
+            <CriteriaEditor criteria={criteria} onChange={setCriteria} />
           </div>
         </div>
 
