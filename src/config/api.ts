@@ -14,6 +14,7 @@ export const API_ENDPOINTS = {
     protocols: (id: string) => `/api/patients/${id}/protocols`,
     timeline: (id: string) => `/api/patients/${id}/timeline`,
     communications: (id: string) => `/api/patients/${id}/communications`,
+    cohortAssignments: (id: string) => `/api/patients/${id}/cohort-assignments`,
   },
   pathways: {
     list: "/api/pathways",

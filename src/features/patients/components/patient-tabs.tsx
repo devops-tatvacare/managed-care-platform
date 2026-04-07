@@ -3,6 +3,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CareProtocolsTab } from "@/features/patients/components/care-protocols-tab";
 import { ClinicalDataTab } from "@/features/patients/components/clinical-data-tab";
+import { CohortMembershipTab } from "@/features/patients/components/cohort-membership-tab";
 import { TimelineTab } from "@/features/patients/components/timeline-tab";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Icons } from "@/config/icons";
@@ -23,6 +24,7 @@ export function PatientTabs({ patient, labs }: PatientTabsProps) {
         {[
           { value: "care-protocols", label: "Care Protocols" },
           { value: "clinical-data", label: "Clinical Data" },
+          { value: "cohort", label: "Cohort Membership" },
           { value: "timeline", label: "Timeline" },
           { value: "communications", label: "Communications" },
           { value: "claims", label: "Claims" },
@@ -44,6 +46,10 @@ export function PatientTabs({ patient, labs }: PatientTabsProps) {
 
       <TabsContent value="clinical-data" className="mt-4">
         <ClinicalDataTab patient={patient} labs={labs} />
+      </TabsContent>
+
+      <TabsContent value="cohort" className="mt-4">
+        <CohortMembershipTab patientId={patient.id} />
       </TabsContent>
 
       <TabsContent value="timeline" className="mt-4">

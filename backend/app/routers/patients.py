@@ -14,6 +14,10 @@ from app.schemas.patient import (
     PatientListItem,
     PatientListResponse,
 )
+from sqlalchemy import select
+from sqlalchemy.orm import joinedload
+
+from app.models.cohort import Cohort, CohortAssignment
 from app.services.patient_service import (
     get_patient,
     get_patient_diagnoses,
@@ -124,4 +128,44 @@ async def patient_diagnoses(
             is_active=d.is_active,
         )
         for d in diagnoses
+    ]
+
+
+@router.get("/{patient_id}/cohort-assignments")
+async def patient_cohort_assignments(
+    patient_id: uuid.UUID,
+    auth: AuthContext = Depends(get_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    stmt = (
+        select(CohortAssignment)
+        .options(joinedload(CohortAssignment.cohort).joinedload(Cohort.program))
+        .where(
+            CohortAssignment.tenant_id == auth.tenant_id,
+            CohortAssignment.patient_id == patient_id,
+            CohortAssignment.is_current == True,  # noqa: E712
+        )
+        .order_by(CohortAssignment.assigned_at.desc())
+    )
+    result = await db.execute(stmt)
+    assignments = result.scalars().unique().all()
+    return [
+        {
+            "id": str(a.id),
+            "patient_id": str(a.patient_id),
+            "patient_name": None,
+            "program_id": str(a.program_id),
+            "program_name": a.cohort.program.name if a.cohort and a.cohort.program else None,
+            "cohort_id": str(a.cohort_id),
+            "cohort_name": a.cohort.name if a.cohort else None,
+            "cohort_color": a.cohort.color if a.cohort else "#e2e8f0",
+            "score": a.score,
+            "score_breakdown": a.score_breakdown,
+            "assignment_type": a.assignment_type,
+            "reason": a.reason,
+            "previous_cohort_id": str(a.previous_cohort_id) if a.previous_cohort_id else None,
+            "assigned_at": a.assigned_at.isoformat() if a.assigned_at else None,
+            "review_due_at": a.review_due_at.isoformat() if a.review_due_at else None,
+        }
+        for a in assignments
     ]

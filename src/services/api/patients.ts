@@ -6,6 +6,7 @@ import type {
   PatientLabRecord,
   PatientDiagnosisRecord,
 } from "@/services/types/patient";
+import type { AssignmentRecord } from "@/services/types/cohort";
 
 interface PatientListParams {
   page?: number;
@@ -40,5 +41,12 @@ export async function fetchPatientDiagnoses(id: string): Promise<PatientDiagnosi
   return apiRequest<PatientDiagnosisRecord[]>({
     method: "GET",
     path: API_ENDPOINTS.patients.detail(id) + "/diagnoses",
+  });
+}
+
+export async function fetchPatientCohorts(id: string): Promise<AssignmentRecord[]> {
+  return apiRequest<AssignmentRecord[]>({
+    method: "GET",
+    path: API_ENDPOINTS.patients.cohortAssignments(id),
   });
 }

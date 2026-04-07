@@ -18,6 +18,7 @@ export interface AssignmentRecord {
   patient_id: string;
   patient_name: string;
   program_id: string;
+  program_name: string | null;
   cohort_id: string;
   cohort_name: string;
   cohort_color: string;
