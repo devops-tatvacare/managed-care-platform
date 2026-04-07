@@ -1,26 +1,20 @@
 import { create } from "zustand";
-import {
-  fetchCRSConfig,
-  updateCRSConfig,
-  recalculateAll,
-  fetchAssignments,
-  fetchTierDistribution,
-} from "@/services/api/cohortisation";
-import type {
-  AssignmentRecord,
-  CRSComponent,
-  CRSConfigResponse,
-  RecalculateResponse,
-  TierDistributionItem,
-  TierThreshold,
-  TiebreakerRule,
-} from "@/services/types/cohort";
+import { fetchDashboard, recalculateAll, fetchAssignments, fetchDistribution } from "@/services/api/cohortisation";
+import { fetchPrograms } from "@/services/api/programs";
+import type { ProgramListItem } from "@/services/types/program";
+import type { AssignmentRecord, CohortDistribution, DashboardStats, RecalculateResponse } from "@/services/types/cohort";
 
 interface CohortisationStore {
-  // CRS Config
-  config: CRSConfigResponse | null;
-  configLoading: boolean;
-  configError: string | null;
+  // Dashboard
+  stats: DashboardStats | null;
+  statsLoading: boolean;
+
+  // Programs
+  programs: ProgramListItem[];
+  programsLoading: boolean;
+
+  // Distribution (per-program, keyed by program ID)
+  distributions: Record<string, CohortDistribution[]>;
 
   // Assignments
   assignments: AssignmentRecord[];
@@ -29,70 +23,66 @@ interface CohortisationStore {
   assignmentsPages: number;
   assignmentsLoading: boolean;
 
-  // Distribution
-  distribution: TierDistributionItem[];
-  distributionTotal: number;
-  distributionLoading: boolean;
-
   // Recalculation
   recalculating: boolean;
   lastRecalcResult: RecalculateResponse | null;
 
   // Actions
-  loadConfig: () => Promise<void>;
-  saveConfig: (data: {
-    components?: CRSComponent[];
-    tier_thresholds?: TierThreshold[];
-    tiebreaker_rules?: TiebreakerRule[];
-  }) => Promise<void>;
-  loadAssignments: (page?: number) => Promise<void>;
-  loadDistribution: () => Promise<void>;
+  loadDashboard: () => Promise<void>;
+  loadPrograms: () => Promise<void>;
+  loadDistribution: (programId: string) => Promise<void>;
+  loadAssignments: (params?: { page?: number; program_id?: string; cohort_id?: string }) => Promise<void>;
   recalculate: (patientIds?: string[]) => Promise<RecalculateResponse | null>;
   reset: () => void;
 }
 
 export const useCohortisationStore = create<CohortisationStore>((set, get) => ({
-  config: null,
-  configLoading: false,
-  configError: null,
-
+  stats: null,
+  statsLoading: false,
+  programs: [],
+  programsLoading: false,
+  distributions: {},
   assignments: [],
   assignmentsTotal: 0,
   assignmentsPage: 1,
   assignmentsPages: 1,
   assignmentsLoading: false,
-
-  distribution: [],
-  distributionTotal: 0,
-  distributionLoading: false,
-
   recalculating: false,
   lastRecalcResult: null,
 
-  loadConfig: async () => {
-    set({ configLoading: true, configError: null });
+  loadDashboard: async () => {
+    set({ statsLoading: true });
     try {
-      const config = await fetchCRSConfig();
-      set({ config, configLoading: false });
+      const stats = await fetchDashboard();
+      set({ stats, statsLoading: false });
     } catch {
-      set({ configError: "Failed to load CRS config", configLoading: false });
+      set({ statsLoading: false });
     }
   },
 
-  saveConfig: async (data) => {
-    set({ configLoading: true, configError: null });
+  loadPrograms: async () => {
+    set({ programsLoading: true });
     try {
-      const config = await updateCRSConfig(data);
-      set({ config, configLoading: false });
+      const programs = await fetchPrograms();
+      set({ programs, programsLoading: false });
     } catch {
-      set({ configError: "Failed to save CRS config", configLoading: false });
+      set({ programsLoading: false });
     }
   },
 
-  loadAssignments: async (page = 1) => {
+  loadDistribution: async (programId: string) => {
+    try {
+      const dist = await fetchDistribution(programId);
+      set((s) => ({ distributions: { ...s.distributions, [programId]: dist } }));
+    } catch {
+      // silent
+    }
+  },
+
+  loadAssignments: async (params) => {
     set({ assignmentsLoading: true });
     try {
-      const result = await fetchAssignments({ page, page_size: 20 });
+      const result = await fetchAssignments({ page: params?.page ?? 1, page_size: 20, ...params });
       set({
         assignments: result.items,
         assignmentsTotal: result.total,
@@ -105,29 +95,13 @@ export const useCohortisationStore = create<CohortisationStore>((set, get) => ({
     }
   },
 
-  loadDistribution: async () => {
-    set({ distributionLoading: true });
-    try {
-      const result = await fetchTierDistribution();
-      set({
-        distribution: result.distribution,
-        distributionTotal: result.total,
-        distributionLoading: false,
-      });
-    } catch {
-      set({ distributionLoading: false });
-    }
-  },
-
   recalculate: async (patientIds) => {
     set({ recalculating: true });
     try {
       const result = await recalculateAll(patientIds);
       set({ recalculating: false, lastRecalcResult: result });
-      // Reload distribution and assignments after recalculation
-      const store = get();
-      await store.loadDistribution();
-      await store.loadAssignments(1);
+      await get().loadDashboard();
+      await get().loadPrograms();
       return result;
     } catch {
       set({ recalculating: false });
@@ -135,21 +109,11 @@ export const useCohortisationStore = create<CohortisationStore>((set, get) => ({
     }
   },
 
-  reset: () => {
-    set({
-      config: null,
-      configLoading: false,
-      configError: null,
-      assignments: [],
-      assignmentsTotal: 0,
-      assignmentsPage: 1,
-      assignmentsPages: 1,
-      assignmentsLoading: false,
-      distribution: [],
-      distributionTotal: 0,
-      distributionLoading: false,
-      recalculating: false,
-      lastRecalcResult: null,
-    });
-  },
+  reset: () => set({
+    stats: null, statsLoading: false,
+    programs: [], programsLoading: false,
+    distributions: {},
+    assignments: [], assignmentsTotal: 0, assignmentsPage: 1, assignmentsPages: 1, assignmentsLoading: false,
+    recalculating: false, lastRecalcResult: null,
+  }),
 }));
