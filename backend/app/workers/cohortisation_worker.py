@@ -1,0 +1,199 @@
+"""Async background worker that processes cohortisation events.
+
+Polls the cohortisation_events table for pending events, scores the affected
+patients against all active programs in the tenant, and creates/updates
+cohort assignments.
+"""
+
+from __future__ import annotations
+
+import asyncio
+import logging
+import uuid
+from datetime import datetime, timedelta, timezone
+
+from sqlalchemy import select, update
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
+from app.database import async_session
+from app.models.cohort import (
+    Cohort, CohortAssignment, CohortisationEvent, ScoringEngine,
+)
+from app.models.patient import Patient
+from app.models.program import Program
+from app.services.criteria_evaluator import evaluate_criteria_tree
+from app.services.patient_data import build_patient_data
+from app.services.scoring_engine_service import score_patient
+
+logger = logging.getLogger(__name__)
+
+POLL_INTERVAL = 5  # seconds
+BATCH_SIZE = 50
+
+
+async def run(shutdown_event: asyncio.Event | None = None) -> None:
+    """Main worker loop. Polls for pending events and processes them."""
+    logger.info("Cohortisation worker started")
+    while True:
+        if shutdown_event and shutdown_event.is_set():
+            break
+        try:
+            async with async_session() as db:
+                processed = await _process_batch(db)
+                if processed > 0:
+                    logger.info(f"Processed {processed} cohortisation events")
+        except Exception:
+            logger.exception("Error in cohortisation worker")
+
+        await asyncio.sleep(POLL_INTERVAL)
+
+
+async def _process_batch(db: AsyncSession) -> int:
+    """Process a batch of pending events."""
+    # Fetch pending events
+    result = await db.execute(
+        select(CohortisationEvent)
+        .where(CohortisationEvent.status == "pending")
+        .order_by(CohortisationEvent.created_at)
+        .limit(BATCH_SIZE)
+    )
+    events = list(result.scalars().all())
+    if not events:
+        return 0
+
+    # Mark as processing
+    event_ids = [e.id for e in events]
+    await db.execute(
+        update(CohortisationEvent)
+        .where(CohortisationEvent.id.in_(event_ids))
+        .values(status="processing")
+    )
+    await db.commit()
+
+    # Group by tenant + patient for efficiency
+    processed = 0
+    for event in events:
+        try:
+            await _process_event(db, event)
+            event.status = "completed"
+            event.processed_at = datetime.now(timezone.utc)
+        except Exception as exc:
+            logger.exception(f"Failed to process event {event.id}")
+            event.status = "failed"
+            event.error = str(exc)
+        processed += 1
+
+    await db.commit()
+    return processed
+
+
+async def _process_event(db: AsyncSession, event: CohortisationEvent) -> None:
+    """Process a single cohortisation event — score patient against all active programs."""
+    # Load patient
+    result = await db.execute(
+        select(Patient)
+        .where(Patient.id == event.patient_id, Patient.tenant_id == event.tenant_id)
+        .options(selectinload(Patient.labs), selectinload(Patient.diagnoses))
+    )
+    patient = result.scalar_one_or_none()
+    if not patient or not patient.is_active:
+        return
+
+    # Build patient data
+    patient_data = build_patient_data(patient, list(patient.labs), list(patient.diagnoses))
+
+    # Load active programs for tenant
+    programs_result = await db.execute(
+        select(Program)
+        .where(Program.tenant_id == event.tenant_id, Program.status == "active")
+        .options(
+            selectinload(Program.cohorts).selectinload(Cohort.criteria),
+            selectinload(Program.scoring_engine),
+        )
+    )
+    programs = list(programs_result.scalars().all())
+
+    for program in programs:
+        await _assign_patient_to_program(db, event.tenant_id, patient, patient_data, program)
+
+
+async def _assign_patient_to_program(
+    db: AsyncSession,
+    tenant_id: uuid.UUID,
+    patient: Patient,
+    patient_data,
+    program: Program,
+) -> None:
+    """Assign a patient to a cohort within a program."""
+    cohorts = sorted(program.cohorts, key=lambda c: c.sort_order)
+    if not cohorts:
+        return
+
+    score_result: dict | None = None
+    matched_cohort: Cohort | None = None
+    assignment_type = "criteria"
+
+    # If program has a scoring engine, use it
+    if program.scoring_engine and program.scoring_engine.is_active:
+        score_result = score_patient(patient_data, program.scoring_engine, cohorts)
+        matched_cohort = next(
+            (c for c in cohorts if c.id == score_result["cohort_id"]), None
+        )
+        assignment_type = "engine"
+
+    # Otherwise, use criteria matching — find first cohort whose criteria match
+    if matched_cohort is None:
+        for cohort in cohorts:
+            criteria = list(cohort.criteria) if cohort.criteria else []
+            if evaluate_criteria_tree(criteria, patient_data):
+                matched_cohort = cohort
+                break
+
+    if not matched_cohort:
+        return  # Patient doesn't match any cohort
+
+    # Get current assignment for this patient+program
+    current_result = await db.execute(
+        select(CohortAssignment).where(
+            CohortAssignment.patient_id == patient.id,
+            CohortAssignment.program_id == program.id,
+            CohortAssignment.is_current == True,
+        )
+    )
+    current = current_result.scalar_one_or_none()
+
+    # Skip if already assigned to the same cohort
+    if current and current.cohort_id == matched_cohort.id:
+        return
+
+    # Mark old as not current
+    if current:
+        current.is_current = False
+
+    # Create new assignment
+    now = datetime.now(timezone.utc)
+    assignment = CohortAssignment(
+        tenant_id=tenant_id,
+        patient_id=patient.id,
+        program_id=program.id,
+        cohort_id=matched_cohort.id,
+        score=score_result["score"] if score_result else None,
+        score_breakdown=score_result["breakdown"] if score_result else None,
+        assignment_type=assignment_type,
+        reason=score_result.get("reason") if score_result else None,
+        previous_cohort_id=current.cohort_id if current else None,
+        is_current=True,
+        assigned_at=now,
+        review_due_at=now + timedelta(days=matched_cohort.review_cadence_days),
+    )
+    db.add(assignment)
+
+    # Update cohort member counts
+    matched_cohort.member_count = (matched_cohort.member_count or 0) + 1
+    if current:
+        old_cohort = next((c for c in program.cohorts if c.id == current.cohort_id), None)
+        if old_cohort and old_cohort.member_count > 0:
+            old_cohort.member_count -= 1
+
+    await db.flush()
