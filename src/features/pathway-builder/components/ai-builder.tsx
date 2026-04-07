@@ -220,13 +220,13 @@ export function AIBuilder() {
 
         {/* Input */}
         <div className="border-t border-border-default p-3">
-          <div className="flex items-end gap-2">
+          <div className="relative">
             <Textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Describe your care pathway..."
-              className="min-h-10 max-h-32 resize-none text-sm"
+              className="min-h-10 max-h-32 resize-none pr-12 text-sm"
               rows={1}
               disabled={loading}
             />
@@ -234,6 +234,7 @@ export function AIBuilder() {
               size="icon-sm"
               onClick={() => handleSend()}
               disabled={!input.trim() || loading}
+              className="absolute right-2 bottom-2"
             >
               <Icons.send className="h-4 w-4" />
             </Button>
