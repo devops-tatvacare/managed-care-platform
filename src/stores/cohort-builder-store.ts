@@ -6,7 +6,6 @@ import type {
   CohortCreate,
   CohortUpdate,
   CriteriaNode,
-  ScoringEngineSummary,
   ScoringEngineUpsert,
   ProgramVersion,
 } from "@/services/types/program";
