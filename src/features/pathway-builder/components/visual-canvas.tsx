@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -8,132 +8,137 @@ import {
   Controls,
   MiniMap,
   useReactFlow,
-  applyNodeChanges,
-  applyEdgeChanges,
+  useNodesState,
+  useEdgesState,
   addEdge,
   type Node,
   type Edge,
   type Connection,
-  type OnNodesChange,
-  type OnEdgesChange,
   type OnConnect,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { PathwayBlockNode } from "./pathway-block-node";
 import { usePathwayBuilderStore } from "@/stores/pathway-builder-store";
+import type { PathwayEdgeSchema } from "@/services/types/pathway";
+
+// ── Helpers ─────────────────────────────────────────────────────────────
+
+function blocksToNodes(
+  blocks: ReturnType<typeof usePathwayBuilderStore.getState>["blocks"],
+): Node[] {
+  return blocks.map((b) => ({
+    id: b.id,
+    type: "pathwayBlock",
+    position: b.position ?? { x: 0, y: 0 },
+    data: { label: b.label, block_type: b.block_type, category: b.category },
+  }));
+}
+
+function storeEdgesToFlowEdges(
+  storeEdges: ReturnType<typeof usePathwayBuilderStore.getState>["edges"],
+): Edge[] {
+  return storeEdges.map((e) => ({
+    id: e.id,
+    source: e.source_block_id,
+    target: e.target_block_id,
+    type: "smoothstep",
+    label: e.label ?? undefined,
+    animated: e.edge_type === "true_branch",
+    style: {
+      stroke:
+        e.edge_type === "true_branch"
+          ? "#22c55e"
+          : e.edge_type === "false_branch"
+            ? "#ef4444"
+            : "#94a3b8",
+      strokeWidth: 2,
+    },
+  }));
+}
+
+// ── Canvas Inner ────────────────────────────────────────────────────────
 
 function VisualCanvasInner() {
-  const blocks = usePathwayBuilderStore((s) => s.blocks);
-  const edges = usePathwayBuilderStore((s) => s.edges);
-  const selectedBlockId = usePathwayBuilderStore((s) => s.selectedBlockId);
+  const storeBlocks = usePathwayBuilderStore((s) => s.blocks);
+  const storeEdges = usePathwayBuilderStore((s) => s.edges);
   const selectBlock = usePathwayBuilderStore((s) => s.selectBlock);
   const addBlock = usePathwayBuilderStore((s) => s.addBlock);
-  const setBlocks = usePathwayBuilderStore((s) => s.setBlocks);
-  const setEdges = usePathwayBuilderStore((s) => s.setEdges);
+  const setStoreBlocks = usePathwayBuilderStore((s) => s.setBlocks);
+  const setStoreEdges = usePathwayBuilderStore((s) => s.setEdges);
   const setDirty = usePathwayBuilderStore((s) => s.setDirty);
 
-  const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const { screenToFlowPosition } = useReactFlow();
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const { screenToFlowPosition, fitView } = useReactFlow();
 
-  const nodeTypes = useMemo(
-    () => ({ pathwayBlock: PathwayBlockNode }),
-    [],
-  );
+  const nodeTypes = useMemo(() => ({ pathwayBlock: PathwayBlockNode }), []);
 
-  const nodes: Node[] = useMemo(
-    () =>
-      blocks.map((b) => ({
-        id: b.id,
-        type: "pathwayBlock",
-        position: b.position ?? { x: 0, y: 0 },
-        data: { label: b.label, block_type: b.block_type, category: b.category },
-        selected: b.id === selectedBlockId,
-      })),
-    [blocks, selectedBlockId],
-  );
+  // React Flow internal state
+  const [nodes, setNodes, onNodesChange] = useNodesState(blocksToNodes(storeBlocks));
+  const [edges, setEdges, onEdgesChange] = useEdgesState(storeEdgesToFlowEdges(storeEdges));
 
-  const flowEdges: Edge[] = useMemo(
-    () =>
-      edges.map((e) => ({
-        id: e.id,
-        source: e.source_block_id,
-        target: e.target_block_id,
-        type: "smoothstep",
-        label: e.label ?? undefined,
-        animated: e.edge_type === "true_branch",
-        style: {
-          stroke:
-            e.edge_type === "true_branch"
-              ? "#22c55e"
-              : e.edge_type === "false_branch"
-                ? "#ef4444"
-                : "#94a3b8",
-          strokeWidth: 2,
-        },
-      })),
-    [edges],
-  );
+  // Sync store → React Flow when store blocks/edges change (e.g. from API load or AI accept)
+  const prevBlockIdsRef = useRef<string>("");
+  const prevEdgeIdsRef = useRef<string>("");
 
-  const onNodesChange: OnNodesChange = useCallback(
-    (changes) => {
-      const updated = applyNodeChanges(changes, nodes);
-      const nextBlocks = blocks.map((block) => {
-        const node = updated.find((n) => n.id === block.id);
-        if (!node) return block;
-        return { ...block, position: node.position };
-      });
-      setBlocks(nextBlocks);
+  useEffect(() => {
+    const blockIds = storeBlocks.map((b) => b.id).join(",");
+    if (blockIds !== prevBlockIdsRef.current) {
+      prevBlockIdsRef.current = blockIds;
+      setNodes(blocksToNodes(storeBlocks));
+      // fitView after nodes update
+      setTimeout(() => fitView({ padding: 0.15 }), 100);
+    }
+  }, [storeBlocks, setNodes, fitView]);
+
+  useEffect(() => {
+    const edgeIds = storeEdges.map((e) => e.id).join(",");
+    if (edgeIds !== prevEdgeIdsRef.current) {
+      prevEdgeIdsRef.current = edgeIds;
+      setEdges(storeEdgesToFlowEdges(storeEdges));
+    }
+  }, [storeEdges, setEdges]);
+
+  // Sync position changes back to store on drag stop
+  const onNodeDragStop = useCallback(
+    (_: React.MouseEvent, node: Node) => {
+      const updated = storeBlocks.map((b) =>
+        b.id === node.id ? { ...b, position: node.position } : b,
+      );
+      setStoreBlocks(updated);
       setDirty(true);
     },
-    [blocks, nodes, setBlocks, setDirty],
+    [storeBlocks, setStoreBlocks, setDirty],
   );
 
-  const onEdgesChange: OnEdgesChange = useCallback(
-    (changes) => {
-      const updated = applyEdgeChanges(changes, flowEdges);
-      const nextEdges = updated.map((fe) => ({
-        id: fe.id,
-        source_block_id: fe.source,
-        target_block_id: fe.target,
-        edge_type: fe.animated ? "true_branch" : "default",
-        label: (fe.label as string) ?? null,
-      }));
-      setEdges(nextEdges);
-      setDirty(true);
-    },
-    [flowEdges, setEdges, setDirty],
-  );
-
+  // New edge connection
   const onConnect: OnConnect = useCallback(
     (connection: Connection) => {
-      const newEdge: Edge = {
+      setEdges((eds) =>
+        addEdge(
+          { ...connection, type: "smoothstep", style: { stroke: "#94a3b8", strokeWidth: 2 } },
+          eds,
+        ),
+      );
+      const newEdge: PathwayEdgeSchema = {
         id: `e-${connection.source}-${connection.target}`,
-        source: connection.source,
-        target: connection.target,
-        type: "smoothstep",
-        style: { stroke: "#94a3b8", strokeWidth: 2 },
+        source_block_id: connection.source,
+        target_block_id: connection.target,
+        edge_type: "default",
+        label: null,
       };
-      const updated = addEdge(newEdge, flowEdges);
-      const nextEdges = updated.map((fe) => ({
-        id: fe.id,
-        source_block_id: fe.source,
-        target_block_id: fe.target,
-        edge_type: fe.animated ? "true_branch" : "default",
-        label: (fe.label as string) ?? null,
-      }));
-      setEdges(nextEdges);
+      setStoreEdges([...storeEdges, newEdge]);
       setDirty(true);
     },
-    [flowEdges, setEdges, setDirty],
+    [setEdges, storeEdges, setStoreEdges, setDirty],
   );
 
+  // Click node → select block for config drawer
   const onNodeClick = useCallback(
-    (_: React.MouseEvent, node: Node) => {
-      selectBlock(node.id);
-    },
+    (_: React.MouseEvent, node: Node) => selectBlock(node.id),
     [selectBlock],
   );
 
+  // Drag-and-drop from component library
   const onDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "copy";
@@ -144,44 +149,41 @@ function VisualCanvasInner() {
       e.preventDefault();
       const raw = e.dataTransfer.getData("application/json");
       if (!raw) return;
-
       try {
-        const data = JSON.parse(raw) as {
-          block_type: string;
-          category: string;
-          label: string;
-        };
-        const position = screenToFlowPosition({
-          x: e.clientX,
-          y: e.clientY,
-        });
-        addBlock({
-          block_type: data.block_type,
-          category: data.category,
-          label: data.label,
-          position,
-        });
+        const data = JSON.parse(raw) as { block_type: string; category: string; label: string };
+        const position = screenToFlowPosition({ x: e.clientX, y: e.clientY });
+
+        // Add to React Flow immediately
+        const id = crypto.randomUUID();
+        setNodes((nds) => [
+          ...nds,
+          {
+            id,
+            type: "pathwayBlock",
+            position,
+            data: { label: data.label, block_type: data.block_type, category: data.category },
+          },
+        ]);
+
+        // Add to store (async, persists to backend)
+        addBlock({ block_type: data.block_type, category: data.category, label: data.label, position });
       } catch {
-        // ignore malformed drops
+        // ignore
       }
     },
-    [screenToFlowPosition, addBlock],
+    [screenToFlowPosition, setNodes, addBlock],
   );
 
   return (
-    <div
-      ref={reactFlowWrapper}
-      className="h-full w-full"
-      onDragOver={onDragOver}
-      onDrop={onDrop}
-    >
+    <div ref={wrapperRef} className="h-full w-full" onDragOver={onDragOver} onDrop={onDrop}>
       <ReactFlow
         nodes={nodes}
-        edges={flowEdges}
+        edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeClick={onNodeClick}
+        onNodeDragStop={onNodeDragStop}
         nodeTypes={nodeTypes}
         fitView
         proOptions={{ hideAttribution: true }}
@@ -209,6 +211,8 @@ function VisualCanvasInner() {
     </div>
   );
 }
+
+// ── Export ───────────────────────────────────────────────────────────────
 
 export function VisualCanvas() {
   return (
