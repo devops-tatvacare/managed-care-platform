@@ -27,20 +27,38 @@ interface ChatMessage {
 
 const TEMPLATE_PROMPTS = [
   {
-    label: "Diabetes T2DM",
-    prompt: "Create a care pathway for Type 2 Diabetes patients with HbA1c ≥ 7%, including quarterly lab monitoring, medication adherence tracking, and escalation to Tier 4 if HbA1c exceeds 10%.",
+    label: "Diabetes T2DM — Full Program",
+    prompt: `Design a comprehensive Type 2 Diabetes care pathway for Tiers 2-4. Include:
+- Eligibility: ICD-10 E11.x, HbA1c ≥ 7%, exclude ESRD and hospice patients
+- Lab monitoring: HbA1c quarterly, eGFR every 6 months, uACR annually, lipid panel annually
+- Medication protocol: Start Metformin if not contraindicated (eGFR > 30), escalate to GLP-1RA if HbA1c remains > 8% after 3 months, add SGLT2i if eGFR 25-60 with uACR > 30
+- Outreach: WhatsApp enrollment message, AI-personalised follow-ups, escalate to RN call if no response after 3 attempts
+- Adherence: Flag PDC < 80% on any diabetes medication, trigger pharmacist review
+- Escalation: Auto-uptier to Tier 4 if HbA1c > 10%, any DKA hospitalisation, or 2+ ER visits in 12 months. Down-tier eligible after HbA1c < 7% sustained for 2 quarters with clinician confirmation
+- Safety: PHQ-9 screening quarterly, immediate RN flag if score ≥ 15 or suicidal ideation keywords detected
+- Care team: RN care manager monthly, PharmD medication review quarterly, endocrinology referral if on 3+ agents`,
   },
   {
-    label: "Heart Failure",
-    prompt: "Design a pathway for heart failure patients (I50.x) with cardiology referrals, monthly BNP monitoring, and weight-based escalation triggers.",
+    label: "Heart Failure Comorbidity",
+    prompt: "Pathway for diabetic patients with heart failure (I50.x). Cardiology referral, monthly BNP and weight monitoring, SGLT2i initiation if eGFR > 25, and 911 escalation protocol for acute decompensation.",
   },
   {
     label: "Pre-Diabetes Prevention",
-    prompt: "Build a Tier 0 prevention pathway for at-risk patients with BMI ≥ 25 and HbA1c 5.7-6.4%, including lifestyle coaching and quarterly check-ins.",
+    prompt: `Build a Tier 0 prevention pathway:
+- Eligibility: No diabetes diagnosis, BMI ≥ 25 (≥ 23 for South/East Asian), HbA1c 5.4-6.4% or FPG 90-125
+- Program: CDC-recognised DPP curriculum — 16 weekly group sessions + 6 months maintenance
+- Monitoring: HbA1c every 6 months, weight monthly via connected scale, daily step tracking (target 7000/day)
+- Touchpoints: Weekly group coaching video call, monthly 1:1 coach check-in, quarterly PHQ-9/DDS screening
+- Escalation: Auto-promote to Tier 1 if HbA1c rises to 5.7-6.4%, or Tier 2 if HbA1c ≥ 6.5%
+- Digital: Daily app nudges, habit tracking, cultural cuisine profile (South Asian, Latin American, Mediterranean options)`,
   },
   {
-    label: "CKD Comorbidity",
-    prompt: "Create a pathway for diabetic patients with CKD stage 3+ (eGFR < 45), including nephrology referral, medication safety gating, and monthly renal function monitoring.",
+    label: "CKD Nephropathy",
+    prompt: "Pathway for CKD stage 3+ (eGFR < 45) in diabetic patients. Nephrology referral, hold Metformin dose increase if eGFR missing, monthly renal function labs, ACE/ARB optimisation, and SGLT2i contraindication gating.",
+  },
+  {
+    label: "Post-Discharge Transition",
+    prompt: "Create a 30-day transition care pathway triggered by any DM-related hospitalisation or DKA event. Include 48-hour post-discharge RN call, medication reconciliation within 7 days, PCP follow-up within 14 days, and weekly check-ins for 4 weeks.",
   },
 ];
 
