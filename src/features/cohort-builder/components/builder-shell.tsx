@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { AIBuilder } from "./ai-builder";
 import { CohortCards } from "./cohort-cards";
 import { ScoringEnginePanel } from "./scoring-engine-panel";
+import { OverrideRulesPanel } from "./override-rules-panel";
+import { LinkedPathwaysPanel } from "./linked-pathways-panel";
 
 const MODE_TABS = [
   { value: "ai", label: "AI Builder" },
@@ -127,12 +129,8 @@ export function BuilderShell() {
             <div className="flex-1 overflow-y-auto p-6">
               {configTab === "cohorts" && <CohortCards />}
               {configTab === "scoring" && <ScoringEnginePanel />}
-              {configTab === "overrides" && (
-                <div className="text-sm text-text-muted">Override rules — coming in Task 9</div>
-              )}
-              {configTab === "pathways" && (
-                <div className="text-sm text-text-muted">Linked pathways — coming in Task 9</div>
-              )}
+              {configTab === "overrides" && <OverrideRulesPanel />}
+              {configTab === "pathways" && <LinkedPathwaysPanel />}
             </div>
           </>
         )}
