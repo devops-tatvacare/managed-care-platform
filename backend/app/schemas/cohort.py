@@ -1,20 +1,41 @@
 from __future__ import annotations
-
-from pydantic import BaseModel
 from typing import Any
+from pydantic import BaseModel
 
 
-class CRSConfigResponse(BaseModel):
-    id: str
+class CohortCreate(BaseModel):
+    name: str
+    slug: str | None = None
+    description: str | None = None
+    color: str | None = None
+    sort_order: int | None = None
+    review_cadence_days: int | None = None
+    score_range_min: int | None = None
+    score_range_max: int | None = None
+
+
+class CohortUpdate(BaseModel):
+    name: str | None = None
+    slug: str | None = None
+    description: str | None = None
+    color: str | None = None
+    sort_order: int | None = None
+    review_cadence_days: int | None = None
+    score_range_min: int | None = None
+    score_range_max: int | None = None
+
+
+class CriteriaNode(BaseModel):
+    group_operator: str | None = None
+    rule_type: str | None = None
+    config: dict[str, Any] | None = None
+    children: list[CriteriaNode] | None = None
+
+
+class ScoringEngineUpsert(BaseModel):
     components: list[dict[str, Any]]
-    tier_thresholds: list[dict[str, Any]]
-    tiebreaker_rules: list[dict[str, Any]]
-
-
-class CRSConfigUpdate(BaseModel):
-    components: list[dict[str, Any]] | None = None
-    tier_thresholds: list[dict[str, Any]] | None = None
     tiebreaker_rules: list[dict[str, Any]] | None = None
+    aggregation_method: str | None = None
 
 
 class RecalculateRequest(BaseModel):
@@ -22,25 +43,22 @@ class RecalculateRequest(BaseModel):
 
 
 class RecalculateResponse(BaseModel):
-    processed: int
-    tier_changes: int
-
-
-class CRSBreakdownComponent(BaseModel):
-    raw: int | float
-    weighted: float
+    events_created: int
 
 
 class AssignmentRecord(BaseModel):
     id: str
     patient_id: str
     patient_name: str
-    tier_number: int
-    previous_tier: int | None
-    crs_score: int
-    crs_breakdown: dict[str, CRSBreakdownComponent]
+    program_id: str
+    cohort_id: str
+    cohort_name: str
+    cohort_color: str
+    score: int | None
+    score_breakdown: dict[str, Any] | None
     assignment_type: str
     reason: str | None
+    previous_cohort_id: str | None
     assigned_at: str
     review_due_at: str | None
 
@@ -53,11 +71,16 @@ class AssignmentListResponse(BaseModel):
     pages: int
 
 
-class TierDistribution(BaseModel):
-    tier: int
+class DashboardStats(BaseModel):
+    total_patients: int
+    assigned: int
+    unassigned: int
+    pending_rescore: int
+    active_programs: int
+
+
+class CohortDistribution(BaseModel):
+    cohort_id: str
+    cohort_name: str
+    cohort_color: str
     count: int
-
-
-class TierDistributionResponse(BaseModel):
-    distribution: list[TierDistribution]
-    total: int
