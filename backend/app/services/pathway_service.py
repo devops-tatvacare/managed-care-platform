@@ -8,6 +8,21 @@ from sqlalchemy.orm import selectinload
 from app.models.pathway import Pathway, PathwayBlock, PathwayEdge
 
 
+# ── Helpers ──────────────────────────────────────────────────────────────
+
+async def _reload_pathway(db: AsyncSession, pathway_id: uuid.UUID) -> Pathway | None:
+    """Re-query a pathway with all relationships eagerly loaded."""
+    stmt = (
+        select(Pathway)
+        .where(Pathway.id == pathway_id)
+        .options(selectinload(Pathway.blocks), selectinload(Pathway.edges))
+    )
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()
+
+
+# ── Pathway CRUD ─────────────────────────────────────────────────────────
+
 async def list_pathways(
     db: AsyncSession,
     tenant_id: uuid.UUID,
@@ -59,8 +74,7 @@ async def create_pathway(
     )
     db.add(pathway)
     await db.commit()
-    await db.refresh(pathway)
-    return pathway
+    return await _reload_pathway(db, pathway.id)  # type: ignore[return-value]
 
 
 async def update_pathway(
@@ -82,8 +96,7 @@ async def update_pathway(
             setattr(pathway, key, value)
 
     await db.commit()
-    await db.refresh(pathway)
-    return pathway
+    return await _reload_pathway(db, pathway_id)
 
 
 async def publish_pathway(
@@ -105,9 +118,10 @@ async def publish_pathway(
     pathway.published_by = user_id
 
     await db.commit()
-    await db.refresh(pathway)
-    return pathway
+    return await _reload_pathway(db, pathway_id)
 
+
+# ── Block CRUD ───────────────────────────────────────────────────────────
 
 async def add_block(
     db: AsyncSession,
@@ -115,7 +129,6 @@ async def add_block(
     pathway_id: uuid.UUID,
     data: dict,
 ) -> PathwayBlock | None:
-    # Verify pathway exists and belongs to tenant
     stmt = select(Pathway).where(
         Pathway.id == pathway_id, Pathway.tenant_id == tenant_id
     )
@@ -181,7 +194,6 @@ async def delete_block(
     if not block:
         return False
 
-    # Delete edges referencing this block
     await db.execute(
         delete(PathwayEdge).where(
             PathwayEdge.pathway_id == pathway_id,
@@ -195,17 +207,17 @@ async def delete_block(
     return True
 
 
+# ── Edge Bulk Save ───────────────────────────────────────────────────────
+
 async def save_edges(
     db: AsyncSession,
     pathway_id: uuid.UUID,
     edges_data: list[dict],
 ) -> list[PathwayEdge]:
-    # Delete all existing edges for this pathway
     await db.execute(
         delete(PathwayEdge).where(PathwayEdge.pathway_id == pathway_id)
     )
 
-    # Insert new edges
     new_edges = []
     for edge in edges_data:
         new_edge = PathwayEdge(
