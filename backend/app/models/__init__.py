@@ -11,6 +11,7 @@ from app.models.cohort import (
     CohortAssignment, CohortisationEvent,
 )
 from app.models.communication import ConciergeAction, MessageTemplate
+from app.models.outcome_metric import OutcomeMetric
 
 __all__ = [
     "Base", "Tenant", "TenantConfig", "User", "RefreshToken", "Role",
@@ -21,4 +22,5 @@ __all__ = [
     "Cohort", "CohortCriteria", "ScoringEngine",
     "CohortAssignment", "CohortisationEvent",
     "ConciergeAction", "MessageTemplate",
+    "OutcomeMetric",
 ]
