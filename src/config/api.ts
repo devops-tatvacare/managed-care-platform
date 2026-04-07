@@ -49,5 +49,7 @@ export const API_ENDPOINTS = {
     commsDraft: "/api/ai/comms-draft",
     populationInsights: "/api/ai/population-insights",
     commsRewrite: "/api/ai/comms-rewrite",
+    sessions: "/api/ai/sessions",
+    session: (id: string) => `/api/ai/sessions/${id}`,
   },
 } as const;

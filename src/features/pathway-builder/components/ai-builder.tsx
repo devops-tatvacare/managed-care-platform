@@ -1,27 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Icons } from "@/config/icons";
 import { cn } from "@/lib/cn";
 import { getCategoryDef, getBlockType } from "@/config/block-types";
 import type { BlockCategory } from "@/config/block-types";
-import { usePathwayBuilderStore } from "@/stores/pathway-builder-store";
-import { generatePathway } from "@/services/api/pathways";
-import type {
-  AIGeneratedPathway,
-  PathwayBlockSchema,
-  PathwayEdgeSchema,
-} from "@/services/types/pathway";
-
-// ── Types ───────────────────────────────────────────────────────────────
-
-interface ChatMessage {
-  role: "user" | "ai";
-  content: string;
-}
+import { usePathwayBuilderStore, type ChatMessage } from "@/stores/pathway-builder-store";
+import { formatDate } from "@/lib/format";
 
 // ── Template prompts ────────────────────────────────────────────────────
 
@@ -65,20 +52,22 @@ const TEMPLATE_PROMPTS = [
 // ── Component ───────────────────────────────────────────────────────────
 
 export function AIBuilder() {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: "ai",
-      content:
-        "I can help you design a care pathway. Describe the **target condition**, **patient criteria**, **key interventions**, and **escalation rules** — or pick a template below to get started.",
-    },
-  ]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [generatedPathway, setGeneratedPathway] =
-    useState<AIGeneratedPathway | null>(null);
+  const {
+    chatMessages,
+    chatLoading,
+    generatedPathway,
+    sessions,
+    showHistory,
+    sendChatMessage,
+    acceptGenerated,
+    clearChat,
+    loadSession,
+    deleteSessionById,
+    setShowHistory,
+  } = usePathwayBuilderStore();
 
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { setBlocks, setEdges, setBuilderMode } = usePathwayBuilderStore();
 
   const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {
@@ -88,37 +77,16 @@ export function AIBuilder() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, loading, scrollToBottom]);
+  }, [chatMessages, chatLoading, scrollToBottom]);
 
   const handleSend = useCallback(
-    async (prompt?: string) => {
-      const text = (prompt ?? input).trim();
-      if (!text || loading) return;
-
-      if (!prompt) setInput("");
-      setMessages((prev) => [...prev, { role: "user", content: text }]);
-
-      setLoading(true);
-      try {
-        const response = await generatePathway({ prompt: text });
-        setMessages((prev) => [
-          ...prev,
-          { role: "ai", content: response.message },
-        ]);
-        setGeneratedPathway(response.pathway);
-      } catch {
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "ai",
-            content: "Something went wrong generating the pathway. Please try again.",
-          },
-        ]);
-      } finally {
-        setLoading(false);
-      }
+    (prompt?: string) => {
+      const text = (prompt ?? inputRef.current?.value ?? "").trim();
+      if (!text || chatLoading) return;
+      if (inputRef.current) inputRef.current.value = "";
+      sendChatMessage(text);
     },
-    [input, loading],
+    [chatLoading, sendChatMessage],
   );
 
   const handleKeyDown = useCallback(
@@ -131,119 +99,145 @@ export function AIBuilder() {
     [handleSend],
   );
 
-  const handleAccept = useCallback(() => {
-    if (!generatedPathway) return;
-
-    const blockIdMap = new Map<number, string>();
-    const blocks: PathwayBlockSchema[] = generatedPathway.blocks.map(
-      (block, i) => {
-        const id = crypto.randomUUID();
-        blockIdMap.set(block.order_index, id);
-        return {
-          id,
-          block_type: block.block_type,
-          category: block.category,
-          label: block.label,
-          config: block.config,
-          position: { x: 300, y: i * 180 },
-          order_index: block.order_index,
-        };
-      },
-    );
-
-    const edges: PathwayEdgeSchema[] = generatedPathway.edges
-      .map((edge) => {
-        const sourceId = blockIdMap.get(edge.source_index);
-        const targetId = blockIdMap.get(edge.target_index);
-        if (!sourceId || !targetId) return null;
-        return {
-          id: crypto.randomUUID(),
-          source_block_id: sourceId,
-          target_block_id: targetId,
-          edge_type: edge.edge_type,
-          label: edge.label ?? null,
-        };
-      })
-      .filter((e): e is PathwayEdgeSchema => e !== null);
-
-    setBlocks(blocks);
-    setEdges(edges);
-    setBuilderMode("canvas");
-  }, [generatedPathway, setBlocks, setEdges, setBuilderMode]);
-
   return (
     <div className="flex h-full">
       {/* ── Left: Chat ──────────────────────────────────────────────── */}
-      <div className="flex w-1/2 flex-col border-r border-border-default">
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="flex flex-col gap-4 p-4">
-            {messages.map((msg, i) => (
-              <ChatBubble key={i} message={msg} />
-            ))}
+      <div className="flex flex-1 flex-col border-r border-border-default">
+        {/* Toolbar */}
+        <div className="flex items-center gap-1 border-b border-border-default px-3 py-1.5">
+          <Button
+            variant="ghost"
+            size="xs"
+            onClick={() => setShowHistory(!showHistory)}
+            className="text-text-muted"
+          >
+            <Icons.wait className="mr-1 h-3 w-3" />
+            History
+          </Button>
+          <Button
+            variant="ghost"
+            size="xs"
+            onClick={clearChat}
+            className="text-text-muted"
+          >
+            <Icons.plus className="mr-1 h-3 w-3" />
+            New Chat
+          </Button>
+        </div>
 
-            {loading && (
-              <div className="flex gap-2.5">
-                <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-primary text-white">
-                  <Icons.ai className="h-3.5 w-3.5" />
-                </div>
-                <div className="flex items-center gap-2 rounded-xl rounded-tl-none border border-border-default bg-bg-primary px-3.5 py-2.5 text-sm text-text-muted shadow-sm">
-                  <Icons.spinner className="h-3.5 w-3.5 animate-spin" />
-                  Generating pathway...
+        {showHistory ? (
+          /* ── History List ────────────────────────────────────────── */
+          <div className="flex-1 overflow-y-auto">
+            {sessions.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-text-muted text-sm gap-2">
+                <Icons.wait className="h-8 w-8 opacity-20" />
+                <p>No previous sessions</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-border-default">
+                {sessions.map((session) => (
+                  <div
+                    key={session.id}
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-bg-hover transition-colors cursor-pointer"
+                    onClick={() => loadSession(session.id)}
+                  >
+                    <Icons.ai className="h-4 w-4 shrink-0 text-brand-primary" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-text-primary truncate">
+                        {session.title}
+                      </p>
+                      <p className="text-xs text-text-muted">
+                        {formatDate(session.updated_at)} &middot; {session.message_count} messages
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteSessionById(session.id);
+                      }}
+                      className="shrink-0 text-text-placeholder hover:text-status-error"
+                    >
+                      <Icons.close className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          /* ── Chat Messages ──────────────────────────────────────── */
+          <>
+            <div className="flex-1 overflow-y-auto">
+              <div className="flex flex-col gap-4 p-4">
+                {chatMessages.map((msg, i) => (
+                  <ChatBubble key={i} message={msg} />
+                ))}
+
+                {chatLoading && (
+                  <div className="flex gap-2.5">
+                    <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-primary text-white">
+                      <Icons.ai className="h-3.5 w-3.5" />
+                    </div>
+                    <div className="flex items-center gap-2 rounded-xl rounded-tl-none border border-border-default bg-bg-primary px-3.5 py-2.5 text-sm text-text-muted shadow-sm">
+                      <Icons.spinner className="h-3.5 w-3.5 animate-spin" />
+                      Generating pathway...
+                    </div>
+                  </div>
+                )}
+
+                <div ref={messagesEndRef} />
+              </div>
+            </div>
+
+            {/* Template prompts — only on initial state */}
+            {chatMessages.length <= 1 && !chatLoading && (
+              <div className="border-t border-border-default px-4 py-2">
+                <div className="flex flex-wrap gap-1.5">
+                  {TEMPLATE_PROMPTS.map((t) => (
+                    <Button
+                      key={t.label}
+                      variant="outline"
+                      size="xs"
+                      onClick={() => handleSend(t.prompt)}
+                      className="text-text-muted hover:text-text-primary"
+                    >
+                      <Icons.ai className="mr-1 h-3 w-3" />
+                      {t.label}
+                    </Button>
+                  ))}
                 </div>
               </div>
             )}
 
-            <div ref={messagesEndRef} />
-          </div>
-        </div>
-
-        {/* Template prompts */}
-        {messages.length <= 1 && !loading && (
-          <div className="border-t border-border-default px-4 py-2">
-            <div className="flex flex-wrap gap-1.5">
-              {TEMPLATE_PROMPTS.map((t) => (
+            {/* Input */}
+            <div className="border-t border-border-default p-3">
+              <div className="flex items-end gap-2 rounded-lg border border-input bg-bg-primary p-1.5 shadow-xs focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50">
+                <textarea
+                  ref={inputRef}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Describe your care pathway..."
+                  className="min-h-8 max-h-32 flex-1 resize-none border-0 bg-transparent px-2 py-1.5 text-sm outline-none placeholder:text-muted-foreground"
+                  rows={1}
+                  disabled={chatLoading}
+                />
                 <Button
-                  key={t.label}
-                  variant="outline"
-                  size="xs"
-                  onClick={() => handleSend(t.prompt)}
-                  className="text-text-muted hover:text-text-primary"
+                  size="icon-sm"
+                  onClick={() => handleSend()}
+                  disabled={chatLoading}
+                  className="shrink-0"
                 >
-                  <Icons.ai className="mr-1 h-3 w-3" />
-                  {t.label}
+                  <Icons.send className="h-4 w-4" />
                 </Button>
-              ))}
+              </div>
             </div>
-          </div>
+          </>
         )}
-
-        {/* Input */}
-        <div className="border-t border-border-default p-3">
-          <div className="relative">
-            <Textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Describe your care pathway..."
-              className="min-h-10 max-h-32 resize-none pr-12 text-sm"
-              rows={1}
-              disabled={loading}
-            />
-            <Button
-              size="icon-sm"
-              onClick={() => handleSend()}
-              disabled={!input.trim() || loading}
-              className="absolute right-2 bottom-2"
-            >
-              <Icons.send className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
       </div>
 
       {/* ── Right: Preview ──────────────────────────────────────────── */}
-      <div className="flex w-1/2 flex-col overflow-hidden">
+      <div className="flex w-[45%] shrink-0 flex-col overflow-hidden">
         {generatedPathway ? (
           <>
             <div className="border-b border-border-default px-4 py-3">
@@ -314,7 +308,7 @@ export function AIBuilder() {
             </div>
 
             <div className="border-t border-border-default p-3">
-              <Button onClick={handleAccept} className="w-full">
+              <Button onClick={acceptGenerated} className="w-full">
                 <Icons.completed className="mr-1.5 h-4 w-4" />
                 Accept &amp; Edit on Canvas
               </Button>
@@ -341,7 +335,6 @@ function ChatBubble({ message }: { message: ChatMessage }) {
 
   return (
     <div className={cn("flex gap-2.5", !isAI && "flex-row-reverse")}>
-      {/* Avatar — aligned to top of bubble */}
       <div
         className={cn(
           "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full",
@@ -355,10 +348,9 @@ function ChatBubble({ message }: { message: ChatMessage }) {
         )}
       </div>
 
-      {/* Bubble */}
       <div
         className={cn(
-          "max-w-[80%] rounded-xl border px-3.5 py-2.5 text-sm leading-relaxed shadow-sm",
+          "max-w-[85%] rounded-xl border px-3.5 py-2.5 text-sm leading-relaxed shadow-sm",
           isAI
             ? "rounded-tl-none border-border-default bg-bg-primary text-text-primary"
             : "rounded-tr-none border-brand-primary/30 bg-brand-primary-light text-text-primary",
@@ -368,21 +360,11 @@ function ChatBubble({ message }: { message: ChatMessage }) {
           <ReactMarkdown
             components={{
               p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-              strong: ({ children }) => (
-                <strong className="font-semibold">{children}</strong>
-              ),
-              ul: ({ children }) => (
-                <ul className="mb-2 ml-4 list-disc last:mb-0">{children}</ul>
-              ),
-              ol: ({ children }) => (
-                <ol className="mb-2 ml-4 list-decimal last:mb-0">{children}</ol>
-              ),
+              strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+              ul: ({ children }) => <ul className="mb-2 ml-4 list-disc last:mb-0">{children}</ul>,
+              ol: ({ children }) => <ol className="mb-2 ml-4 list-decimal last:mb-0">{children}</ol>,
               li: ({ children }) => <li className="mb-0.5">{children}</li>,
-              code: ({ children }) => (
-                <code className="rounded bg-muted px-1 py-0.5 text-xs font-mono">
-                  {children}
-                </code>
-              ),
+              code: ({ children }) => <code className="rounded bg-muted px-1 py-0.5 text-xs font-mono">{children}</code>,
             }}
           >
             {message.content}

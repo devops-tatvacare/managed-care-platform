@@ -11,6 +11,10 @@ import type {
   BlockUpdate,
   PathwayGenerateRequest,
   PathwayGenerateResponse,
+  AISessionListItem,
+  AISessionDetail,
+  AISessionCreate,
+  AISessionUpdate,
 } from "@/services/types/pathway";
 
 export async function fetchPathways(): Promise<PathwayListResponse> {
@@ -86,5 +90,44 @@ export async function generatePathway(data: PathwayGenerateRequest): Promise<Pat
     method: "POST",
     path: API_ENDPOINTS.ai.pathwayGenerate,
     body: data,
+  });
+}
+
+// ── AI Sessions ─────────────────────────────────────────────────────────
+
+export async function fetchSessions(): Promise<AISessionListItem[]> {
+  return apiRequest<AISessionListItem[]>({
+    method: "GET",
+    path: API_ENDPOINTS.ai.sessions,
+  });
+}
+
+export async function fetchSession(id: string): Promise<AISessionDetail> {
+  return apiRequest<AISessionDetail>({
+    method: "GET",
+    path: API_ENDPOINTS.ai.session(id),
+  });
+}
+
+export async function createSession(data?: AISessionCreate): Promise<AISessionDetail> {
+  return apiRequest<AISessionDetail>({
+    method: "POST",
+    path: API_ENDPOINTS.ai.sessions,
+    body: data ?? {},
+  });
+}
+
+export async function updateSession(id: string, data: AISessionUpdate): Promise<AISessionDetail> {
+  return apiRequest<AISessionDetail>({
+    method: "PATCH",
+    path: API_ENDPOINTS.ai.session(id),
+    body: data,
+  });
+}
+
+export async function deleteSession(id: string): Promise<void> {
+  return apiRequest<void>({
+    method: "DELETE",
+    path: API_ENDPOINTS.ai.session(id),
   });
 }

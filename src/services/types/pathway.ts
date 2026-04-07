@@ -107,3 +107,30 @@ export interface PathwayGenerateResponse {
   is_complete: boolean;
   pathway: AIGeneratedPathway;
 }
+
+// ── AI Sessions ─────────────────────────────────────────────────────────
+
+export interface AISessionListItem {
+  id: string;
+  title: string;
+  pathway_id: string | null;
+  message_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AISessionDetail extends AISessionListItem {
+  messages: Array<{ role: string; content: string }>;
+  generated_pathway: AIGeneratedPathway | null;
+}
+
+export interface AISessionCreate {
+  title?: string;
+}
+
+export interface AISessionUpdate {
+  title?: string;
+  messages?: Array<{ role: string; content: string }>;
+  generated_pathway?: AIGeneratedPathway | null;
+  pathway_id?: string;
+}

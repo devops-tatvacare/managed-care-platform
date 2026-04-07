@@ -8,10 +8,17 @@ import type {
   PathwayUpdate,
   BlockCreate,
   BlockUpdate,
+  AIGeneratedPathway,
+  AISessionListItem,
 } from "@/services/types/pathway";
 import * as pathwaysApi from "@/services/api/pathways";
 
 type BuilderMode = "ai" | "canvas" | "config";
+
+interface ChatMessage {
+  role: "user" | "ai";
+  content: string;
+}
 
 interface PathwayBuilderState {
   // List
@@ -29,12 +36,22 @@ interface PathwayBuilderState {
   isDirty: boolean;
   builderLoading: boolean;
 
-  // Actions
+  // AI Chat (persisted in store so tab switching doesn't lose state)
+  chatMessages: ChatMessage[];
+  chatLoading: boolean;
+  generatedPathway: AIGeneratedPathway | null;
+  sessions: AISessionListItem[];
+  activeSessionId: string | null;
+  showHistory: boolean;
+
+  // Actions — List
   loadPathways: () => Promise<void>;
   loadPathway: (id: string) => Promise<void>;
   createPathway: (data: PathwayCreate) => Promise<string>;
   updatePathwayMeta: (data: PathwayUpdate) => Promise<void>;
   publishPathway: () => Promise<void>;
+
+  // Actions — Blocks/Edges
   addBlock: (data: BlockCreate) => Promise<void>;
   updateBlock: (blockId: string, data: BlockUpdate) => Promise<void>;
   deleteBlock: (blockId: string) => Promise<void>;
@@ -44,7 +61,23 @@ interface PathwayBuilderState {
   setBlocks: (blocks: PathwayBlockSchema[]) => void;
   setEdges: (edges: PathwayEdgeSchema[]) => void;
   setDirty: (dirty: boolean) => void;
+
+  // Actions — AI Chat
+  sendChatMessage: (prompt: string) => Promise<void>;
+  acceptGenerated: () => void;
+  clearChat: () => void;
+  loadSessions: () => Promise<void>;
+  loadSession: (id: string) => Promise<void>;
+  deleteSessionById: (id: string) => Promise<void>;
+  setShowHistory: (show: boolean) => void;
 }
+
+const INITIAL_MESSAGE: ChatMessage = {
+  role: "ai",
+  content: "I can help you design a care pathway. Describe the **target condition**, **patient criteria**, **key interventions**, and **escalation rules** — or pick a template below to get started.",
+};
+
+export type { ChatMessage, BuilderMode };
 
 export const usePathwayBuilderStore = create<PathwayBuilderState>((set, get) => ({
   pathways: [],
@@ -59,6 +92,13 @@ export const usePathwayBuilderStore = create<PathwayBuilderState>((set, get) => 
   builderMode: "ai",
   isDirty: false,
   builderLoading: false,
+
+  chatMessages: [INITIAL_MESSAGE],
+  chatLoading: false,
+  generatedPathway: null,
+  sessions: [],
+  activeSessionId: null,
+  showHistory: false,
 
   loadPathways: async () => {
     set({ loading: true, error: null });
@@ -215,5 +255,131 @@ export const usePathwayBuilderStore = create<PathwayBuilderState>((set, get) => 
 
   setDirty: (dirty) => {
     set({ isDirty: dirty });
+  },
+
+  // ── AI Chat Actions ─────────────────────────────────────────────────
+
+  sendChatMessage: async (prompt) => {
+    const userMsg: ChatMessage = { role: "user", content: prompt };
+    set((s) => ({ chatMessages: [...s.chatMessages, userMsg], chatLoading: true }));
+    try {
+      const response = await pathwaysApi.generatePathway({ prompt });
+      const aiMsg: ChatMessage = { role: "ai", content: response.message };
+      set((s) => ({
+        chatMessages: [...s.chatMessages, aiMsg],
+        generatedPathway: response.pathway,
+        chatLoading: false,
+      }));
+      // Persist session in background
+      const { activeSessionId, chatMessages } = get();
+      const allMessages = [...chatMessages];
+      if (activeSessionId) {
+        pathwaysApi.updateSession(activeSessionId, {
+          messages: allMessages,
+          generated_pathway: response.pathway,
+          title: prompt.slice(0, 60),
+        }).catch(() => {});
+      } else {
+        pathwaysApi.createSession({ title: prompt.slice(0, 60) }).then((session) => {
+          set({ activeSessionId: session.id });
+          pathwaysApi.updateSession(session.id, {
+            messages: allMessages,
+            generated_pathway: response.pathway,
+          }).catch(() => {});
+        }).catch(() => {});
+      }
+    } catch {
+      const errMsg: ChatMessage = { role: "ai", content: "Something went wrong generating the pathway. Please try again." };
+      set((s) => ({
+        chatMessages: [...s.chatMessages, errMsg],
+        chatLoading: false,
+      }));
+    }
+  },
+
+  acceptGenerated: () => {
+    const { generatedPathway } = get();
+    if (!generatedPathway) return;
+
+    const blockIdMap = new Map<number, string>();
+    const blocks: PathwayBlockSchema[] = generatedPathway.blocks.map((block, i) => {
+      const id = crypto.randomUUID();
+      blockIdMap.set(block.order_index, id);
+      return {
+        id,
+        block_type: block.block_type,
+        category: block.category,
+        label: block.label,
+        config: block.config,
+        position: { x: 300, y: i * 180 },
+        order_index: block.order_index,
+      };
+    });
+
+    const edges: PathwayEdgeSchema[] = generatedPathway.edges
+      .map((edge) => {
+        const sourceId = blockIdMap.get(edge.source_index);
+        const targetId = blockIdMap.get(edge.target_index);
+        if (!sourceId || !targetId) return null;
+        return {
+          id: crypto.randomUUID(),
+          source_block_id: sourceId,
+          target_block_id: targetId,
+          edge_type: edge.edge_type,
+          label: edge.label ?? null,
+        };
+      })
+      .filter((e): e is PathwayEdgeSchema => e !== null);
+
+    set({ blocks, edges, builderMode: "canvas", isDirty: true });
+  },
+
+  clearChat: () => {
+    set({
+      chatMessages: [INITIAL_MESSAGE],
+      generatedPathway: null,
+      activeSessionId: null,
+      chatLoading: false,
+    });
+  },
+
+  loadSessions: async () => {
+    try {
+      const sessions = await pathwaysApi.fetchSessions();
+      set({ sessions });
+    } catch {
+      // silently fail — sessions are optional
+    }
+  },
+
+  loadSession: async (id) => {
+    try {
+      const session = await pathwaysApi.fetchSession(id);
+      set({
+        activeSessionId: session.id,
+        chatMessages: (session.messages as ChatMessage[]) ?? [INITIAL_MESSAGE],
+        generatedPathway: session.generated_pathway,
+        showHistory: false,
+      });
+    } catch {
+      set({ error: "Failed to load session" });
+    }
+  },
+
+  deleteSessionById: async (id) => {
+    try {
+      await pathwaysApi.deleteSession(id);
+      set((s) => ({
+        sessions: s.sessions.filter((sess) => sess.id !== id),
+        ...(s.activeSessionId === id ? { activeSessionId: null, chatMessages: [INITIAL_MESSAGE], generatedPathway: null } : {}),
+      }));
+    } catch {
+      // silently fail
+    }
+  },
+
+  setShowHistory: (show) => {
+    if (show) get().loadSessions();
+    set({ showHistory: show });
   },
 }));
