@@ -79,3 +79,28 @@ class PathwayListResponse(BaseModel):
 class PathwayGenerateRequest(BaseModel):
     prompt: str
     pathway_id: str | None = None
+
+
+class AISessionListItem(BaseModel):
+    id: str
+    title: str
+    pathway_id: str | None
+    message_count: int
+    created_at: str
+    updated_at: str
+
+
+class AISessionDetail(AISessionListItem):
+    messages: list[dict]
+    generated_pathway: dict | None
+
+
+class AISessionCreate(BaseModel):
+    title: str = "New Chat"
+
+
+class AISessionUpdate(BaseModel):
+    title: str | None = None
+    messages: list[dict] | None = None
+    generated_pathway: dict | None = None
+    pathway_id: str | None = None
