@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { StatusBadge } from "@/components/shared/status-badge";
-import { TierBadge } from "@/components/shared/tier-badge";
 import { Icons } from "@/config/icons";
 import { PATHWAY_STATUS } from "@/config/status";
 import { buildPath } from "@/config/routes";
@@ -118,14 +117,8 @@ export default function PathwaysPage() {
                     <TableCell className="text-text-secondary text-sm">
                       {p.condition ?? "--"}
                     </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        {p.target_tiers.length > 0
-                          ? p.target_tiers.map((t) => (
-                              <TierBadge key={t} tier={t} />
-                            ))
-                          : "--"}
-                      </div>
+                    <TableCell className="text-text-muted text-sm">
+                      {p.target_tiers.length > 0 ? p.target_tiers.join(", ") : "--"}
                     </TableCell>
                     <TableCell>
                       {PATHWAY_STATUS[p.status] ? (

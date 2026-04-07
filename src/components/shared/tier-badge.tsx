@@ -1,7 +1,5 @@
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/cn";
-import { getTier } from "@/config/tiers";
-import { TIER_BADGE_STYLES } from "@/config/status";
+// Deprecated — tier system replaced by cohort-based membership.
+// Stubbed to prevent import errors during migration.
 
 interface TierBadgeProps {
   tier: number;
@@ -9,14 +7,7 @@ interface TierBadgeProps {
   className?: string;
 }
 
-export function TierBadge({ tier, showName = false, className }: TierBadgeProps) {
-  const config = getTier(tier);
-  const style = TIER_BADGE_STYLES[tier];
-
-  return (
-    <Badge variant="outline" className={cn("text-[10px] font-semibold", style.className, className)}>
-      {config.label}
-      {showName && ` \u2014 ${config.name}`}
-    </Badge>
-  );
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function TierBadge(_props: TierBadgeProps) {
+  return null;
 }

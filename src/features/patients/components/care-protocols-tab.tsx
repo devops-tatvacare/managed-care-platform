@@ -48,7 +48,7 @@ export function CareProtocolsTab({ patient }: CareProtocolsTabProps) {
               AI SUMMARY
             </Badge>
             <p className="text-[13px] text-text-secondary leading-snug">
-              {patient.first_name} is a {patient.tier >= 3 ? "high-complexity" : "moderate-complexity"} patient
+              {patient.first_name} is a moderate-complexity patient
               in the {patient.pathway_name ?? "standard care"} pathway.
               {patient.care_gaps && patient.care_gaps.length > 0
                 ? ` ${patient.care_gaps.length} open care gaps (${gapList}).`

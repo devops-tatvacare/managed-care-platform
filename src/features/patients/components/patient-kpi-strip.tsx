@@ -1,8 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/cn";
-import { getTier } from "@/config/tiers";
-import { TIER_BADGE_STYLES } from "@/config/status";
 import { formatDate } from "@/lib/format";
 import type { PatientDetail } from "@/services/types/patient";
 
@@ -38,8 +36,6 @@ interface KpiItem {
 }
 
 export function PatientKpiStrip({ patient }: PatientKpiStripProps) {
-  const tier = getTier(patient.tier);
-  const tierStyle = TIER_BADGE_STYLES[patient.tier];
   const careGapCount = patient.care_gaps?.length ?? 0;
   const worstPdc = lowestPdc(patient.active_medications);
 
@@ -52,12 +48,6 @@ export function PatientKpiStrip({ patient }: PatientKpiStripProps) {
     : undefined;
 
   const kpis: KpiItem[] = [
-    {
-      label: "CRS Score",
-      value: String(patient.crs_score),
-      sub: tier.label,
-      valueClass: tierStyle?.className,
-    },
     {
       label: "Care Gaps",
       value: String(careGapCount),
@@ -90,7 +80,7 @@ export function PatientKpiStrip({ patient }: PatientKpiStripProps) {
   ];
 
   return (
-    <div className="mt-3 grid grid-cols-6 divide-x divide-border-default rounded-lg border border-border-default bg-bg-primary shadow-sm">
+    <div className="mt-3 grid grid-cols-5 divide-x divide-border-default rounded-lg border border-border-default bg-bg-primary shadow-sm">
       {kpis.map((item) => (
         <div key={item.label} className="px-4 py-2.5">
           <p className="text-[10px] font-medium uppercase tracking-wider text-text-placeholder">

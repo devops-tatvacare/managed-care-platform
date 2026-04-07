@@ -6,8 +6,6 @@ export interface PatientListItem {
   date_of_birth: string;
   gender: string;
   phone: string | null;
-  tier: number;
-  crs_score: number;
   pathway_status: string | null;
   pathway_name: string | null;
   care_gaps: string[] | null;
@@ -31,7 +29,6 @@ export interface PatientDetail extends PatientListItem {
   preferred_channel: string;
   allergies: string[] | null;
   sdoh_flags: Record<string, boolean | number> | null;
-  crs_breakdown: Record<string, number> | null;
   review_due_date: string | null;
 }
 

@@ -9,7 +9,6 @@ import * as patientsApi from "@/services/api/patients";
 
 interface PatientFilters {
   search: string;
-  tier: number | undefined;
   pathwayStatus: string | undefined;
 }
 
@@ -46,7 +45,7 @@ export const usePatientsStore = create<PatientsState>((set, get) => ({
   page: 1,
   pageSize: 50,
   pages: 0,
-  filters: { search: "", tier: undefined, pathwayStatus: undefined },
+  filters: { search: "", pathwayStatus: undefined },
   loading: false,
   error: null,
 
@@ -63,7 +62,6 @@ export const usePatientsStore = create<PatientsState>((set, get) => ({
         page,
         page_size: pageSize,
         search: filters.search || undefined,
-        tier: filters.tier,
         pathway_status: filters.pathwayStatus,
       });
       set({

@@ -4,19 +4,11 @@ import { useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
-import { TierBadge } from "@/components/shared/tier-badge";
 import { Icons } from "@/config/icons";
 import { buildPath } from "@/config/routes";
 import { formatDate, formatNumber } from "@/lib/format";
 import { usePatientsStore } from "@/stores/patients-store";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -66,13 +58,6 @@ export default function PatientsPage() {
     }, 300);
   }, [setFilters]);
 
-  const handleTierChange = useCallback(
-    (value: string) => {
-      setFilters({ tier: value === "all" ? undefined : Number(value) });
-    },
-    [setFilters],
-  );
-
   const handleRowClick = useCallback(
     (id: string) => {
       router.push(buildPath("patientDetail", { id }));
@@ -104,22 +89,6 @@ export default function PatientsPage() {
               className="pl-9"
             />
           </div>
-          <Select
-            value={filters.tier !== undefined ? String(filters.tier) : "all"}
-            onValueChange={handleTierChange}
-          >
-            <SelectTrigger className="w-36">
-              <SelectValue placeholder="All Tiers" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Tiers</SelectItem>
-              <SelectItem value="0">Tier 0</SelectItem>
-              <SelectItem value="1">Tier 1</SelectItem>
-              <SelectItem value="2">Tier 2</SelectItem>
-              <SelectItem value="3">Tier 3</SelectItem>
-              <SelectItem value="4">Tier 4</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
@@ -157,8 +126,6 @@ export default function PatientsPage() {
                   <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead>EMPI</TableHead>
-                    <TableHead>Tier</TableHead>
-                    <TableHead className="text-right">CRS</TableHead>
                     <TableHead>Pathway</TableHead>
                     <TableHead className="text-right">Care Gaps</TableHead>
                     <TableHead>Last Contact</TableHead>
@@ -177,12 +144,6 @@ export default function PatientsPage() {
                       </TableCell>
                       <TableCell className="text-text-muted font-mono text-xs">
                         {p.empi_id}
-                      </TableCell>
-                      <TableCell>
-                        <TierBadge tier={p.tier} />
-                      </TableCell>
-                      <TableCell className="text-right tabular-nums">
-                        {p.crs_score}
                       </TableCell>
                       <TableCell className="text-text-secondary text-sm">
                         {p.pathway_status ?? "--"}

@@ -11,7 +11,6 @@ interface PatientListParams {
   page?: number;
   page_size?: number;
   search?: string;
-  tier?: number;
   pathway_status?: string;
 }
 

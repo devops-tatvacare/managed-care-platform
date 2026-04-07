@@ -13,7 +13,6 @@ async def list_patients(
     page: int = 1,
     page_size: int = 50,
     search: str | None = None,
-    tier: int | None = None,
     pathway_status: str | None = None,
 ) -> tuple[list[Patient], int]:
     stmt = select(Patient).where(
@@ -32,9 +31,6 @@ async def list_patients(
             )
         )
 
-    if tier is not None:
-        stmt = stmt.where(Patient.tier == tier)
-
     if pathway_status:
         stmt = stmt.where(Patient.pathway_status == pathway_status)
 
@@ -43,7 +39,7 @@ async def list_patients(
     total = (await db.execute(count_stmt)).scalar_one()
 
     # Paginate
-    stmt = stmt.order_by(Patient.crs_score.desc()).offset((page - 1) * page_size).limit(page_size)
+    stmt = stmt.order_by(Patient.last_name).offset((page - 1) * page_size).limit(page_size)
     result = await db.execute(stmt)
     patients = list(result.scalars().all())
 

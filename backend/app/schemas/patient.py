@@ -9,8 +9,6 @@ class PatientListItem(BaseModel):
     date_of_birth: str
     gender: str
     phone: str | None = None
-    tier: int
-    crs_score: int
     pathway_status: str | None = None
     pathway_name: str | None = None
     care_gaps: list[str] | None = None
@@ -29,7 +27,6 @@ class PatientDetail(PatientListItem):
     preferred_channel: str = "whatsapp"
     allergies: list[str] | None = None
     sdoh_flags: dict | None = None
-    crs_breakdown: dict | None = None
     review_due_date: str | None = None
 
 

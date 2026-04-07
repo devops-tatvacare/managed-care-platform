@@ -33,8 +33,6 @@ def _serialize_patient_list(p) -> dict:
         "date_of_birth": str(p.date_of_birth),
         "gender": p.gender,
         "phone": p.phone,
-        "tier": p.tier,
-        "crs_score": p.crs_score,
         "pathway_status": p.pathway_status,
         "pathway_name": p.pathway_name,
         "care_gaps": p.care_gaps,
@@ -53,11 +51,10 @@ async def patients_list(
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
     search: str | None = None,
-    tier: int | None = None,
     pathway_status: str | None = None,
 ):
     patients, total = await list_patients(
-        db, auth.tenant_id, page, page_size, search, tier, pathway_status
+        db, auth.tenant_id, page, page_size, search, pathway_status
     )
     return PatientListResponse(
         items=[PatientListItem(**_serialize_patient_list(p)) for p in patients],
@@ -86,7 +83,6 @@ async def patient_detail(
         "preferred_channel": patient.preferred_channel,
         "allergies": patient.allergies,
         "sdoh_flags": patient.sdoh_flags,
-        "crs_breakdown": patient.crs_breakdown,
         "review_due_date": str(patient.review_due_date) if patient.review_due_date else None,
     })
     return PatientDetail(**data)
