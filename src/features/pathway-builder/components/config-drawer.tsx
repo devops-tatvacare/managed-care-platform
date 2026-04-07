@@ -5,7 +5,9 @@ import { usePathwayBuilderStore } from "@/stores/pathway-builder-store";
 import { getBlockType, getCategoryDef } from "@/config/block-types";
 import { Icons, type IconName } from "@/config/icons";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { BlockConfigForm } from "./block-config-form";
+import { CohortPicker } from "./cohort-picker";
 import { cn } from "@/lib/cn";
 
 // ---------------------------------------------------------------------------
@@ -90,11 +92,43 @@ export function ConfigDrawer() {
 
       {/* ── Body (scrollable) ────────────────────────────────────────── */}
       <div className="flex-1 overflow-y-auto px-4 py-4">
-        <BlockConfigForm
-          configFields={blockType?.configFields ?? []}
-          initialConfig={block.config}
-          onChange={handleChange}
-        />
+        {blockType?.category === "eligibility" ? (
+          <Tabs defaultValue="config">
+            <TabsList variant="line" className="w-full mb-4">
+              <TabsTrigger value="config">Configure Manually</TabsTrigger>
+              <TabsTrigger value="cohort">Select from Cohort</TabsTrigger>
+            </TabsList>
+            <TabsContent value="config">
+              <BlockConfigForm
+                configFields={blockType.configFields}
+                initialConfig={block.config}
+                onChange={handleChange}
+              />
+            </TabsContent>
+            <TabsContent value="cohort">
+              <CohortPicker
+                value={
+                  (pendingConfig.cohort_reference as {
+                    cohort_id: string;
+                    program_version: number;
+                  }) ?? null
+                }
+                onChange={(ref) =>
+                  setPendingConfig((prev) => ({
+                    ...prev,
+                    cohort_reference: ref,
+                  }))
+                }
+              />
+            </TabsContent>
+          </Tabs>
+        ) : (
+          <BlockConfigForm
+            configFields={blockType?.configFields ?? []}
+            initialConfig={block.config}
+            onChange={handleChange}
+          />
+        )}
       </div>
 
       {/* ── Footer ───────────────────────────────────────────────────── */}

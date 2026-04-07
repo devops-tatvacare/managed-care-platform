@@ -56,6 +56,10 @@ export async function replaceCriteria(programId: string, cohortId: string, crite
   return apiRequest<{ count: number }>({ method: "PUT", path: API_ENDPOINTS.programs.criteria(programId, cohortId), body: criteria });
 }
 
+export async function fetchCriteria(programId: string, cohortId: string): Promise<CriteriaNode[]> {
+  return apiRequest<CriteriaNode[]>({ method: "GET", path: API_ENDPOINTS.programs.criteria(programId, cohortId) });
+}
+
 // Scoring Engine
 export async function fetchEngine(programId: string): Promise<ScoringEngineSummary> {
   return apiRequest<ScoringEngineSummary>({ method: "GET", path: API_ENDPOINTS.programs.engine(programId) });
