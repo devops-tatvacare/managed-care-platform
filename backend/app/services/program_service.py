@@ -50,15 +50,14 @@ async def create_program(
         tenant_id=tenant_id,
         created_by=created_by,
         name=data["name"],
-        slug=data.get("slug", data["name"].lower().replace(" ", "-")),
+        slug=data.get("slug") or data["name"].lower().replace(" ", "-"),
         condition=data.get("condition"),
         description=data.get("description"),
         status=data.get("status", "draft"),
     )
     db.add(program)
     await db.commit()
-    await db.refresh(program)
-    return program
+    return await get_program(db, tenant_id, program.id)
 
 
 async def update_program(

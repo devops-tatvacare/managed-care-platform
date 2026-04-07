@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { PageHeader } from "@/components/shared/page-header";
 import { KpiCard } from "@/components/shared/kpi-card";
 import { Icons } from "@/config/icons";
@@ -118,16 +118,16 @@ export function PopulationDashboard() {
         <RiskPoolTable />
       </section>
 
-      {/* Create Program Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create Program</DialogTitle>
-            <DialogDescription>
+      {/* Create Program Sheet */}
+      <Sheet open={dialogOpen} onOpenChange={setDialogOpen}>
+        <SheetContent side="right">
+          <SheetHeader>
+            <SheetTitle>Create Program</SheetTitle>
+            <SheetDescription>
               Add a new cohortisation program for patient grouping and scoring.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
+            </SheetDescription>
+          </SheetHeader>
+          <div className="space-y-4 px-4">
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-text-primary">Name</label>
               <Input
@@ -154,7 +154,7 @@ export function PopulationDashboard() {
               />
             </div>
           </div>
-          <DialogFooter>
+          <SheetFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
             </Button>
@@ -162,9 +162,9 @@ export function PopulationDashboard() {
               {creating && <Icons.spinner className={cn("mr-2 h-4 w-4 animate-spin")} />}
               Create
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

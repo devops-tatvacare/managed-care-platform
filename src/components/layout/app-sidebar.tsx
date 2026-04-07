@@ -43,12 +43,9 @@ function SidebarInner({ collapsed, onToggle }: AppSidebarProps) {
         )}
       >
         {collapsed ? (
-          <p className="text-[15px] font-bold text-white">TC</p>
+          <img src="/tatvacare-logo.svg" alt="TatvaCare" className="h-5 w-5" />
         ) : (
-          <div>
-            <p className="text-[15px] font-bold text-white">Tatva Care</p>
-            <p className="text-[11px] text-text-placeholder">Bradesco Saude</p>
-          </div>
+          <img src="/tatvacare-logo.svg" alt="TatvaCare" className="h-6" />
         )}
       </div>
 
@@ -145,7 +142,7 @@ function SidebarInner({ collapsed, onToggle }: AppSidebarProps) {
                 {!collapsed && (
                   <div className="min-w-0 text-left">
                     <p className="truncate text-[12px] text-white">Care Manager</p>
-                    <p className="truncate text-[10px] text-text-placeholder">admin@bradesco.com</p>
+                    <p className="truncate text-[10px] text-text-placeholder">admin@tatvacare.in</p>
                   </div>
                 )}
                 {!collapsed && (
@@ -161,7 +158,7 @@ function SidebarInner({ collapsed, onToggle }: AppSidebarProps) {
             >
               <div className="px-2 py-1.5">
                 <p className="text-sm font-medium text-text-primary">Care Manager</p>
-                <p className="text-xs text-text-muted">admin@bradesco.com</p>
+                <p className="text-xs text-text-muted">admin@tatvacare.in</p>
               </div>
               <Separator className="my-1" />
               <button className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-text-secondary hover:bg-bg-hover transition-colors">

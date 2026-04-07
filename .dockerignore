@@ -1,0 +1,11 @@
+node_modules
+.next
+backend/.venv
+backend/__pycache__
+backend/data
+backend/.next
+.git
+.superpowers
+.playwright-mcp
+docs
+*.png

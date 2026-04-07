@@ -6,7 +6,7 @@ import "@/app/globals.css";
 import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
-  title: "Tatva Care — Bradesco Saude",
+  title: "TatvaCare — Care Admin",
   description: "AI-powered care management platform",
 };
 

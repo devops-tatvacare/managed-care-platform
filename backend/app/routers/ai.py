@@ -33,7 +33,7 @@ async def generate_pathway(
         "is_complete": True,
         "pathway": {
             "name": "AI-Generated Diabetes Pathway",
-            "description": f"Generated from: {request.prompt}",
+            "description": "Comprehensive Type 2 Diabetes care pathway covering eligibility, monitoring, medication protocols, outreach, adherence, and escalation.",
             "condition": "diabetes",
             "target_tiers": [2, 3, 4],
             "blocks": [

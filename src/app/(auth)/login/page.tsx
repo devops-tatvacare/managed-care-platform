@@ -12,7 +12,7 @@ import { ROUTES } from "@/config/routes";
 export default function LoginPage() {
   const router = useRouter();
   const { login, isLoading, error } = useAuthStore();
-  const [email, setEmail] = useState("admin@bradesco.com");
+  const [email, setEmail] = useState("admin@tatvacare.in");
   const [password, setPassword] = useState("admin123");
 
   async function handleSubmit(e: React.FormEvent) {
@@ -29,8 +29,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-bg-secondary">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <h1 className="text-xl font-bold text-text-primary">Tatva Care</h1>
-          <p className="text-sm text-text-muted">Bradesco Saude Care Admin</p>
+          <img src="/tatvacare-logo.svg" alt="TatvaCare" className="mx-auto h-8" />
+          <p className="text-sm text-text-muted">Care Admin</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -40,7 +40,7 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@bradesco.com"
+                placeholder="admin@tatvacare.in"
               />
             </div>
             <div>
@@ -59,7 +59,7 @@ export default function LoginPage() {
               Sign In
             </Button>
             <p className="text-center text-[11px] text-text-placeholder">
-              Demo: admin@bradesco.com / admin123
+              Demo: admin@tatvacare.in / admin123
             </p>
           </form>
         </CardContent>
