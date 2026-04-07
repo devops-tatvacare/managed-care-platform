@@ -4,6 +4,7 @@ import { useEffect, use } from "react";
 import { usePathwayBuilderStore } from "@/stores/pathway-builder-store";
 import { Icons } from "@/config/icons";
 import { BuilderShell } from "@/features/pathway-builder/components/builder-shell";
+import { UnsavedChangesGuard } from "@/components/shared/unsaved-changes-guard";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -11,7 +12,7 @@ interface PageProps {
 
 export default function PathwayEditorPage({ params }: PageProps) {
   const { id } = use(params);
-  const { selectedPathway, builderLoading, error, loadPathway } =
+  const { selectedPathway, builderLoading, error, isDirty, loadPathway } =
     usePathwayBuilderStore();
 
   useEffect(() => {
@@ -42,6 +43,7 @@ export default function PathwayEditorPage({ params }: PageProps) {
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
+      <UnsavedChangesGuard isDirty={isDirty} />
       <BuilderShell />
     </div>
   );
