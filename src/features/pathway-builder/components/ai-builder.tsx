@@ -56,11 +56,13 @@ export function AIBuilder() {
     chatMessages,
     chatLoading,
     generatedPathway,
+    aiAccepted,
     sessions,
     showHistory,
     sendChatMessage,
     acceptGenerated,
     clearChat,
+    setBuilderMode,
     loadSession,
     deleteSessionById,
     setShowHistory,
@@ -166,8 +168,50 @@ export function AIBuilder() {
               </div>
             )}
           </div>
+        ) : aiAccepted ? (
+          /* ── Accepted State: read-only chat + CTA ───────────────── */
+          <>
+            <div className="flex-1 overflow-y-auto opacity-60">
+              <div className="flex flex-col gap-4 p-4">
+                {chatMessages.map((msg, i) => (
+                  <ChatBubble key={i} message={msg} />
+                ))}
+              </div>
+            </div>
+
+            <div className="border-t border-border-default p-4 space-y-3">
+              <div className="rounded-lg border border-status-success-border bg-status-success-bg p-3">
+                <div className="flex items-center gap-2 text-sm font-medium text-status-success">
+                  <Icons.completed className="h-4 w-4" />
+                  Pathway accepted and loaded on Canvas
+                </div>
+                <p className="mt-1 text-xs text-text-muted">
+                  Switch to Visual Canvas to edit blocks, connect edges, and configure settings.
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => setBuilderMode("canvas")}
+                >
+                  <Icons.canvas className="mr-1.5 h-3.5 w-3.5" />
+                  Edit on Canvas
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearChat}
+                  className="text-text-muted"
+                >
+                  Start Over
+                </Button>
+              </div>
+            </div>
+          </>
         ) : (
-          /* ── Chat Messages ──────────────────────────────────────── */
+          /* ── Drafting State: active chat ─────────────────────────── */
           <>
             <div className="flex-1 overflow-y-auto">
               <div className="flex flex-col gap-4 p-4">

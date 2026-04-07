@@ -13,7 +13,7 @@ import type {
 } from "@/services/types/pathway";
 import * as pathwaysApi from "@/services/api/pathways";
 
-type BuilderMode = "ai" | "canvas" | "config";
+type BuilderMode = "ai" | "canvas";
 
 interface ChatMessage {
   role: "user" | "ai";
@@ -40,6 +40,7 @@ interface PathwayBuilderState {
   chatMessages: ChatMessage[];
   chatLoading: boolean;
   generatedPathway: AIGeneratedPathway | null;
+  aiAccepted: boolean;
   sessions: AISessionListItem[];
   activeSessionId: string | null;
   showHistory: boolean;
@@ -96,6 +97,7 @@ export const usePathwayBuilderStore = create<PathwayBuilderState>((set, get) => 
   chatMessages: [INITIAL_MESSAGE],
   chatLoading: false,
   generatedPathway: null,
+  aiAccepted: false,
   sessions: [],
   activeSessionId: null,
   showHistory: false,
@@ -331,13 +333,14 @@ export const usePathwayBuilderStore = create<PathwayBuilderState>((set, get) => 
       })
       .filter((e): e is PathwayEdgeSchema => e !== null);
 
-    set({ blocks, edges, builderMode: "canvas", isDirty: true });
+    set({ blocks, edges, builderMode: "canvas", isDirty: true, aiAccepted: true });
   },
 
   clearChat: () => {
     set({
       chatMessages: [INITIAL_MESSAGE],
       generatedPathway: null,
+      aiAccepted: false,
       activeSessionId: null,
       chatLoading: false,
     });

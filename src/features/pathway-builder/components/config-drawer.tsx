@@ -56,9 +56,9 @@ export function ConfigDrawer() {
     : Icons.settings;
 
   return (
-    <div className="flex h-full w-80 shrink-0 flex-col border-l bg-background">
+    <div className="flex h-full w-80 shrink-0 flex-col border-l border-border-default bg-bg-primary">
       {/* ── Header ────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-3 border-b px-4 py-3">
+      <div className="flex items-center gap-3 border-b border-border-default px-4 py-3">
         {categoryDef && (
           <div
             className={cn(
@@ -98,7 +98,7 @@ export function ConfigDrawer() {
       </div>
 
       {/* ── Footer ───────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 border-t px-4 py-3">
+      <div className="flex items-center gap-2 border-t border-border-default px-4 py-3">
         <Button
           size="sm"
           className="flex-1"
