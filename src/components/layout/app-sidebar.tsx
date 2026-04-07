@@ -6,6 +6,11 @@ import { cn } from "@/lib/cn";
 import { SIDEBAR_GROUPS } from "@/config/navigation";
 import { Separator } from "@/components/ui/separator";
 import { Icons } from "@/config/icons";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useAuthStore } from "@/stores/auth-store";
 
 interface AppSidebarProps {
@@ -30,11 +35,13 @@ function SidebarInner({ collapsed, onToggle }: AppSidebarProps) {
         collapsed ? "w-[60px]" : "w-[220px]",
       )}
     >
-      {/* Header — brand only */}
-      <div className={cn(
-        "border-b border-sidebar-divider py-4",
-        collapsed ? "px-0 flex justify-center" : "px-4",
-      )}>
+      {/* Brand */}
+      <div
+        className={cn(
+          "border-b border-sidebar-divider py-4",
+          collapsed ? "flex justify-center px-0" : "px-4",
+        )}
+      >
         {collapsed ? (
           <p className="text-[15px] font-bold text-white">TC</p>
         ) : (
@@ -47,6 +54,24 @@ function SidebarInner({ collapsed, onToggle }: AppSidebarProps) {
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-3">
+        {/* Spotlight trigger */}
+        <button
+          onClick={() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))}
+          title={collapsed ? "Search (⌘K)" : undefined}
+          className={cn(
+            "flex w-full items-center gap-3 py-2 text-[13px] text-sidebar-text transition-colors hover:bg-sidebar-active-bg/50 hover:text-white border-l-[3px] border-transparent mb-1",
+            collapsed ? "justify-center px-0" : "px-4",
+          )}
+        >
+          <Icons.search className="h-4 w-4 shrink-0" />
+          {!collapsed && (
+            <>
+              <span className="flex-1 text-left text-text-placeholder">Search...</span>
+              <kbd className="rounded border border-sidebar-divider px-1.5 py-0.5 text-[10px] text-text-placeholder">⌘K</kbd>
+            </>
+          )}
+        </button>
+
         {SIDEBAR_GROUPS.map((group, groupIndex) => (
           <div key={groupIndex}>
             {group.label && (
@@ -83,9 +108,9 @@ function SidebarInner({ collapsed, onToggle }: AppSidebarProps) {
         ))}
       </nav>
 
-      {/* Footer — toggle, logout, user */}
+      {/* Footer */}
       <div className="border-t border-sidebar-divider">
-        {/* Collapse toggle — same alignment as nav items */}
+        {/* Collapse toggle */}
         <button
           onClick={onToggle}
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -104,32 +129,62 @@ function SidebarInner({ collapsed, onToggle }: AppSidebarProps) {
           )}
         </button>
 
-        {/* Logout */}
-        <button
-          onClick={handleLogout}
-          title={collapsed ? "Logout" : undefined}
-          className={cn(
-            "flex w-full items-center gap-3 py-2 text-[13px] text-sidebar-text transition-colors hover:bg-sidebar-active-bg/50 hover:text-status-error border-l-[3px] border-transparent",
-            collapsed ? "justify-center px-0" : "px-4",
-          )}
-        >
-          <Icons.logout className="h-4 w-4 shrink-0" />
-          {!collapsed && <span>Logout</span>}
-        </button>
-
-        {/* User */}
-        <div className={cn("py-3", collapsed ? "px-0 flex justify-center" : "px-4")}>
-          <div className={cn("flex items-center gap-2", collapsed && "justify-center")}>
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-sidebar-active-bg text-[11px] font-semibold text-white">
-              CM
-            </div>
-            {!collapsed && (
-              <div>
-                <p className="text-[12px] text-white">Care Manager</p>
-                <p className="text-[10px] text-text-placeholder">admin@bradesco.com</p>
+        {/* User with popover */}
+        <div className={cn("py-3", collapsed ? "flex justify-center px-0" : "px-3")}>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                className={cn(
+                  "flex w-full items-center gap-2 rounded-md p-1.5 transition-colors hover:bg-sidebar-active-bg",
+                  collapsed && "justify-center",
+                )}
+              >
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-primary text-[11px] font-semibold text-white">
+                  CM
+                </div>
+                {!collapsed && (
+                  <div className="min-w-0 text-left">
+                    <p className="truncate text-[12px] text-white">Care Manager</p>
+                    <p className="truncate text-[10px] text-text-placeholder">admin@bradesco.com</p>
+                  </div>
+                )}
+                {!collapsed && (
+                  <Icons.more className="ml-auto h-4 w-4 shrink-0 text-text-placeholder" />
+                )}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              side={collapsed ? "right" : "top"}
+              align="start"
+              sideOffset={8}
+              className="w-56 p-1"
+            >
+              <div className="px-2 py-1.5">
+                <p className="text-sm font-medium text-text-primary">Care Manager</p>
+                <p className="text-xs text-text-muted">admin@bradesco.com</p>
               </div>
-            )}
-          </div>
+              <Separator className="my-1" />
+              <button className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-text-secondary hover:bg-bg-hover transition-colors">
+                <Icons.notifications className="h-4 w-4" />
+                Notifications
+                <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-status-error px-1 text-[10px] font-semibold text-white">
+                  7
+                </span>
+              </button>
+              <button className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-text-secondary hover:bg-bg-hover transition-colors">
+                <Icons.settings className="h-4 w-4" />
+                Settings
+              </button>
+              <Separator className="my-1" />
+              <button
+                onClick={handleLogout}
+                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-status-error hover:bg-status-error-bg transition-colors"
+              >
+                <Icons.logout className="h-4 w-4" />
+                Logout
+              </button>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
     </aside>
@@ -139,12 +194,12 @@ function SidebarInner({ collapsed, onToggle }: AppSidebarProps) {
 export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
   return (
     <>
-      {/* Desktop: inline sidebar */}
+      {/* Desktop */}
       <div className="hidden lg:flex h-screen">
         <SidebarInner collapsed={collapsed} onToggle={onToggle} />
       </div>
 
-      {/* Mobile: overlay */}
+      {/* Mobile overlay */}
       <div
         className={cn(
           "fixed inset-0 z-50 lg:hidden transition-opacity duration-200",

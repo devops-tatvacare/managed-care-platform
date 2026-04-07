@@ -2,24 +2,28 @@
 
 import { useState } from "react";
 import { AppSidebar } from "@/components/layout/app-sidebar";
-import { AppTopbar } from "@/components/layout/app-topbar";
+import { SpotlightSearch } from "@/components/shared/spotlight-search";
 
 interface AppShellProps {
   children: React.ReactNode;
 }
 
 export function AppShell({ children }: AppShellProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return window.innerWidth >= 1024; // lg breakpoint
+  });
 
   return (
     <div className="flex h-screen">
-      <AppSidebar collapsed={!sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <AppTopbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
-        <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-bg-secondary p-4 lg:p-6">
-          {children}
-        </main>
-      </div>
+      <AppSidebar
+        collapsed={!sidebarOpen}
+        onToggle={() => setSidebarOpen(!sidebarOpen)}
+      />
+      <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-bg-secondary p-4 lg:p-6">
+        {children}
+      </main>
+      <SpotlightSearch />
     </div>
   );
 }
