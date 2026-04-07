@@ -56,7 +56,7 @@ export const usePathwayBuilderStore = create<PathwayBuilderState>((set, get) => 
   blocks: [],
   edges: [],
   selectedBlockId: null,
-  builderMode: "canvas",
+  builderMode: "ai",
   isDirty: false,
   builderLoading: false,
 
