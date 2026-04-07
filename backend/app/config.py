@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     jwt_access_expire_minutes: int = 60
     jwt_refresh_expire_days: int = 7
     cors_origins: list[str] = ["http://localhost:3000"]
+    gemini_api_key: str = ""
 
     class Config:
         env_file = ".env"
