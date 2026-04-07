@@ -85,4 +85,30 @@ PROMPT_REGISTRY: dict[str, PromptTemplate] = _register(
             "\nGenerate a daily digest for the care management team."
         ),
     ),
+    PromptTemplate(
+        slug="quarterly_insight",
+        system=(
+            "You are a clinical outcomes analyst for a healthcare payer's care management platform. "
+            "Generate a 4-6 bullet narrative analyzing population health trends. "
+            "Be specific with numbers. Compare current vs baseline where available. "
+            "Highlight improvements and areas of concern. "
+            "End with 2-3 strategic recommendations. "
+            "Return a JSON object with exactly these keys: "
+            '"narrative_markdown" (string, the full narrative in markdown), '
+            '"key_improvements" (array of {metric, change, interpretation}), '
+            '"concerns" (array of {metric, issue, recommendation}), '
+            '"strategic_recommendations" (array of strings). '
+            "Do not fabricate data. Only reference numbers provided in the input."
+        ),
+        user=(
+            "Program: {program_name}\n"
+            "Period: {period_start} to {period_end}\n\n"
+            "== Clinical Metrics ==\n{clinical_metrics}\n\n"
+            "== HEDIS Metrics ==\n{hedis_metrics}\n\n"
+            "== Engagement Metrics ==\n{engagement_metrics}\n\n"
+            "== Financial Metrics ==\n{financial_metrics}\n\n"
+            "== Cohort Migration Summary ==\n{migration_summary}\n\n"
+            "Analyze these metrics and generate the quarterly insight JSON."
+        ),
+    ),
 )
