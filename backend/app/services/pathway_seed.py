@@ -57,7 +57,7 @@ async def seed_pathways(db: AsyncSession) -> None:
             category="eligibility",
             label="HbA1c \u2265 7.0%",
             config={"test_type": "hba1c", "operator": "gte", "value": 7.0, "unit": "%", "missing_data_rule": "use_fpg_substitute"},
-            position={"x": 400, "y": 150},
+            position={"x": 400, "y": 200},
             order_index=1,
         ),
         PathwayBlock(
@@ -68,7 +68,7 @@ async def seed_pathways(db: AsyncSession) -> None:
             category="action",
             label="Enrollment Contact",
             config={"channel": "whatsapp", "template_slug": "enrollment_intro", "ai_personalisation": True, "escalation_action": "assign_care_manager"},
-            position={"x": 400, "y": 300},
+            position={"x": 400, "y": 400},
             order_index=2,
         ),
         PathwayBlock(
@@ -79,7 +79,7 @@ async def seed_pathways(db: AsyncSession) -> None:
             category="action",
             label="Quarterly HbA1c",
             config={"test_type": "hba1c", "frequency": "quarterly", "notification_target": "care_manager"},
-            position={"x": 400, "y": 450},
+            position={"x": 400, "y": 800},
             order_index=3,
         ),
         PathwayBlock(
@@ -90,7 +90,7 @@ async def seed_pathways(db: AsyncSession) -> None:
             category="logic",
             label="Severe Hyperglycemia Gate",
             config={"field": "hba1c", "operator": "gt", "value": "10", "true_branch_label": "Escalate to Tier 4", "false_branch_label": "Continue Protocol"},
-            position={"x": 400, "y": 600},
+            position={"x": 400, "y": 800},
             order_index=4,
         ),
         PathwayBlock(
@@ -101,7 +101,7 @@ async def seed_pathways(db: AsyncSession) -> None:
             category="escalation",
             label="Escalate to Tier 4",
             config={"target_tier": 4, "timing": "within_48h", "notification_targets": ["care_manager", "physician"]},
-            position={"x": 400, "y": 750},
+            position={"x": 400, "y": 1000},
             order_index=5,
         ),
     ]
@@ -154,7 +154,7 @@ async def seed_pathways(db: AsyncSession) -> None:
             category="eligibility",
             label="Pre-Diabetes HbA1c",
             config={"test_type": "hba1c", "operator": "between", "value": 5.7, "value_upper": 6.4, "unit": "%"},
-            position={"x": 400, "y": 150},
+            position={"x": 400, "y": 200},
             order_index=1,
         ),
         PathwayBlock(
@@ -165,7 +165,7 @@ async def seed_pathways(db: AsyncSession) -> None:
             category="action",
             label="Diabetes Distress Screen",
             config={"instrument": "dds", "frequency": "quarterly", "action_threshold": 3.0},
-            position={"x": 400, "y": 300},
+            position={"x": 400, "y": 400},
             order_index=2,
         ),
         PathwayBlock(
@@ -176,7 +176,7 @@ async def seed_pathways(db: AsyncSession) -> None:
             category="schedule",
             label="Quarterly Check-in",
             config={"cadence": "quarterly", "touchpoint_type": "coach_call", "role": "lifestyle_coach", "channel": "video"},
-            position={"x": 400, "y": 450},
+            position={"x": 400, "y": 800},
             order_index=3,
         ),
     ]
@@ -225,7 +225,7 @@ async def seed_pathways(db: AsyncSession) -> None:
             category="action",
             label="Cardiology Referral",
             config={"specialty": "cardiology", "urgency": "standard", "prerequisite_data": ["echocardiogram", "bnp_level"]},
-            position={"x": 400, "y": 150},
+            position={"x": 400, "y": 200},
             order_index=1,
         ),
         PathwayBlock(
@@ -236,7 +236,7 @@ async def seed_pathways(db: AsyncSession) -> None:
             category="schedule",
             label="Monthly Cardiology Review",
             config={"cadence": "monthly", "touchpoint_type": "clinical_review", "role": "cardiologist", "channel": "telehealth"},
-            position={"x": 400, "y": 300},
+            position={"x": 400, "y": 400},
             order_index=2,
         ),
     ]
