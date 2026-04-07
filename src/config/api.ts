@@ -28,6 +28,7 @@ export const API_ENDPOINTS = {
     crsConfig: "/api/cohortisation/crs-config",
     assignments: "/api/cohortisation/assignments",
     recalculate: "/api/cohortisation/recalculate",
+    distribution: "/api/cohortisation/distribution",
   },
   communications: {
     threads: "/api/communications/threads",
