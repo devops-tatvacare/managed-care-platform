@@ -39,6 +39,12 @@ export const API_ENDPOINTS = {
     assignments: "/api/cohortisation/assignments",
     distribution: (programId: string) => `/api/cohortisation/distribution/${programId}`,
   },
+  commandCenter: {
+    kpis: "/api/command-center/kpis",
+    actionQueue: "/api/command-center/action-queue",
+    insights: "/api/command-center/insights",
+    upcomingReviews: "/api/command-center/upcoming-reviews",
+  },
   communications: {
     threads: "/api/communications/threads",
     thread: (id: string) => `/api/communications/threads/${id}`,

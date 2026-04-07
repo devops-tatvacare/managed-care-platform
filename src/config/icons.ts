@@ -11,6 +11,7 @@ import {
   ShieldX, ArrowRightLeft, ClipboardList, UserPlus, AlertCircle,
   Calculator, TrendingUp, TrendingDown, ExternalLink, ShieldCheck,
   Eye, Rocket, Save,
+  Crosshair, HeartPulse, Gauge, ClipboardMinus,
   type LucideIcon,
 } from "lucide-react";
 
@@ -90,6 +91,11 @@ export const Icons = {
   preview: Eye,
   publish: Rocket,
   saveDraft: Save,
+  careGap: ClipboardMinus,
+  pdc: HeartPulse,
+  riskScore: Gauge,
+  hba1c: Crosshair,
+  review: Calendar,
 } as const satisfies Record<string, LucideIcon>;
 
 export type IconName = keyof typeof Icons;
