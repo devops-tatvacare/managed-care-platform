@@ -1,24 +1,45 @@
+"""Seed data for the Diabetes Care program — 5 cohorts + scoring engine."""
+
 import uuid
+from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.cohort import CRSConfig
-from app.services.seed_service import DEFAULT_TENANT_ID
+from app.models.cohort import Cohort, CohortAssignment, ScoringEngine
+from app.models.program import Program, ProgramVersion
+from app.services.seed_service import DEFAULT_TENANT_ID, DEFAULT_USER_ID
 
-CRS_CONFIG_ID = uuid.UUID("40000000-0000-0000-0000-000000000001")
+PROGRAM_ID = uuid.UUID("50000000-0000-0000-0000-000000000001")
+ENGINE_ID = uuid.UUID("60000000-0000-0000-0000-000000000001")
+
+COHORT_DEFS = [
+    {"sort": 0, "name": "Cohort 0 — Pre-diabetes Prevention", "slug": "prevention", "color": "#22c55e", "min": 0, "max": 15, "cadence": 180},
+    {"sort": 1, "name": "Cohort 1 — Early Intervention", "slug": "early-intervention", "color": "#3b82f6", "min": 16, "max": 30, "cadence": 120},
+    {"sort": 2, "name": "Cohort 2 — Active Management", "slug": "active-management", "color": "#f59e0b", "min": 31, "max": 50, "cadence": 90},
+    {"sort": 3, "name": "Cohort 3 — Complex Care", "slug": "complex-care", "color": "#f97316", "min": 51, "max": 70, "cadence": 60},
+    {"sort": 4, "name": "Cohort 4 — Intensive Support", "slug": "intensive-support", "color": "#ef4444", "min": 71, "max": 100, "cadence": 30},
+]
 
 COMPONENTS = [
     {
         "name": "Glycaemic Control",
+        "data_source": "lab_range",
         "weight": 0.35,
         "cap": 100,
+        "field": "hba1c",
+        "proxy_field": "fpg",
+        "proxy_map": [
+            {"min": 126, "max": None, "mapped_value": 7.0},
+            {"min": 100, "max": 126, "mapped_value": 5.8},
+            {"min": None, "max": 100, "mapped_value": 5.0},
+        ],
         "scoring_table": [
-            {"criterion": "HbA1c < 5.7%", "field": "hba1c", "min": None, "max": 5.7, "points": 0},
-            {"criterion": "HbA1c 5.7-6.4%", "field": "hba1c", "min": 5.7, "max": 6.5, "points": 20},
-            {"criterion": "HbA1c 6.5-7.9%", "field": "hba1c", "min": 6.5, "max": 8.0, "points": 40},
-            {"criterion": "HbA1c 8.0-9.9%", "field": "hba1c", "min": 8.0, "max": 10.0, "points": 70},
-            {"criterion": "HbA1c >= 10.0%", "field": "hba1c", "min": 10.0, "max": None, "points": 90},
+            {"criterion": "HbA1c < 5.7%", "min": None, "max": 5.7, "points": 0},
+            {"criterion": "HbA1c 5.7-6.4%", "min": 5.7, "max": 6.5, "points": 20},
+            {"criterion": "HbA1c 6.5-7.9%", "min": 6.5, "max": 8.0, "points": 40},
+            {"criterion": "HbA1c 8.0-9.9%", "min": 8.0, "max": 10.0, "points": 70},
+            {"criterion": "HbA1c >= 10.0%", "min": 10.0, "max": None, "points": 90},
         ],
         "bonus_table": [
             {"criterion": "TIR < 50% (CGM)", "field": "tir", "max": 50, "points": 10},
@@ -28,6 +49,7 @@ COMPONENTS = [
     },
     {
         "name": "Complication Burden",
+        "data_source": "diagnosis_match",
         "weight": 0.25,
         "cap": 100,
         "scoring_table": [
@@ -47,6 +69,7 @@ COMPONENTS = [
     },
     {
         "name": "Behavioural/Adherence",
+        "data_source": "pharmacy_adherence",
         "weight": 0.20,
         "cap": 100,
         "scoring_table": [
@@ -64,6 +87,7 @@ COMPONENTS = [
     },
     {
         "name": "Utilisation",
+        "data_source": "utilisation",
         "weight": 0.15,
         "cap": 100,
         "scoring_table": [
@@ -77,6 +101,7 @@ COMPONENTS = [
     },
     {
         "name": "SDOH Burden",
+        "data_source": "sdoh",
         "weight": 0.05,
         "cap": 100,
         "scoring_table": [
@@ -88,34 +113,129 @@ COMPONENTS = [
     },
 ]
 
-TIER_THRESHOLDS = [
-    {"tier": 0, "label": "Tier 0", "crs_min": 0, "crs_max": 15, "prereq": "BMI >= 25; no DM diagnosis"},
-    {"tier": 1, "label": "Tier 1", "crs_min": 16, "crs_max": 30, "prereq": "HbA1c 5.7-6.4% or FPG 100-125"},
-    {"tier": 2, "label": "Tier 2", "crs_min": 31, "crs_max": 50, "prereq": "T2DM diagnosis; HbA1c < 8.0%"},
-    {"tier": 3, "label": "Tier 3", "crs_min": 51, "crs_max": 70, "prereq": "T2DM diagnosis"},
-    {"tier": 4, "label": "Tier 4", "crs_min": 71, "crs_max": 100, "prereq": "Any DM diagnosis"},
-]
-
 TIEBREAKER_RULES = [
-    {"priority": 1, "rule": "DKA event in prior 12 months", "action": "assign_tier", "tier": 4},
-    {"priority": 2, "rule": "T1DM (E10.x)", "action": "min_tier_or_escalate", "min_tier": 3, "escalate_if_crs_gte": 51, "escalate_tier": 4},
-    {"priority": 3, "rule": "Any Tier 3 hard criterion", "action": "min_tier", "min_tier": 3},
-    {"priority": 4, "rule": "HbA1c >= 5.7% but CRS assigns Tier 0", "action": "escalate_tier", "from_tier": 0, "to_tier": 1},
+    {
+        "priority": 1,
+        "rule": "DKA event in prior 12 months",
+        "action": "assign_cohort",
+        "target_sort_order": 4,
+        "condition": {"type": "has_dka"},
+    },
+    {
+        "priority": 2,
+        "rule": "T1DM (E10.x)",
+        "action": "min_cohort_or_escalate",
+        "min_sort_order": 3,
+        "escalate_if_score_gte": 51,
+        "escalate_sort_order": 4,
+        "condition": {"type": "has_diagnosis_prefix", "prefixes": ["E10"]},
+    },
+    {
+        "priority": 3,
+        "rule": "Any Tier 3 hard criterion",
+        "action": "min_cohort",
+        "min_sort_order": 3,
+        "condition": {
+            "type": "has_tier_hard_criteria",
+            "diagnosis_prefixes": ["E11.31", "E11.35", "E11.4", "I25", "I63", "I73.9", "I50", "Z89.4", "Z89.5", "Z89.6"],
+        },
+    },
+    {
+        "priority": 4,
+        "rule": "HbA1c >= 5.7% but score assigns Cohort 0",
+        "action": "escalate_cohort",
+        "from_sort_order": 0,
+        "to_sort_order": 1,
+        "condition": {"type": "lab_gte", "field": "hba1c", "value": 5.7},
+    },
 ]
 
 
-async def seed_crs_config(db: AsyncSession) -> None:
-    result = await db.execute(select(CRSConfig).where(CRSConfig.id == CRS_CONFIG_ID))
+async def seed_diabetes_program(db: AsyncSession) -> None:
+    """Seed the Diabetes Care program with 5 cohorts and a scoring engine."""
+    result = await db.execute(select(Program).where(Program.id == PROGRAM_ID))
     if result.scalar_one_or_none():
         return
 
-    config = CRSConfig(
-        id=CRS_CONFIG_ID,
+    # 1. Create program
+    program = Program(
+        id=PROGRAM_ID,
         tenant_id=DEFAULT_TENANT_ID,
+        name="Diabetes Care",
+        slug="diabetes-care",
+        condition="diabetes",
+        description="Comprehensive diabetes care management program with risk-stratified cohorts",
+        status="active",
+        version=1,
+        published_at=datetime.now(timezone.utc),
+        published_by=DEFAULT_USER_ID,
+        created_by=DEFAULT_USER_ID,
+    )
+    db.add(program)
+    await db.flush()
+
+    # 2. Create cohorts
+    cohort_ids = {}
+    for cdef in COHORT_DEFS:
+        cohort_id = uuid.uuid4()
+        cohort = Cohort(
+            id=cohort_id,
+            tenant_id=DEFAULT_TENANT_ID,
+            program_id=PROGRAM_ID,
+            name=cdef["name"],
+            slug=cdef["slug"],
+            color=cdef["color"],
+            sort_order=cdef["sort"],
+            review_cadence_days=cdef["cadence"],
+            score_range_min=cdef["min"],
+            score_range_max=cdef["max"],
+        )
+        db.add(cohort)
+        cohort_ids[cdef["sort"]] = cohort_id
+    await db.flush()
+
+    # 3. Create scoring engine
+    engine = ScoringEngine(
+        id=ENGINE_ID,
+        tenant_id=DEFAULT_TENANT_ID,
+        program_id=PROGRAM_ID,
         components=COMPONENTS,
-        tier_thresholds=TIER_THRESHOLDS,
         tiebreaker_rules=TIEBREAKER_RULES,
+        aggregation_method="weighted_sum",
         is_active=True,
     )
-    db.add(config)
+    db.add(engine)
+
+    # 4. Publish version 1
+    snapshot = {
+        "name": program.name,
+        "condition": program.condition,
+        "description": program.description,
+        "cohorts": [
+            {
+                "id": str(cohort_ids[cdef["sort"]]),
+                "name": cdef["name"],
+                "slug": cdef["slug"],
+                "color": cdef["color"],
+                "sort_order": cdef["sort"],
+                "score_range_min": cdef["min"],
+                "score_range_max": cdef["max"],
+                "review_cadence_days": cdef["cadence"],
+            }
+            for cdef in COHORT_DEFS
+        ],
+        "scoring_engine": {
+            "components": COMPONENTS,
+            "tiebreaker_rules": TIEBREAKER_RULES,
+            "aggregation_method": "weighted_sum",
+        },
+    }
+    version = ProgramVersion(
+        program_id=PROGRAM_ID,
+        version=1,
+        snapshot=snapshot,
+        published_by=DEFAULT_USER_ID,
+    )
+    db.add(version)
+
     await db.commit()

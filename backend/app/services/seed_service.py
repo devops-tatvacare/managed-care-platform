@@ -79,5 +79,13 @@ async def seed_all(db: AsyncSession) -> None:
     from app.services.pathway_seed import seed_pathways
     await seed_pathways(db)
 
-    from app.services.cohort_seed import seed_crs_config
-    await seed_crs_config(db)
+    from app.services.cohort_seed import seed_diabetes_program
+    await seed_diabetes_program(db)
+
+    # Emit events for initial cohortisation
+    from app.workers.event_emitter import emit_bulk_events
+    from app.models.patient import Patient
+    result = await db.execute(select(Patient.id).where(Patient.tenant_id == DEFAULT_TENANT_ID))
+    patient_ids = [row[0] for row in result.all()]
+    await emit_bulk_events(db, DEFAULT_TENANT_ID, patient_ids, "initial_seed")
+    await db.commit()

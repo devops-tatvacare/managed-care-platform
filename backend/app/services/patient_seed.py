@@ -207,10 +207,6 @@ def _build_care_gaps(tier: int) -> list[str]:
     return random.sample(ALL_CARE_GAPS, min(n, len(ALL_CARE_GAPS)))
 
 
-def _crs_range(tier: int) -> tuple[int, int]:
-    return {0: (0, 15), 1: (16, 30), 2: (31, 50), 3: (51, 70), 4: (71, 100)}[tier]
-
-
 async def seed_patients(db: AsyncSession) -> None:
     result = await db.execute(select(func.count()).select_from(Patient).where(Patient.tenant_id == DEFAULT_TENANT_ID))
     count = result.scalar_one()
@@ -232,8 +228,6 @@ async def seed_patients(db: AsyncSession) -> None:
         last_name = random.choice(LAST_NAMES)
         dob = _random_dob(tier)
         city = random.choice(CITIES)
-        crs_low, crs_high = _crs_range(tier)
-        crs_score = random.randint(crs_low, crs_high)
         pathway_name, pathway_status = PATHWAY_MAP[tier]
         patient_id = uuid.uuid4()
 
@@ -260,9 +254,6 @@ async def seed_patients(db: AsyncSession) -> None:
                 "transportation_barrier": random.random() < 0.08 + tier * 0.04,
                 "low_health_literacy": random.random() < 0.12 + tier * 0.04,
             },
-            tier=tier,
-            crs_score=crs_score,
-            crs_breakdown={"clinical": round(crs_score * 0.6), "behavioral": round(crs_score * 0.25), "social": round(crs_score * 0.15)},
             pathway_status=pathway_status,
             pathway_name=pathway_name,
             care_gaps=_build_care_gaps(tier),
