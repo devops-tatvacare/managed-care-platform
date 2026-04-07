@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import async_session, engine
 from app.models import Base
-from app.routers import ai, ai_sessions, auth, pathways, patients
+from app.routers import ai, ai_sessions, auth, cohortisation, pathways, patients
 from app.services.seed_service import seed_all
 
 
@@ -35,6 +35,7 @@ ROUTER_REGISTRY = [
     (auth.router, "/api/auth", ["Auth"]),
     (patients.router, "/api/patients", ["Patients"]),
     (pathways.router, "/api/pathways", ["Pathways"]),
+    (cohortisation.router, "/api/cohortisation", ["Cohortisation"]),
     (ai.router, "/api/ai", ["AI"]),
     (ai_sessions.router, "/api/ai/sessions", ["AI Sessions"]),
 ]
