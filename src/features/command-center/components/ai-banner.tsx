@@ -7,8 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 interface AIBannerProps {
   markdown: string | null;
   loading: boolean;
-  onRefresh: () => void;
-  onDetails: () => void;
+  onRefreshAction: () => void;
+  onDetailsAction: () => void;
 }
 
 function extractSummary(markdown: string): string {
@@ -17,7 +17,7 @@ function extractSummary(markdown: string): string {
   return firstLine.length > 150 ? firstLine.slice(0, 147) + "…" : firstLine;
 }
 
-export function AIBanner({ markdown, loading, onRefresh, onDetails }: AIBannerProps) {
+export function AIBanner({ markdown, loading, onRefreshAction, onDetailsAction }: AIBannerProps) {
   return (
     <div className="flex shrink-0 items-center gap-3 rounded-xl border border-ai-border bg-gradient-to-br from-indigo-50/60 to-purple-50/40 px-4 py-2.5">
       <span className="shrink-0 rounded-md bg-brand-primary px-2 py-0.5 text-[9px] font-bold text-white">
@@ -39,14 +39,14 @@ export function AIBanner({ markdown, loading, onRefresh, onDetails }: AIBannerPr
           variant="outline"
           size="xs"
           className="border-ai-border bg-brand-primary-light text-brand-primary"
-          onClick={onDetails}
+          onClick={onDetailsAction}
         >
           Details ↓
         </Button>
         <Button
           variant="outline"
           size="xs"
-          onClick={onRefresh}
+          onClick={onRefreshAction}
           disabled={loading}
         >
           <Icons.recurring className="size-3" />
