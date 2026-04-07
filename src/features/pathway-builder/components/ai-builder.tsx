@@ -165,11 +165,11 @@ export function AIBuilder() {
             ))}
 
             {loading && (
-              <div className="flex items-start gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-primary text-white">
-                  <Icons.ai className="h-4 w-4" />
+              <div className="flex gap-2.5">
+                <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-primary text-white">
+                  <Icons.ai className="h-3.5 w-3.5" />
                 </div>
-                <div className="flex items-center gap-2 rounded-2xl rounded-tl-sm bg-bg-secondary px-4 py-2.5 text-sm text-text-muted">
+                <div className="flex items-center gap-2 rounded-xl rounded-tl-none border border-border-default bg-bg-primary px-3.5 py-2.5 text-sm text-text-muted shadow-sm">
                   <Icons.spinner className="h-3.5 w-3.5 animate-spin" />
                   Generating pathway...
                 </div>
@@ -321,28 +321,28 @@ function ChatBubble({ message }: { message: ChatMessage }) {
   const isAI = message.role === "ai";
 
   return (
-    <div className={cn("flex items-start gap-3", !isAI && "flex-row-reverse")}>
-      {/* Avatar */}
+    <div className={cn("flex gap-2.5", !isAI && "flex-row-reverse")}>
+      {/* Avatar — aligned to top of bubble */}
       <div
         className={cn(
-          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
-          isAI ? "bg-brand-primary text-white" : "bg-secondary text-text-muted",
+          "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full",
+          isAI ? "bg-brand-primary text-white" : "bg-muted text-text-muted",
         )}
       >
         {isAI ? (
-          <Icons.ai className="h-4 w-4" />
+          <Icons.ai className="h-3.5 w-3.5" />
         ) : (
-          <Icons.user className="h-4 w-4" />
+          <Icons.user className="h-3.5 w-3.5" />
         )}
       </div>
 
       {/* Bubble */}
       <div
         className={cn(
-          "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
+          "max-w-[80%] rounded-xl border px-3.5 py-2.5 text-sm leading-relaxed shadow-sm",
           isAI
-            ? "rounded-tl-sm bg-bg-secondary text-text-primary"
-            : "rounded-tr-sm bg-brand-primary text-white",
+            ? "rounded-tl-none border-border-default bg-bg-primary text-text-primary"
+            : "rounded-tr-none border-brand-primary/30 bg-brand-primary-light text-text-primary",
         )}
       >
         {isAI ? (
