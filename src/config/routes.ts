@@ -73,6 +73,20 @@ export const ROUTES = {
     group: "config" as const,
     showInSidebar: false,
   },
+  cohortBuilder: {
+    path: "/dashboard/cohortisation/builder",
+    label: "Cohort Builder",
+    icon: Icons.cohortisation,
+    group: "config" as const,
+    showInSidebar: false,
+  },
+  cohortBuilderEditor: {
+    path: "/dashboard/cohortisation/builder/[id]",
+    label: "Edit Program",
+    icon: Icons.cohortisation,
+    group: "config" as const,
+    showInSidebar: false,
+  },
 } as const;
 
 export type RouteName = keyof typeof ROUTES;
