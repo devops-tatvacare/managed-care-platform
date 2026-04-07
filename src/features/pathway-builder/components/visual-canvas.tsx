@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -32,6 +32,7 @@ function VisualCanvasInner() {
   const setEdges = usePathwayBuilderStore((s) => s.setEdges);
   const setDirty = usePathwayBuilderStore((s) => s.setDirty);
 
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
 
   const nodeTypes = useMemo(
@@ -39,30 +40,39 @@ function VisualCanvasInner() {
     [],
   );
 
-  const nodes: Node[] = blocks.map((b) => ({
-    id: b.id,
-    type: "pathwayBlock",
-    position: b.position ?? { x: 0, y: 0 },
-    data: { label: b.label, block_type: b.block_type, category: b.category },
-    selected: b.id === selectedBlockId,
-  }));
+  const nodes: Node[] = useMemo(
+    () =>
+      blocks.map((b) => ({
+        id: b.id,
+        type: "pathwayBlock",
+        position: b.position ?? { x: 0, y: 0 },
+        data: { label: b.label, block_type: b.block_type, category: b.category },
+        selected: b.id === selectedBlockId,
+      })),
+    [blocks, selectedBlockId],
+  );
 
-  const flowEdges: Edge[] = edges.map((e) => ({
-    id: e.id,
-    source: e.source_block_id,
-    target: e.target_block_id,
-    type: "smoothstep",
-    label: e.label ?? undefined,
-    animated: e.edge_type === "true_branch",
-    style: {
-      stroke:
-        e.edge_type === "true_branch"
-          ? "#22c55e"
-          : e.edge_type === "false_branch"
-            ? "#ef4444"
-            : "#94a3b8",
-    },
-  }));
+  const flowEdges: Edge[] = useMemo(
+    () =>
+      edges.map((e) => ({
+        id: e.id,
+        source: e.source_block_id,
+        target: e.target_block_id,
+        type: "smoothstep",
+        label: e.label ?? undefined,
+        animated: e.edge_type === "true_branch",
+        style: {
+          stroke:
+            e.edge_type === "true_branch"
+              ? "#22c55e"
+              : e.edge_type === "false_branch"
+                ? "#ef4444"
+                : "#94a3b8",
+          strokeWidth: 2,
+        },
+      })),
+    [edges],
+  );
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => {
@@ -85,7 +95,7 @@ function VisualCanvasInner() {
         id: fe.id,
         source_block_id: fe.source,
         target_block_id: fe.target,
-        edge_type: fe.animated ? "true_branch" : (fe.style as { stroke?: string })?.stroke === "#ef4444" ? "false_branch" : "default",
+        edge_type: fe.animated ? "true_branch" : "default",
         label: (fe.label as string) ?? null,
       }));
       setEdges(nextEdges);
@@ -101,19 +111,14 @@ function VisualCanvasInner() {
         source: connection.source,
         target: connection.target,
         type: "smoothstep",
-        style: { stroke: "#94a3b8" },
+        style: { stroke: "#94a3b8", strokeWidth: 2 },
       };
       const updated = addEdge(newEdge, flowEdges);
       const nextEdges = updated.map((fe) => ({
         id: fe.id,
         source_block_id: fe.source,
         target_block_id: fe.target,
-        edge_type:
-          fe.animated
-            ? "true_branch"
-            : (fe.style as { stroke?: string })?.stroke === "#ef4444"
-              ? "false_branch"
-              : "default",
+        edge_type: fe.animated ? "true_branch" : "default",
         label: (fe.label as string) ?? null,
       }));
       setEdges(nextEdges);
@@ -164,7 +169,12 @@ function VisualCanvasInner() {
   );
 
   return (
-    <div className="h-full w-full">
+    <div
+      ref={reactFlowWrapper}
+      className="h-full w-full"
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+    >
       <ReactFlow
         nodes={nodes}
         edges={flowEdges}
@@ -172,18 +182,28 @@ function VisualCanvasInner() {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeClick={onNodeClick}
-        onDragOver={onDragOver}
-        onDrop={onDrop}
         nodeTypes={nodeTypes}
         fitView
+        proOptions={{ hideAttribution: true }}
         className="bg-bg-secondary"
       >
         <Background gap={20} size={1} color="#e2e8f0" />
-        <Controls className="!bg-bg-primary !border-border-default !shadow-sm" />
+        <Controls
+          showInteractive={false}
+          className="!bg-bg-primary !border !border-border-default !rounded-lg !shadow-sm [&>button]:!border-border-default [&>button]:!bg-bg-primary"
+        />
         <MiniMap
-          className="!bg-bg-primary !border-border-default !shadow-sm"
-          maskColor="rgba(0,0,0,0.1)"
-          nodeColor="#e2e8f0"
+          className="!bg-bg-primary !border !border-border-default !rounded-lg !shadow-sm"
+          maskColor="rgba(248,250,252,0.7)"
+          nodeColor={(node) => {
+            const cat = (node.data as { category?: string })?.category;
+            if (cat === "eligibility") return "#22c55e";
+            if (cat === "action") return "#4f46e5";
+            if (cat === "logic") return "#f59e0b";
+            if (cat === "escalation") return "#ef4444";
+            if (cat === "schedule") return "#0891b2";
+            return "#94a3b8";
+          }}
         />
       </ReactFlow>
     </div>

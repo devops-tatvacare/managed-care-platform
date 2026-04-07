@@ -10,7 +10,6 @@ interface BlockNodeData {
   label: string;
   block_type: string;
   category: string;
-  selected?: boolean;
   [key: string]: unknown;
 }
 
@@ -23,44 +22,45 @@ function PathwayBlockNodeInner({ data, selected }: NodeProps) {
   return (
     <div
       className={cn(
-        "rounded-lg border-2 bg-bg-primary shadow-sm min-w-[180px] max-w-[220px] transition-all",
+        "rounded-lg border-2 bg-bg-primary shadow-md min-w-[220px] max-w-[280px] transition-all",
         selected
           ? "border-brand-primary ring-2 ring-brand-primary/20"
-          : "border-border-default",
+          : "border-border-default hover:shadow-lg",
       )}
     >
       <Handle
         type="target"
         position={Position.Top}
-        className="!bg-border-default !w-3 !h-1.5 !rounded-sm !border-0 !-top-1"
+        className="!bg-brand-primary !w-3 !h-1.5 !rounded-full !border-0 !-top-1"
       />
 
-      <div className="p-3">
-        <div className="flex items-center gap-2 mb-1">
-          {catDef && (
-            <div
-              className={cn(
-                "flex h-5 w-5 items-center justify-center rounded",
-                catDef.iconBgClass,
-              )}
-            >
-              {IconComp && <IconComp className="h-3 w-3 text-white" />}
-            </div>
-          )}
-          <span
+      {/* Category bar */}
+      <div className={cn("flex items-center gap-2 rounded-t-md px-3 py-1.5", catDef?.bgClass)}>
+        {catDef && (
+          <div
             className={cn(
-              "text-[10px] font-medium uppercase tracking-wider",
-              catDef?.colorClass,
+              "flex h-5 w-5 items-center justify-center rounded",
+              catDef.iconBgClass,
             )}
           >
-            {catDef?.label}
-          </span>
-        </div>
-        <p className="text-xs font-semibold text-text-primary truncate">
-          {d.label}
-        </p>
+            {IconComp && <IconComp className="h-3 w-3 text-white" />}
+          </div>
+        )}
+        <span
+          className={cn(
+            "text-[10px] font-semibold uppercase tracking-wider",
+            catDef?.colorClass,
+          )}
+        >
+          {catDef?.label}
+        </span>
+      </div>
+
+      {/* Content */}
+      <div className="px-3 py-2.5">
+        <p className="text-sm font-semibold text-text-primary">{d.label}</p>
         {blockDef && (
-          <p className="text-[10px] text-text-muted mt-0.5 truncate">
+          <p className="text-xs text-text-muted mt-0.5 line-clamp-2">
             {blockDef.description}
           </p>
         )}
@@ -69,7 +69,7 @@ function PathwayBlockNodeInner({ data, selected }: NodeProps) {
       <Handle
         type="source"
         position={Position.Bottom}
-        className="!bg-border-default !w-3 !h-1.5 !rounded-sm !border-0 !-bottom-1"
+        className="!bg-brand-primary !w-3 !h-1.5 !rounded-full !border-0 !-bottom-1"
       />
     </div>
   );

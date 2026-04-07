@@ -48,19 +48,19 @@ function BlockCard({
     >
       <div
         className={cn(
-          "flex h-4 w-4 shrink-0 items-center justify-center rounded",
+          "flex h-6 w-6 shrink-0 items-center justify-center rounded",
           category.iconBgClass,
         )}
       >
         {IconComponent && (
-          <IconComponent className="h-2.5 w-2.5 text-white" />
+          <IconComponent className="h-3 w-3 text-white" />
         )}
       </div>
       <div className="min-w-0">
-        <p className="text-[10px] font-semibold text-text-primary truncate">
+        <p className="text-xs font-semibold text-text-primary truncate">
           {block.label}
         </p>
-        <p className="text-[9px] text-text-muted truncate">
+        <p className="text-[10px] text-text-muted truncate">
           {block.description}
         </p>
       </div>
