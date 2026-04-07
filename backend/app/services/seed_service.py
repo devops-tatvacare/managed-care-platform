@@ -78,3 +78,6 @@ async def seed_all(db: AsyncSession) -> None:
 
     from app.services.pathway_seed import seed_pathways
     await seed_pathways(db)
+
+    from app.services.cohort_seed import seed_crs_config
+    await seed_crs_config(db)
