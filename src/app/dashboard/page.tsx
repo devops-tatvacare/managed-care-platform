@@ -1,87 +1,49 @@
 "use client";
 
-import { useEffect } from "react";
-import { PageHeader } from "@/components/shared/page-header";
-import { KpiCard } from "@/components/shared/kpi-card";
+import { useEffect, useRef } from "react";
 import { useCommandCenterStore } from "@/stores/command-center-store";
+import { AIBanner } from "@/features/command-center/components/ai-banner";
+import { KpiStrip } from "@/features/command-center/components/kpi-strip";
 import { ActionQueue } from "@/features/command-center/components/action-queue";
-import { CohortDistributionChart } from "@/features/command-center/components/cohort-distribution-chart";
 import { AIInsightsPanel } from "@/features/command-center/components/ai-insights-panel";
-import { UpcomingReviews } from "@/features/command-center/components/upcoming-reviews";
+import { CohortDistribution } from "@/features/command-center/components/cohort-distribution";
+import { ReviewsDue } from "@/features/command-center/components/reviews-due";
 
 export default function CommandCenterPage() {
   const {
-    kpis,
+    kpis, kpisLoading,
     actionQueue, actionQueueLoading,
     insights, insightsLoading,
     upcomingReviews, reviewsLoading,
     programs, distributions, distributionsLoading,
-    loadAll,
+    loadAll, loadInsights,
   } = useCommandCenterStore();
+
+  const insightsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadAll();
   }, [loadAll]);
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Command Center" description="AI-driven population overview" />
+    <div className="flex h-full flex-col gap-3 overflow-hidden">
+      {/* AI Banner — fixed height */}
+      <AIBanner
+        markdown={insights?.markdown ?? null}
+        loading={insightsLoading}
+        onRefreshAction={loadInsights}
+        onDetailsAction={() => insightsRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" })}
+      />
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
-        <KpiCard
-          label="Total Members"
-          value={kpis?.total_members ?? "—"}
-          subtitle="Active patients"
-        />
-        <KpiCard
-          label="Avg Risk Score"
-          value={kpis?.avg_risk_score ?? "—"}
-          subtitle="Across programs"
-        />
-        <KpiCard
-          label="HbA1c <7% Rate"
-          value={kpis?.hba1c_control_rate != null ? `${kpis.hba1c_control_rate}%` : "—"}
-          subtitle="Glycemic control"
-        />
-        <KpiCard
-          label="Open Care Gaps"
-          value={kpis?.open_care_gaps ?? "—"}
-          subtitle="Patients needing attention"
-        />
-        <KpiCard
-          label="PDC ≥80%"
-          value={kpis?.pdc_above_80_rate != null ? `${kpis.pdc_above_80_rate}%` : "—"}
-          subtitle="Medication adherence"
-        />
-      </div>
+      {/* KPI Strip — fixed height */}
+      <KpiStrip kpis={kpis} loading={kpisLoading} />
 
-      {/* Two-column layout */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Left column */}
-        <div className="space-y-6">
-          <ActionQueue
-            items={actionQueue?.items ?? []}
-            loading={actionQueueLoading}
-          />
-          <CohortDistributionChart
-            programs={programs}
-            distributions={distributions}
-            loading={distributionsLoading}
-          />
-        </div>
-
-        {/* Right column */}
-        <div className="space-y-6">
-          <AIInsightsPanel
-            insights={insights}
-            loading={insightsLoading}
-          />
-          <UpcomingReviews
-            items={upcomingReviews?.items ?? []}
-            loading={reviewsLoading}
-          />
-        </div>
+      {/* 2×2 Grid — fills remaining height */}
+      <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-2 gap-3">
+        <ActionQueue items={actionQueue?.items ?? []} loading={actionQueueLoading} />
+        <AIInsightsPanel ref={insightsRef} insights={insights} loading={insightsLoading} />
+        <CohortDistribution programs={programs} distributions={distributions} loading={distributionsLoading} />
+        <ReviewsDue items={upcomingReviews?.items ?? []} loading={reviewsLoading} />
       </div>
     </div>
   );
