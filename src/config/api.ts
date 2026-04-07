@@ -58,6 +58,11 @@ export const API_ENDPOINTS = {
     engagement: "/api/outcomes/engagement",
     financial: "/api/outcomes/financial",
     recohortisation: "/api/outcomes/recohortisation",
+    migrationSummary: "/api/outcomes/migrations/summary",
+    migrationHistory: "/api/outcomes/migrations/history",
+    quarterlyInsight: "/api/outcomes/quarterly-insight",
+    snapshots: "/api/outcomes/snapshots",
+    snapshotHistory: "/api/outcomes/snapshots/history",
   },
   ai: {
     careSummary: "/api/ai/care-summary",
