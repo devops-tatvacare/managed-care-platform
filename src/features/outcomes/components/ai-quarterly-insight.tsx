@@ -12,10 +12,10 @@ import type { QuarterlyInsightResponse } from "@/services/types/outcomes";
 interface AIQuarterlyInsightProps {
   insight: QuarterlyInsightResponse | null;
   loading: boolean;
-  onRefresh: () => void;
+  onRefreshAction: () => void;
 }
 
-export function AIQuarterlyInsight({ insight, loading, onRefresh }: AIQuarterlyInsightProps) {
+export function AIQuarterlyInsight({ insight, loading, onRefreshAction }: AIQuarterlyInsightProps) {
   if (loading) {
     return (
       <Card>
@@ -43,7 +43,7 @@ export function AIQuarterlyInsight({ insight, loading, onRefresh }: AIQuarterlyI
           <p className="py-4 text-center text-sm text-text-muted">
             Generate an AI-powered quarterly analysis
           </p>
-          <Button variant="outline" size="sm" onClick={onRefresh} className="w-full">
+          <Button variant="outline" size="sm" onClick={onRefreshAction} className="w-full">
             Generate Insight
           </Button>
         </CardContent>
@@ -61,7 +61,7 @@ export function AIQuarterlyInsight({ insight, loading, onRefresh }: AIQuarterlyI
             <Badge variant="secondary" className="text-[10px]">Fallback</Badge>
           )}
         </CardTitle>
-        <Button variant="ghost" size="sm" onClick={onRefresh}>
+        <Button variant="ghost" size="sm" onClick={onRefreshAction}>
           <RefreshCw className="h-3.5 w-3.5" />
         </Button>
       </CardHeader>

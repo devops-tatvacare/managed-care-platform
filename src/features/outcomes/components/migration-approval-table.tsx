@@ -17,11 +17,11 @@ import type { PendingOverrideItem } from "@/services/types/outcomes";
 interface MigrationApprovalTableProps {
   items: PendingOverrideItem[];
   loading: boolean;
-  onApprove: (assignmentId: string) => void;
-  onReject: (assignmentId: string) => void;
+  onApproveAction: (assignmentId: string) => void;
+  onRejectAction: (assignmentId: string) => void;
 }
 
-export function MigrationApprovalTable({ items, loading, onApprove, onReject }: MigrationApprovalTableProps) {
+export function MigrationApprovalTable({ items, loading, onApproveAction, onRejectAction }: MigrationApprovalTableProps) {
   if (loading) {
     return (
       <div className="space-y-2">
@@ -75,7 +75,7 @@ export function MigrationApprovalTable({ items, loading, onApprove, onReject }: 
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => onApprove(item.assignment_id)}
+                  onClick={() => onApproveAction(item.assignment_id)}
                   className="h-7 w-7 p-0 text-status-success hover:bg-status-success-bg"
                 >
                   <Check className="h-4 w-4" />
@@ -83,7 +83,7 @@ export function MigrationApprovalTable({ items, loading, onApprove, onReject }: 
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => onReject(item.assignment_id)}
+                  onClick={() => onRejectAction(item.assignment_id)}
                   className="h-7 w-7 p-0 text-status-error hover:bg-status-error-bg"
                 >
                   <X className="h-4 w-4" />
