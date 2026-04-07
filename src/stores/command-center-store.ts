@@ -91,10 +91,9 @@ export const useCommandCenterStore = create<CommandCenterState>((set, get) => ({
       const programs = await fetchPrograms();
       set({ programs });
       const distributions: Record<string, CohortDistribution[]> = {};
-      for (const program of programs) {
-        const dist = await fetchDistribution(program.id);
-        distributions[program.id] = dist;
-      }
+      await Promise.all(programs.map(async (program) => {
+        distributions[program.id] = await fetchDistribution(program.id);
+      }));
       set({ distributions, distributionsLoading: false });
     } catch {
       set({ distributionsLoading: false });

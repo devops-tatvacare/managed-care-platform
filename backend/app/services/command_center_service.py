@@ -103,7 +103,7 @@ async def get_action_queue(
     db: AsyncSession, tenant_id: uuid.UUID, limit: int = 20,
 ) -> dict:
     items: list[dict] = []
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
 
     overdue_q = (
         select(CohortAssignment)
@@ -307,7 +307,7 @@ def _build_static_insights(kpis: dict) -> str:
 async def get_upcoming_reviews(
     db: AsyncSession, tenant_id: uuid.UUID, limit: int = 20,
 ) -> dict:
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
 
     q = (
         select(CohortAssignment)
