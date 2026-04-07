@@ -1,0 +1,109 @@
+<h2>Scoring Engine Builder — How does an architect define a scoring rubric?</h2>
+<p class="subtitle">The scoring engine is optional. When enabled, it takes the cohort's matched patients and stratifies them into tiers by computing a weighted risk score. The diabetes CRS (5 components, weighted sum, tier thresholds) is one instance.</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Table-Based Builder</h3>
+      <p>A structured form. The architect adds scoring components as rows in a table. Each component expands to show its scoring rules (also a table of criterion → points). Weights are sliders/inputs at the component level. Tier thresholds are a separate table below.</p>
+      <div style="margin-top:12px; padding:16px; background:#f8fafc; border-radius:8px; font-size:13px; line-height:1.8;">
+        <strong>Component Table:</strong><br>
+        <table style="width:100%; border-collapse:collapse; margin-top:8px; font-size:12px;">
+          <tr style="background:#f1f5f9;"><th style="text-align:left;padding:6px;">Component</th><th style="padding:6px;">Data Source</th><th style="padding:6px;">Weight</th><th style="padding:6px;">Rules</th></tr>
+          <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:6px;">Glycaemic Control</td><td style="padding:6px;">Labs → HbA1c</td><td style="padding:6px;">35%</td><td style="padding:6px;">5 rules ▸</td></tr>
+          <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:6px;">Complication Burden</td><td style="padding:6px;">Diagnoses + Labs</td><td style="padding:6px;">25%</td><td style="padding:6px;">12 rules ▸</td></tr>
+          <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:6px;">Adherence</td><td style="padding:6px;">Pharmacy → PDC</td><td style="padding:6px;">20%</td><td style="padding:6px;">4 rules ▸</td></tr>
+          <tr><td style="padding:6px;color:#94a3b8;">+ Add Component</td><td></td><td></td><td></td></tr>
+        </table>
+        <div style="margin-top:12px; font-size:12px; color:#64748b;">Expanding "Glycaemic Control" shows its scoring rules table inline.</div>
+      </div>
+      <div class="pros-cons" style="margin-top:12px;">
+        <div class="pros"><h4>Pros</h4><ul><li>Compact, data-dense — architects see everything at once</li><li>Familiar spreadsheet-like interaction</li><li>Easy to add/remove/reorder components</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Can feel overwhelming with many rules</li><li>No visual sense of how components relate</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Card-Based Builder</h3>
+      <p>Each scoring component is a card. Cards show the component name, weight (as a visual bar), data source, and rule count. Click a card to open a drawer/panel where you configure that component's scoring rules. Tier thresholds shown as a visual gradient bar below the cards.</p>
+      <div style="margin-top:12px; padding:16px; background:#f8fafc; border-radius:8px; font-size:13px; line-height:1.8;">
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:12px;">
+          <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px;">
+            <div style="font-size:11px; font-weight:600;">Glycaemic Control</div>
+            <div style="margin:6px 0; height:4px; background:#e2e8f0; border-radius:2px;"><div style="width:35%; height:100%; background:#4f46e5; border-radius:2px;"></div></div>
+            <div style="font-size:10px; color:#64748b;">35% · Labs · 5 rules</div>
+          </div>
+          <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px;">
+            <div style="font-size:11px; font-weight:600;">Complication Burden</div>
+            <div style="margin:6px 0; height:4px; background:#e2e8f0; border-radius:2px;"><div style="width:25%; height:100%; background:#4f46e5; border-radius:2px;"></div></div>
+            <div style="font-size:10px; color:#64748b;">25% · Diagnoses · 12 rules</div>
+          </div>
+          <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px;">
+            <div style="font-size:11px; font-weight:600;">Adherence</div>
+            <div style="margin:6px 0; height:4px; background:#e2e8f0; border-radius:2px;"><div style="width:20%; height:100%; background:#4f46e5; border-radius:2px;"></div></div>
+            <div style="font-size:10px; color:#64748b;">20% · Pharmacy · 4 rules</div>
+          </div>
+        </div>
+        <div style="border:1px dashed #94a3b8; border-radius:6px; padding:8px; text-align:center; font-size:11px; color:#94a3b8;">+ Add Component</div>
+        <div style="margin-top:12px; font-size:12px; color:#64748b;">Click any card → opens side drawer with scoring rules editor</div>
+      </div>
+      <div class="pros-cons" style="margin-top:12px;">
+        <div class="pros"><h4>Pros</h4><ul><li>Visual weight representation at a glance</li><li>Less overwhelming — details are hidden until needed</li><li>Consistent with "card" pattern used elsewhere in the app</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>More clicks to see all rules (open each drawer)</li><li>Can't compare components side by side easily</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Hybrid — Cards for Overview, Inline Expand for Detail</h3>
+      <p>Components shown as cards (like B) but clicking a card expands it inline (accordion-style) to reveal the scoring rules table, rather than opening a separate drawer. You can have multiple components expanded at once to compare. Weight sliders live on the card header row.</p>
+      <div style="margin-top:12px; padding:16px; background:#f8fafc; border-radius:8px; font-size:13px; line-height:1.8;">
+        <div style="border:1px solid #e2e8f0; border-radius:6px; margin-bottom:8px;">
+          <div style="padding:10px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
+            <div>
+              <span style="font-size:12px; font-weight:600;">▾ Glycaemic Control</span>
+              <span style="font-size:11px; color:#64748b; margin-left:8px;">Labs → HbA1c</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div style="width:80px; height:4px; background:#e2e8f0; border-radius:2px;"><div style="width:35%; height:100%; background:#4f46e5; border-radius:2px;"></div></div>
+              <span style="font-size:11px; font-weight:600;">35%</span>
+            </div>
+          </div>
+          <div style="padding:0 10px 10px; border-top:1px solid #f1f5f9;">
+            <table style="width:100%; border-collapse:collapse; font-size:11px; margin-top:8px;">
+              <tr style="color:#64748b;"><th style="text-align:left; padding:4px;">Criterion</th><th style="text-align:right; padding:4px;">Points</th></tr>
+              <tr><td style="padding:4px;">HbA1c &lt; 5.7%</td><td style="text-align:right; padding:4px;">0</td></tr>
+              <tr><td style="padding:4px;">HbA1c 5.7–6.4%</td><td style="text-align:right; padding:4px;">20</td></tr>
+              <tr><td style="padding:4px;">HbA1c 6.5–7.9%</td><td style="text-align:right; padding:4px;">40</td></tr>
+              <tr><td style="padding:4px;">HbA1c 8.0–9.9%</td><td style="text-align:right; padding:4px;">70</td></tr>
+              <tr><td style="padding:4px;">HbA1c ≥ 10.0%</td><td style="text-align:right; padding:4px;">90</td></tr>
+            </table>
+          </div>
+        </div>
+        <div style="border:1px solid #e2e8f0; border-radius:6px; margin-bottom:8px;">
+          <div style="padding:10px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
+            <div>
+              <span style="font-size:12px; font-weight:600;">▸ Complication Burden</span>
+              <span style="font-size:11px; color:#64748b; margin-left:8px;">Diagnoses + Labs</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div style="width:80px; height:4px; background:#e2e8f0; border-radius:2px;"><div style="width:25%; height:100%; background:#4f46e5; border-radius:2px;"></div></div>
+              <span style="font-size:11px; font-weight:600;">25%</span>
+            </div>
+          </div>
+        </div>
+        <div style="border:1px dashed #94a3b8; border-radius:6px; padding:8px; text-align:center; font-size:11px; color:#94a3b8;">+ Add Component</div>
+      </div>
+      <div class="pros-cons" style="margin-top:12px;">
+        <div class="pros"><h4>Pros</h4><ul><li>Best of both — overview + detail in one view</li><li>Can compare multiple expanded components</li><li>This is what the current Phase 4 CRS panel already does (collapsible sections)</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Page gets long with many components expanded</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>

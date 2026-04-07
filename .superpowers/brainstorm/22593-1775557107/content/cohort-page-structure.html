@@ -1,0 +1,73 @@
+<h2>Cohort System — Page Structure</h2>
+<p class="subtitle">How should the cohort system be organized? The architect needs to create/edit cohorts. The business user needs to see population risk at a glance.</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Single Page — List + Detail</h3>
+      <p>One "Cohortisation" page. Top section: cohort cards (like pathway list). Click a cohort to expand into detail view showing criteria, scoring engine, population stats. Business users see the same page — the population dashboard is part of each cohort's detail.</p>
+      <div style="margin-top:12px; padding:16px; background:#f8fafc; border-radius:8px; font-size:13px; font-family:monospace; line-height:1.8;">
+        /dashboard/cohortisation<br>
+        &nbsp;&nbsp;├─ Cohort list (cards: name, condition, patient count, tier breakdown mini-chart)<br>
+        &nbsp;&nbsp;├─ [+ Create Cohort] button<br>
+        &nbsp;&nbsp;└─ Click card → /dashboard/cohortisation/:id<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ Tab: Population (distribution chart, risk pool stats, patient table)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ Tab: Criteria (eligibility rules editor)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ Tab: Scoring Engine (optional — component builder, weights, tiers)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ Tab: Linked Pathways (which pathways reference this cohort)
+      </div>
+      <div class="pros-cons" style="margin-top:12px;">
+        <div class="pros"><h4>Pros</h4><ul><li>Everything in one place</li><li>Natural drill-down from list → detail</li><li>Mirrors the pathway list → editor pattern</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Business user has to know which cohort to click</li><li>No cross-cohort population overview</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Split — Population Dashboard + Cohort Builder</h3>
+      <p>Two sub-pages under Cohortisation. The default view is a population dashboard (all cohorts, cross-cohort stats, risk pool overview). A separate "Cohort Builder" sub-page is where architects create/edit cohort definitions.</p>
+      <div style="margin-top:12px; padding:16px; background:#f8fafc; border-radius:8px; font-size:13px; font-family:monospace; line-height:1.8;">
+        /dashboard/cohortisation (default: Population Dashboard)<br>
+        &nbsp;&nbsp;├─ Cross-cohort population overview (total members, unassigned, tier distribution per cohort)<br>
+        &nbsp;&nbsp;├─ Cohort summary cards (name, member count, avg CRS, trending arrows)<br>
+        &nbsp;&nbsp;├─ Risk pool table (filterable by cohort, tier, condition)<br>
+        &nbsp;&nbsp;└─ [Manage Cohorts →] link<br>
+        <br>
+        /dashboard/cohortisation/builder (Cohort Builder)<br>
+        &nbsp;&nbsp;├─ Cohort list + [Create Cohort]<br>
+        &nbsp;&nbsp;└─ /dashboard/cohortisation/builder/:id<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ Criteria editor<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ Scoring engine (optional)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ Preview (run against population, see who matches)
+      </div>
+      <div class="pros-cons" style="margin-top:12px;">
+        <div class="pros"><h4>Pros</h4><ul><li>Business user lands on dashboard — sees risk pools immediately</li><li>Builder is separate, focused workspace for architects</li><li>Cross-cohort view answers "how is our population distributed?"</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Two sub-pages to maintain</li><li>Navigation between dashboard and builder could feel disconnected</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Dashboard-First with Inline Builder</h3>
+      <p>Population dashboard is the landing page. Each cohort card is expandable — click to see detail + edit criteria inline. Creating a new cohort opens a slide-over panel or dialog, not a new page. Keeps everything in one flow.</p>
+      <div style="margin-top:12px; padding:16px; background:#f8fafc; border-radius:8px; font-size:13px; font-family:monospace; line-height:1.8;">
+        /dashboard/cohortisation<br>
+        &nbsp;&nbsp;├─ Population overview bar (total members, assigned %, unassigned count)<br>
+        &nbsp;&nbsp;├─ Cohort cards grid (each card: name, condition, member count, mini tier chart)<br>
+        &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└─ Click card → expands inline: criteria summary, scoring summary, population table<br>
+        &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ [Edit Cohort] → sheet/drawer with full criteria + scoring editor<br>
+        &nbsp;&nbsp;├─ [+ Create Cohort] → sheet/drawer with builder<br>
+        &nbsp;&nbsp;└─ Risk pool table (all members, filterable by cohort/tier)
+      </div>
+      <div class="pros-cons" style="margin-top:12px;">
+        <div class="pros"><h4>Pros</h4><ul><li>Single page, no navigation</li><li>Dashboard-first for business users</li><li>Editing is contextual (drawer), not a page switch</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Drawer may be too cramped for complex scoring engine config</li><li>Inline expansion can get cluttered with many cohorts</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>

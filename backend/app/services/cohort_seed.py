@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.cohort import Cohort, CohortAssignment, ScoringEngine
+from app.models.cohort import Cohort, ScoringEngine
 from app.models.program import Program, ProgramVersion
 from app.services.seed_service import DEFAULT_TENANT_ID, DEFAULT_USER_ID
 
