@@ -86,6 +86,31 @@ async def patients_list(
     )
 
 
+@router.post("/{patient_id}/labs")
+async def add_lab(
+    patient_id: uuid.UUID,
+    body: dict,
+    auth: AuthContext = Depends(get_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Add a lab result to a patient."""
+    from datetime import datetime, timezone
+    from app.models.patient import PatientLab
+    lab = PatientLab(
+        id=uuid.uuid4(),
+        tenant_id=auth.tenant_id,
+        patient_id=patient_id,
+        test_type=body["test_type"],
+        value=body["value"],
+        unit=body.get("unit", ""),
+        source_system=body.get("source_system", "demo"),
+        recorded_at=datetime.now(timezone.utc),
+    )
+    db.add(lab)
+    await db.commit()
+    return {"id": str(lab.id)}
+
+
 @router.post("/bulk-import")
 async def bulk_import(
     payload: list[dict],

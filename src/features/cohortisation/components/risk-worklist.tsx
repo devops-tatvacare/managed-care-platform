@@ -42,6 +42,16 @@ import { SendCommsDialog } from "./send-comms-dialog";
 
 const ALL_VALUE = "__all__";
 
+/** Returns true if the background color is light enough to need dark text. */
+function needsDarkText(hex: string): boolean {
+  const c = hex.replace("#", "");
+  const r = parseInt(c.substring(0, 2), 16);
+  const g = parseInt(c.substring(2, 4), 16);
+  const b = parseInt(c.substring(4, 6), 16);
+  // Relative luminance — light colors get dark text
+  return (r * 299 + g * 587 + b * 114) / 1000 > 160;
+}
+
 function reviewUrgency(dateStr: string | null): { className: string; label: string } {
   if (!dateStr) return { className: "text-text-placeholder", label: "--" };
   const days = Math.ceil((new Date(dateStr).getTime() - Date.now()) / 86400000);
@@ -246,7 +256,10 @@ export function RiskWorklist() {
                     <TableCell>
                       <Badge
                         variant="outline"
-                        className="border-transparent text-white text-[10px]"
+                        className={cn(
+                          "border-transparent text-[10px] font-medium",
+                          needsDarkText(a.cohort_color) ? "text-gray-900" : "text-white",
+                        )}
                         style={{ backgroundColor: a.cohort_color }}
                       >
                         {a.cohort_name}
@@ -278,7 +291,7 @@ export function RiskWorklist() {
                           factors.map((f) => (
                             <span
                               key={f.key}
-                              className="inline-block rounded bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] text-text-secondary"
+                              className="inline-block rounded border border-border-default bg-muted px-1.5 py-0.5 text-[10px] font-medium text-text-primary"
                             >
                               {f.key}
                             </span>

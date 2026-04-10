@@ -63,7 +63,7 @@ async def get_kpis(db: AsyncSession, tenant_id: uuid.UUID) -> dict:
             Patient.tenant_id == tenant_id,
             Patient.is_active == True,
             Patient.care_gaps.isnot(None),
-            func.json_array_length(Patient.care_gaps) > 0,
+            func.jsonb_array_length(Patient.care_gaps) > 0,
         )
     )).scalar_one()
 
@@ -149,7 +149,7 @@ async def get_action_queue(
             Patient.tenant_id == tenant_id,
             Patient.is_active == True,
             Patient.care_gaps.isnot(None),
-            func.json_array_length(Patient.care_gaps) > 0,
+            func.jsonb_array_length(Patient.care_gaps) > 0,
         )
         .limit(limit)
     )

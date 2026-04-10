@@ -71,7 +71,7 @@ export function AISummaryCard({ patientId }: AISummaryCardProps) {
   }, [patientId]);
 
   return (
-    <div className="rounded-lg border border-ai-border bg-gradient-to-br from-indigo-50/60 to-purple-50/40 dark:from-indigo-950/60 dark:to-purple-950/40 px-4 py-3">
+    <div className="rounded-lg border border-ai-border bg-gradient-to-br from-indigo-50/60 to-purple-50/40 dark:from-indigo-950/60 dark:to-purple-950/40 px-4 py-3 overflow-hidden">
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold text-text-primary">AI Clinical Summary</span>
         {!streaming ? (
@@ -110,7 +110,7 @@ export function AISummaryCard({ patientId }: AISummaryCardProps) {
 
       {!streaming && text && (
         <div className="mt-2">
-          <p className="text-[13px] leading-snug text-text-secondary whitespace-pre-wrap">
+          <p className="text-[13px] leading-snug text-text-secondary whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
             {text}
           </p>
 

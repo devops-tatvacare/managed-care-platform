@@ -124,7 +124,7 @@ def _after_flush(session: Session, flush_context) -> None:
             set_={
                 "title": stmt.excluded.title,
                 "subtitle": stmt.excluded.subtitle,
-                "metadata": stmt.excluded.meta,
+                "metadata": stmt.excluded.metadata,
                 "updated_at": func.now(),
             },
         )

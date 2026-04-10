@@ -21,7 +21,7 @@ class GeminiProvider(LLMProvider):
         prompt: str,
         *,
         system: str | None = None,
-        max_tokens: int = 1024,
+        max_tokens: int = 65536,
         response_schema: dict | None = None,
     ) -> dict:
         contents = []
@@ -47,7 +47,7 @@ class GeminiProvider(LLMProvider):
         prompt: str,
         *,
         system: str | None = None,
-        max_tokens: int = 1024,
+        max_tokens: int = 65536,
         response_schema: dict | None = None,
         parse_json: bool = False,
         response_model: type[BaseModel] | None = None,
@@ -82,7 +82,7 @@ class GeminiProvider(LLMProvider):
         prompt: str,
         *,
         system: str | None = None,
-        max_tokens: int = 1024,
+        max_tokens: int = 65536,
     ) -> AsyncIterator[str]:
         """Yield text chunks via Gemini streamGenerateContent."""
         if not settings.gemini_api_key:

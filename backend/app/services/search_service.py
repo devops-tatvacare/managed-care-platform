@@ -121,7 +121,7 @@ async def upsert_entity(
         set_={
             "title": stmt.excluded.title,
             "subtitle": stmt.excluded.subtitle,
-            "metadata": stmt.excluded.meta,  # set_ key = DB column name; excluded ref = Python attr
+            "metadata": stmt.excluded.metadata,
             "updated_at": func.now(),
         },
     )

@@ -33,8 +33,17 @@ from app.engine.base import PatientData, ScoringComponent
 
 
 class LabRangeComponent(ScoringComponent):
+    # Map component names to default lab fields when "field" is missing
+    _NAME_TO_FIELD = {
+        "glycemic_control": "hba1c",
+        "glycaemic_control": "hba1c",
+    }
+
     def score(self, patient_data: PatientData, config: dict[str, Any]) -> int:
-        field = config["field"].lower()
+        field = config.get("field") or self._NAME_TO_FIELD.get(config.get("name", ""), "")
+        if not field:
+            return 0
+        field = field.lower()
         value = patient_data.latest_labs.get(field)
 
         # Proxy fallback

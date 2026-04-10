@@ -215,7 +215,7 @@ async def seed_patients(db: AsyncSession) -> None:
 
     random.seed(42)
 
-    tiers = random.choices([0, 1, 2, 3, 4], weights=TIER_WEIGHTS, k=500)
+    tiers = random.choices([0, 1, 2, 3, 4], weights=TIER_WEIGHTS, k=200)
     batch_patients = []
     batch_labs = []
     batch_diagnoses = []

@@ -20,7 +20,7 @@ export function AppShell({ children }: AppShellProps) {
         collapsed={!sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
       />
-      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-bg-secondary p-4 lg:p-6">
+      <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto bg-bg-secondary p-4 lg:p-6">
         {children}
       </main>
       <SpotlightSearch />

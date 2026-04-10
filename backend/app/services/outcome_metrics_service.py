@@ -180,7 +180,7 @@ async def care_gap_closure_rate(
             Patient.id.in_(patient_ids),
             Patient.is_active == True,
         ).where(
-            func.coalesce(func.json_array_length(Patient.care_gaps), 0) == 0
+            func.coalesce(func.jsonb_array_length(Patient.care_gaps), 0) == 0
         )
     )).scalar_one()
 

@@ -47,7 +47,10 @@ def score_patient(
             continue
 
         component = get_component(data_source)
-        raw = component.score(patient_data, comp_config)
+        try:
+            raw = component.score(patient_data, comp_config)
+        except (KeyError, TypeError, ValueError):
+            raw = 0
         cap = comp_config.get("cap", 100)
         raw = min(raw, cap)
         weight = comp_config.get("weight", 0.0)

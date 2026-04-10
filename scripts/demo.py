@@ -277,7 +277,7 @@ def act4(base_url: str, h: dict):
         print(f"    [{block['category']}] {block['label']}")
     print(f"  Edges: {len(pathway.get('edges', []))}")
 
-    # Save pathway via API
+    # 1. Create the pathway shell
     r = requests.post(
         f"{base_url}/api/pathways",
         headers=h,
@@ -286,15 +286,59 @@ def act4(base_url: str, h: dict):
             "description": "Low-cost intervention ladder: digital first, escalate only when needed",
             "condition": "Type 2 Diabetes",
             "target_tiers": [2],
-            "status": "draft",
-            "blocks": pathway.get("blocks", []),
-            "edges": pathway.get("edges", []),
         },
     )
-    if r.status_code in (200, 201):
-        print_ok(f"Pathway saved (id: {r.json().get('id', 'unknown')})")
-    else:
-        print(f"  [WARN] Pathway save returned {r.status_code}: {r.text[:200]}")
+    if r.status_code not in (200, 201):
+        print(f"  [WARN] Pathway create returned {r.status_code}: {r.text[:200]}")
+        return
+    pathway_id = r.json()["id"]
+    print_ok(f"Pathway created (id: {pathway_id})")
+
+    # 2. Add blocks one by one, track server-assigned IDs
+    block_id_map: dict[int, str] = {}  # order_index -> server id
+    for block in pathway.get("blocks", []):
+        r = requests.post(
+            f"{base_url}/api/pathways/{pathway_id}/blocks",
+            headers=h,
+            json={
+                "block_type": block["block_type"],
+                "category": block["category"],
+                "label": block["label"],
+                "config": block.get("config", {}),
+                "order_index": block["order_index"],
+                "position": {"x": 300, "y": block["order_index"] * 180},
+            },
+        )
+        if r.status_code in (200, 201):
+            block_id_map[block["order_index"]] = r.json()["id"]
+            print_ok(f"  Block added: [{block['category']}] {block['label']}")
+        else:
+            print(f"  [WARN] Block failed: {r.status_code}: {r.text[:100]}")
+
+    # 3. Save edges using the server-assigned block IDs
+    edges_payload = []
+    for edge in pathway.get("edges", []):
+        src = block_id_map.get(edge["source_index"])
+        tgt = block_id_map.get(edge["target_index"])
+        if src and tgt:
+            edges_payload.append({
+                "id": str(__import__("uuid").uuid4()),
+                "source_block_id": src,
+                "target_block_id": tgt,
+                "edge_type": edge.get("edge_type", "default"),
+                "label": edge.get("label"),
+            })
+
+    if edges_payload:
+        r = requests.put(
+            f"{base_url}/api/pathways/{pathway_id}/edges",
+            headers=h,
+            json=edges_payload,
+        )
+        if r.status_code == 200:
+            print_ok(f"  {len(edges_payload)} edges saved")
+        else:
+            print(f"  [WARN] Edges failed: {r.status_code}: {r.text[:100]}")
 
     print("\n  >> DEMO: Open /dashboard/pathways — show the visual canvas")
     print("  >> NARRATIVE: 'Tier 0 costs a lifestyle coach and an app. Tier 4 gets weekly care management.'")
@@ -393,6 +437,44 @@ def act5(base_url: str, h: dict):
                 else:
                     print(f"  [WARN] Send failed: {r.status_code}: {r.text[:100]}")
 
+    # Send bulk comms to multiple Tier 3 patients for orchestration tab
+    if program_id:
+        cohorts = get_cohorts(base_url, h, program_id)
+        for tier_order, channel, action_type in [
+            (3, "whatsapp", "lab_reminder"),
+            (3, "sms", "medication_adherence"),
+            (2, "whatsapp", "wellness_check"),
+            (1, "sms", "survey_push"),
+            (1, "email", "enrollment_welcome"),
+        ]:
+            tier = next((c for c in cohorts if c.get("sort_order") == tier_order), None)
+            if not tier:
+                continue
+            r = requests.get(
+                f"{base_url}/api/cohortisation/assignments",
+                headers=h,
+                params={"cohort_id": tier["id"], "page_size": 10},
+            )
+            if r.status_code != 200:
+                continue
+            tier_patients = r.json().get("items", [])
+            sent = 0
+            for p in tier_patients:
+                r = requests.post(
+                    f"{base_url}/api/communications/send",
+                    headers=h,
+                    json={
+                        "patient_id": p["patient_id"],
+                        "channel": channel,
+                        "action_type": action_type,
+                        "payload": {"tone": "empathetic", "language": "pt"},
+                    },
+                )
+                if r.status_code in (200, 201):
+                    sent += 1
+            if sent:
+                print_ok(f"Sent {sent}x {channel}/{action_type} to Tier {tier_order} members")
+
     # Show orchestration stats
     r = requests.get(f"{base_url}/api/communications/orchestration", headers=h)
     r.raise_for_status()
@@ -413,50 +495,130 @@ def act5(base_url: str, h: dict):
 def act6(base_url: str, h: dict):
     print_act(6, "PROVE IT — Outcomes Dashboard")
 
-    # Fetch outcomes
-    r = requests.get(f"{base_url}/api/outcomes/clinical", headers=h)
-    if r.status_code == 200:
-        clinical = r.json()
-        print_ok("Clinical outcomes loaded")
-        print_data("Clinical", clinical)
-    else:
-        print(f"  [INFO] Clinical outcomes: {r.status_code} (may need data)")
-
-    r = requests.get(f"{base_url}/api/outcomes/hedis", headers=h)
-    if r.status_code == 200:
-        hedis = r.json()
-        print_ok("HEDIS measures loaded")
-        print_data("HEDIS", hedis)
-    else:
-        print(f"  [INFO] HEDIS outcomes: {r.status_code}")
-
-    r = requests.get(f"{base_url}/api/outcomes/engagement", headers=h)
-    if r.status_code == 200:
-        engagement = r.json()
-        print_ok("Engagement metrics loaded")
-        print_data("Engagement", engagement)
-    else:
-        print(f"  [INFO] Engagement outcomes: {r.status_code}")
-
-    # Show tier migration — re-cohortisation stats
     program_id = get_program_id(base_url, h)
-    if program_id:
+    if not program_id:
+        print("  [ERROR] Diabetes Care program not found.")
+        return
+
+    # Step 1: Simulate data drift — worsen labs for some Tier 2 patients (push toward Tier 3)
+    # and improve labs for some Tier 3 patients (pull toward Tier 2) to create migrations
+    cohorts = get_cohorts(base_url, h, program_id)
+
+    # Worsen Tier 2 → should migrate to Tier 3
+    tier2 = next((c for c in cohorts if c.get("sort_order") == 2), None)
+    if tier2:
         r = requests.get(
             f"{base_url}/api/cohortisation/assignments",
             headers=h,
-            params={"program_id": program_id, "page_size": 100},
+            params={"cohort_id": tier2["id"], "page_size": 8},
         )
-        r.raise_for_status()
-        assignments = r.json().get("items", [])
+        if r.status_code == 200:
+            for p in r.json().get("items", [])[:8]:
+                requests.post(
+                    f"{base_url}/api/patients/{p['patient_id']}/labs",
+                    headers=h,
+                    json={"test_type": "HbA1c", "value": 9.2, "unit": "%"},
+                )
+            print_ok("Injected worsening HbA1c (9.2%) for 8 Tier 2 patients")
 
-        # Count migrations
-        migrations = [a for a in assignments if a.get("previous_cohort_name")]
-        upgrades = [m for m in migrations if "Tier 3" in (m.get("previous_cohort_name", "")) and "Tier 2" in (m.get("cohort_name", ""))]
-        downgrades = [m for m in migrations if "Tier 2" in (m.get("previous_cohort_name", "")) and "Tier 3" in (m.get("cohort_name", ""))]
+    # Improve Tier 3 → should migrate to Tier 2
+    tier3 = next((c for c in cohorts if c.get("sort_order") == 3), None)
+    if tier3:
+        r = requests.get(
+            f"{base_url}/api/cohortisation/assignments",
+            headers=h,
+            params={"cohort_id": tier3["id"], "page_size": 8},
+        )
+        if r.status_code == 200:
+            for p in r.json().get("items", [])[:8]:
+                requests.post(
+                    f"{base_url}/api/patients/{p['patient_id']}/labs",
+                    headers=h,
+                    json={"test_type": "HbA1c", "value": 6.8, "unit": "%"},
+                )
+            print_ok("Injected improving HbA1c (6.8%) for 8 Tier 3 patients")
 
-        print_ok(f"Tier migrations detected: {len(migrations)} total")
-        print(f"    Tier 3 → Tier 2 (improved): {len(upgrades)}")
-        print(f"    Tier 2 → Tier 3 (worsened): {len(downgrades)}")
+    # Step 2: Re-score to pick up the new labs → creates tier migrations
+    print("  Triggering re-cohortisation...")
+    r = requests.post(
+        f"{base_url}/api/cohortisation/recalculate",
+        headers=h,
+        json={"scope": "all"},
+    )
+    if r.status_code == 200:
+        count = r.json().get("events_created", 0)
+        print_ok(f"Re-cohortisation queued: {count} events")
+        print("  Waiting for scoring...")
+        time.sleep(6)
+    else:
+        print(f"  [WARN] Recalculate: {r.status_code}")
+
+    # Step 2: Take a snapshot
+    r = requests.post(
+        f"{base_url}/api/outcomes/snapshots",
+        headers=h,
+        params={"program_id": program_id},
+    )
+    if r.status_code in (200, 201):
+        print_ok("Outcomes snapshot captured")
+    else:
+        print(f"  [INFO] Snapshot: {r.status_code}")
+
+    # Step 3: Fetch outcomes tabs (all need program_id)
+    for tab in ["clinical", "hedis", "engagement", "financial"]:
+        r = requests.get(
+            f"{base_url}/api/outcomes/{tab}",
+            headers=h,
+            params={"program_id": program_id},
+        )
+        if r.status_code == 200:
+            data = r.json()
+            metrics = data.get("metrics", [])
+            print_ok(f"{tab.title()}: {len(metrics)} metrics")
+            for m in metrics[:3]:
+                print(f"    {m.get('label', '?')}: {m.get('value', '?')}")
+        else:
+            print(f"  [INFO] {tab}: {r.status_code}")
+
+    # Step 4: Migration summary
+    r = requests.get(
+        f"{base_url}/api/outcomes/migrations/summary",
+        headers=h,
+        params={"program_id": program_id},
+    )
+    if r.status_code == 200:
+        migration = r.json()
+        print_ok("Migration summary:")
+        print_data("Migrations", migration)
+    else:
+        print(f"  [INFO] Migration summary: {r.status_code}")
+
+    r = requests.get(
+        f"{base_url}/api/outcomes/migrations/history",
+        headers=h,
+        params={"program_id": program_id, "page_size": 10},
+    )
+    if r.status_code == 200:
+        history = r.json()
+        items = history.get("items", [])
+        print_ok(f"Migration history: {len(items)} recent moves")
+        for m in items[:5]:
+            print(f"    {m.get('patient_name', '?')}: {m.get('from_cohort', '?')} → {m.get('to_cohort', '?')}")
+    else:
+        print(f"  [INFO] Migration history: {r.status_code}")
+
+    # Step 5: Quarterly AI insight
+    r = requests.post(
+        f"{base_url}/api/outcomes/quarterly-insight",
+        headers=h,
+        params={"program_id": program_id},
+    )
+    if r.status_code == 200:
+        insight = r.json()
+        print_ok("AI quarterly insight generated")
+        print(f"    {insight.get('insight', '(empty)')[:200]}...")
+    else:
+        print(f"  [INFO] Quarterly insight: {r.status_code}")
 
     print("\n  >> DEMO: Open /dashboard/outcomes")
     print("  >> DEMO: Show Clinical tab, HEDIS tab, Re-cohortisation tab")

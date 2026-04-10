@@ -87,7 +87,7 @@ async def _generate_batch_narratives(
 
             try:
                 result = await provider.generate(
-                    user_prompt, system=system_prompt, max_tokens=2048, parse_json=True,
+                    user_prompt, system=system_prompt, max_tokens=8192, parse_json=True,
                 )
             except Exception:
                 logger.warning("LLM call failed for narrative sub-batch %d-%d", i, i + len(chunk))
@@ -120,6 +120,104 @@ async def _generate_batch_narratives(
     except Exception:
         logger.warning("Batch narrative generation failed", exc_info=True)
         return {}
+
+
+NARRATIVE_CONCURRENCY = 5  # parallel Gemini calls
+
+
+async def _background_narratives(tenant_id: uuid.UUID, scored_patients: list[dict]) -> None:
+    """Run narrative generation in background with concurrent LLM calls."""
+    try:
+        from app.llm import get_provider, PROMPT_REGISTRY
+
+        template = PROMPT_REGISTRY.get("batch_risk_narrative")
+        if not template:
+            return
+
+        provider = get_provider()
+
+        # Build sub-batches
+        chunks = [
+            scored_patients[i : i + NARRATIVE_BATCH_SIZE]
+            for i in range(0, len(scored_patients), NARRATIVE_BATCH_SIZE)
+        ]
+
+        # Run chunks concurrently with semaphore
+        sem = asyncio.Semaphore(NARRATIVE_CONCURRENCY)
+
+        async def _generate_chunk(chunk: list[dict]) -> dict[str, str]:
+            async with sem:
+                patients_json = _json.dumps([
+                    {
+                        "patient_id": str(p["patient_id"]),
+                        "name": p["patient_name"],
+                        "score": p["score"],
+                        "cohort": p["cohort_name"],
+                        "top_drivers": [
+                            f"{k}: {v['raw']}/100 (wt {v['weighted']})"
+                            for k, v in sorted(
+                                (p.get("breakdown") or {}).items(),
+                                key=lambda x: x[1].get("weighted", 0),
+                                reverse=True,
+                            )[:3]
+                        ],
+                    }
+                    for p in chunk
+                ])
+                system_prompt, user_prompt = template.render(
+                    count=str(len(chunk)),
+                    patients_json=patients_json,
+                )
+                try:
+                    result = await provider.generate(
+                        user_prompt, system=system_prompt, max_tokens=8192, parse_json=True,
+                    )
+                except Exception:
+                    logger.warning("Background narrative chunk failed")
+                    return {}
+
+                if not result:
+                    return {}
+                narratives = result if isinstance(result, list) else result.get("narratives", result) if isinstance(result, dict) else []
+                if not isinstance(narratives, list):
+                    return {}
+                return {
+                    str(n["patient_id"]): n["narrative"]
+                    for n in narratives
+                    if isinstance(n, dict) and "patient_id" in n and "narrative" in n
+                }
+
+        results = await asyncio.gather(*[_generate_chunk(c) for c in chunks], return_exceptions=True)
+
+        # Merge and write to DB
+        narrative_map: dict[str, str] = {}
+        for r in results:
+            if isinstance(r, dict):
+                narrative_map.update(r)
+
+        if narrative_map:
+            async with async_session() as db:
+                for p in scored_patients:
+                    pid = str(p["patient_id"])
+                    narrative = narrative_map.get(pid)
+                    if narrative and p.get("assignment_id"):
+                        await db.execute(
+                            update(CohortAssignment)
+                            .where(CohortAssignment.id == uuid.UUID(p["assignment_id"]))
+                            .values(narrative=narrative)
+                        )
+                await db.commit()
+
+            for pid, narrative in narrative_map.items():
+                await event_bus.publish(tenant_id, "cohortisation", {
+                    "type": "narrative_ready",
+                    "entity_id": pid,
+                    "data": {"narrative": narrative},
+                })
+
+        logger.info(f"Background narratives: {len(narrative_map)}/{len(scored_patients)} generated")
+    except Exception:
+        logger.warning("Background narrative generation failed", exc_info=True)
 
 
 async def run(shutdown_event: asyncio.Event | None = None) -> None:
@@ -202,16 +300,10 @@ async def _process_batch(db: AsyncSession) -> int:
 
     await db.commit()
 
-    # Generate narratives for scored patients
-    narrative_map = await _generate_batch_narratives(db, scored_for_narrative)
-    if narrative_map:
+    # Fire narrative generation in background — don't block scoring
+    if scored_for_narrative:
         tid = events[0].tenant_id
-        for pid, narrative in narrative_map.items():
-            await event_bus.publish(tid, "cohortisation", {
-                "type": "narrative_ready",
-                "entity_id": pid,
-                "data": {"narrative": narrative},
-            })
+        asyncio.create_task(_background_narratives(tid, list(scored_for_narrative)))
 
     # Check if batch is complete (no more pending events)
     remaining = await db.execute(
