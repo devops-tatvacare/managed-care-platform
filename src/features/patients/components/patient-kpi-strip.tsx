@@ -49,6 +49,17 @@ export function PatientKpiStrip({ patient }: PatientKpiStripProps) {
 
   const kpis: KpiItem[] = [
     {
+      label: "Risk Score",
+      value: patient.risk_score != null ? String(patient.risk_score) : "--",
+      valueClass: patient.risk_score != null
+        ? patient.risk_score >= 70
+          ? "text-status-error"
+          : patient.risk_score >= 40
+            ? "text-status-warning"
+            : "text-status-success"
+        : undefined,
+    },
+    {
       label: "Care Gaps",
       value: String(careGapCount),
       sub: patient.care_gaps?.slice(0, 2).join(", ") || undefined,
@@ -59,23 +70,14 @@ export function PatientKpiStrip({ patient }: PatientKpiStripProps) {
       value: daysAgo(patient.last_contact_date),
     },
     {
-      label: "Pathway",
-      value: patient.pathway_status ?? "--",
-      sub: patient.pathway_name ?? undefined,
-      valueClass: "text-brand-primary",
-    },
-    {
       label: "Lowest PDC",
       value: worstPdc ? `${Math.round(worstPdc.pdc * 100)}%` : "--",
       sub: worstPdc?.name,
       valueClass: pdcValueClass,
     },
     {
-      label: "Assigned To",
-      value: patient.assigned_to ?? "--",
-      sub: patient.review_due_date
-        ? `Review: ${formatDate(patient.review_due_date)}`
-        : undefined,
+      label: "Review Due",
+      value: patient.review_due_date ? formatDate(patient.review_due_date) : "--",
     },
   ];
 
