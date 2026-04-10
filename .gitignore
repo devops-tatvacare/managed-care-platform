@@ -37,6 +37,9 @@ backend/**/__pycache__/
 backend/**/*.pyc
 backend/*.db
 
+# docs
+/docs/
+
 # playwright mcp
 .playwright-mcp/
 
