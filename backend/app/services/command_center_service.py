@@ -300,7 +300,7 @@ def _build_static_insights(kpis: dict) -> str:
 async def get_upcoming_reviews(
     db: AsyncSession, tenant_id: uuid.UUID, limit: int = 20,
 ) -> dict:
-    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    now = datetime.now(timezone.utc)
 
     q = (
         select(CohortAssignment)
