@@ -8,6 +8,7 @@ cohort assignments.
 from __future__ import annotations
 
 import asyncio
+import json as _json
 import logging
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -31,6 +32,77 @@ logger = logging.getLogger(__name__)
 
 POLL_INTERVAL = 5  # seconds
 BATCH_SIZE = 50
+
+
+async def _generate_batch_narratives(
+    db: AsyncSession,
+    scored_patients: list[dict],
+) -> dict[str, str]:
+    """Call LLM to generate risk narratives for a batch of scored patients.
+    Returns {patient_id: narrative} map.
+    """
+    if not scored_patients:
+        return {}
+
+    try:
+        from app.llm import get_provider, PROMPT_REGISTRY
+
+        template = PROMPT_REGISTRY.get("batch_risk_narrative")
+        if not template:
+            return {}
+
+        patients_json = _json.dumps([
+            {
+                "patient_id": str(p["patient_id"]),
+                "name": p["patient_name"],
+                "score": p["score"],
+                "cohort": p["cohort_name"],
+                "top_drivers": [
+                    f"{k}: {v['raw']}/{100} (weighted {v['weighted']})"
+                    for k, v in sorted(
+                        (p.get("breakdown") or {}).items(),
+                        key=lambda x: x[1].get("weighted", 0),
+                        reverse=True,
+                    )[:3]
+                ],
+                "labs": p.get("labs_summary", ""),
+                "diagnoses": p.get("diagnoses_summary", ""),
+            }
+            for p in scored_patients
+        ], indent=2)
+
+        system_prompt, user_prompt = template.render(
+            count=str(len(scored_patients)),
+            patients_json=patients_json,
+        )
+
+        provider = get_provider()
+        result = await provider.generate(
+            user_prompt, system=system_prompt, max_tokens=2048, parse_json=True,
+        )
+
+        narratives = result if isinstance(result, list) else result.get("narratives", result) if isinstance(result, dict) else []
+        if not isinstance(narratives, list):
+            return {}
+
+        narrative_map = {str(n["patient_id"]): n["narrative"] for n in narratives if "patient_id" in n and "narrative" in n}
+
+        # Update assignments in DB
+        for p in scored_patients:
+            pid = str(p["patient_id"])
+            narrative = narrative_map.get(pid)
+            if narrative and p.get("assignment_id"):
+                await db.execute(
+                    update(CohortAssignment)
+                    .where(CohortAssignment.id == p["assignment_id"])
+                    .values(narrative=narrative)
+                )
+
+        await db.commit()
+        return narrative_map
+    except Exception:
+        logger.warning("Batch narrative generation failed", exc_info=True)
+        return {}
 
 
 async def run(shutdown_event: asyncio.Event | None = None) -> None:
@@ -75,6 +147,7 @@ async def _process_batch(db: AsyncSession) -> int:
     # Group by tenant + patient for efficiency
     processed = 0
     failed = 0
+    scored_for_narrative = []
     for event in events:
         try:
             result_data = await _process_event(db, event)
@@ -87,6 +160,16 @@ async def _process_batch(db: AsyncSession) -> int:
                     "type": "item_processed",
                     "entity_id": str(event.patient_id),
                     "data": result_data,
+                })
+                scored_for_narrative.append({
+                    "assignment_id": result_data.get("assignment_id"),
+                    "patient_id": event.patient_id,
+                    "patient_name": result_data.get("patient_name", ""),
+                    "score": result_data.get("score"),
+                    "cohort_name": result_data.get("cohort_name", ""),
+                    "breakdown": result_data.get("score_breakdown"),
+                    "labs_summary": result_data.get("labs_summary", ""),
+                    "diagnoses_summary": result_data.get("diagnoses_summary", ""),
                 })
         except Exception as exc:
             logger.exception(f"Failed to process event {event.id}")
@@ -101,6 +184,17 @@ async def _process_batch(db: AsyncSession) -> int:
             })
 
     await db.commit()
+
+    # Generate narratives for scored patients
+    narrative_map = await _generate_batch_narratives(db, scored_for_narrative)
+    if narrative_map:
+        tid = events[0].tenant_id
+        for pid, narrative in narrative_map.items():
+            await event_bus.publish(tid, "cohortisation", {
+                "type": "narrative_ready",
+                "entity_id": pid,
+                "data": {"narrative": narrative},
+            })
 
     # Check if batch is complete (no more pending events)
     remaining = await db.execute(
@@ -243,4 +337,8 @@ async def _assign_patient_to_program(
         "program_name": program.name,
         "assigned_at": assignment.assigned_at.isoformat(),
         "review_due_at": assignment.review_due_at.isoformat() if assignment.review_due_at else None,
+        "assignment_id": str(assignment.id),
+        "score_breakdown": score_result["breakdown"] if score_result else None,
+        "labs_summary": ", ".join(f"{k}: {v}" for k, v in list(patient_data.latest_labs.items())[:5]),
+        "diagnoses_summary": ", ".join(patient_data.active_diagnosis_codes[:5]),
     }
