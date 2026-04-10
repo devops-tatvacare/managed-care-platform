@@ -26,6 +26,7 @@ import { useCohortisationStore } from "@/stores/cohortisation-store";
 import { createProgram } from "@/services/api/programs";
 import { formatNumber } from "@/lib/format";
 import { streamScoring } from "@/services/api/cohortisation";
+import { toast } from "sonner";
 import { ProgramCard } from "./program-card";
 import { BatchProgressBar } from "./batch-progress-bar";
 import { RiskWorklist } from "./risk-worklist";
@@ -70,20 +71,32 @@ export function PopulationDashboard() {
 
       for (const event of events) {
         switch (event.type) {
-          case "batch_started":
-            onBatchStarted((event.data.total as number) ?? 0);
+          case "batch_started": {
+            const total = (event.data.total as number) ?? 0;
+            onBatchStarted(total);
+            toast.loading(`Scoring ${total} patients...`, { id: "scoring-progress", duration: Infinity });
             break;
+          }
           case "item_processed":
             processedItems.push({ entityId: event.entity_id ?? "", data: event.data });
             break;
           case "item_failed":
             failedCount++;
             break;
-          case "batch_complete":
+          case "batch_complete": {
             onBatchComplete();
             loadDashboard();
             loadAssignments();
+            const proc = useCohortisationStore.getState().batchProcessed;
+            const fail = useCohortisationStore.getState().batchFailed;
+            toast.dismiss("scoring-progress");
+            if (fail > 0) {
+              toast.warning(`Scoring complete: ${proc} assigned, ${fail} failed`);
+            } else {
+              toast.success(`Scoring complete: ${proc} patients assigned`);
+            }
             break;
+          }
         }
       }
 
