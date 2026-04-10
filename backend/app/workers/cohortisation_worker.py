@@ -77,10 +77,16 @@ async def _generate_batch_narratives(
         )
 
         provider = get_provider()
-        result = await provider.generate(
-            user_prompt, system=system_prompt, max_tokens=2048, parse_json=True,
-        )
+        try:
+            result = await provider.generate(
+                user_prompt, system=system_prompt, max_tokens=4096, parse_json=True,
+            )
+        except Exception:
+            logger.warning("LLM returned unparseable response for batch narratives")
+            return {}
 
+        if not result:
+            return {}
         narratives = result if isinstance(result, list) else result.get("narratives", result) if isinstance(result, dict) else []
         if not isinstance(narratives, list):
             return {}
