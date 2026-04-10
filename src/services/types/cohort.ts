@@ -27,6 +27,8 @@ export interface AssignmentRecord {
   assignment_type: string;
   reason: string | null;
   previous_cohort_id: string | null;
+  previous_cohort_name: string | null;
+  pdc_worst: number | null;
   assigned_at: string;
   review_due_at: string | null;
 }
@@ -41,4 +43,24 @@ export interface AssignmentListResponse {
 
 export interface RecalculateResponse {
   events_created: number;
+  scope: string;
+}
+
+export interface ScoringEventData {
+  patient_name: string;
+  score: number | null;
+  cohort_id: string;
+  cohort_name: string;
+  cohort_color: string;
+  assignment_type: string;
+  program_id: string;
+  program_name: string;
+  assigned_at: string;
+  review_due_at: string | null;
+}
+
+export interface SSEEvent {
+  type: "batch_started" | "item_processed" | "item_failed" | "batch_complete";
+  entity_id?: string;
+  data: Record<string, unknown>;
 }

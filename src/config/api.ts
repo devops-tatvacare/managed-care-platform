@@ -1,4 +1,7 @@
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+export const SERVER_API_BASE =
+  process.env.BACKEND_INTERNAL_URL ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  "http://localhost:8000";
 
 export const API_ENDPOINTS = {
   auth: {
@@ -8,6 +11,7 @@ export const API_ENDPOINTS = {
   },
   patients: {
     list: "/api/patients",
+    filterOptions: "/api/patients/filter-options",
     detail: (id: string) => `/api/patients/${id}`,
     labs: (id: string) => `/api/patients/${id}/labs`,
     medications: (id: string) => `/api/patients/${id}/medications`,
@@ -38,11 +42,13 @@ export const API_ENDPOINTS = {
     recalculate: "/api/cohortisation/recalculate",
     assignments: "/api/cohortisation/assignments",
     distribution: (programId: string) => `/api/cohortisation/distribution/${programId}`,
+    stream: "/api/cohortisation/stream",
   },
   commandCenter: {
     kpis: "/api/command-center/kpis",
     actionQueue: "/api/command-center/action-queue",
     insights: "/api/command-center/insights",
+    insightsStream: "/api/command-center/insights/stream",
     upcomingReviews: "/api/command-center/upcoming-reviews",
   },
   communications: {
@@ -64,6 +70,10 @@ export const API_ENDPOINTS = {
     snapshots: "/api/outcomes/snapshots",
     snapshotHistory: "/api/outcomes/snapshots/history",
   },
+  actions: {
+    list: "/api/actions",
+    update: (id: string) => `/api/actions/${id}`,
+  },
   ai: {
     careSummary: "/api/ai/care-summary",
     pathwayGenerate: "/api/ai/pathway-generate",
@@ -72,5 +82,10 @@ export const API_ENDPOINTS = {
     commsRewrite: "/api/ai/comms-rewrite",
     sessions: "/api/ai/sessions",
     session: (id: string) => `/api/ai/sessions/${id}`,
+    cohortGenerate: "/api/ai/cohort-generate",
+  },
+  builder: {
+    turn: "/api/ai/builder/turn",
+    reset: "/api/ai/builder/reset",
   },
 } as const;
