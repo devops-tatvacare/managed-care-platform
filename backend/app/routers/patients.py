@@ -100,8 +100,11 @@ async def bulk_import(
 
     def _parse_date(v):
         if not v: return None
-        if isinstance(v, date): return v
-        return date.fromisoformat(v)
+        if isinstance(v, date) and not isinstance(v, datetime): return v
+        s = str(v)
+        if "T" in s:
+            return datetime.fromisoformat(s).date()
+        return date.fromisoformat(s)
 
     def _parse_dt(v):
         if not v: return None
