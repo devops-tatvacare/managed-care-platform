@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import desc, func, select
+from sqlalchemy import case, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -64,9 +64,9 @@ async def get_orchestration_rows(
     stats_q = (
         select(
             func.count().label("total_sequences"),
-            func.sum(func.iif(ConciergeAction.status == "pending", 1, 0)).label("active"),
-            func.sum(func.iif(ConciergeAction.status == "success", 1, 0)).label("completed"),
-            func.sum(func.iif(ConciergeAction.status == "failed", 1, 0)).label("failed"),
+            func.sum(case((ConciergeAction.status == "pending", 1), else_=0)).label("active"),
+            func.sum(case((ConciergeAction.status == "success", 1), else_=0)).label("completed"),
+            func.sum(case((ConciergeAction.status == "failed", 1), else_=0)).label("failed"),
         )
         .where(ConciergeAction.tenant_id == tenant_id)
     )
