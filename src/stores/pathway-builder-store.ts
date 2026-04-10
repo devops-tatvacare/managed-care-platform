@@ -12,6 +12,8 @@ import type {
   AISessionListItem,
 } from "@/services/types/pathway";
 import * as pathwaysApi from "@/services/api/pathways";
+import { apiRequest } from "@/services/api/client";
+import { API_ENDPOINTS } from "@/config/api";
 
 type BuilderMode = "ai" | "canvas";
 
@@ -45,11 +47,15 @@ interface PathwayBuilderState {
   activeSessionId: string | null;
   showHistory: boolean;
 
+  publishing: boolean;
+  saving: boolean;
+
   // Actions — List
   loadPathways: () => Promise<void>;
   loadPathway: (id: string) => Promise<void>;
   createPathway: (data: PathwayCreate) => Promise<string>;
   updatePathwayMeta: (data: PathwayUpdate) => Promise<void>;
+  saveDraft: () => Promise<void>;
   publishPathway: () => Promise<void>;
 
   // Actions — Blocks/Edges
@@ -93,6 +99,8 @@ export const usePathwayBuilderStore = create<PathwayBuilderState>((set, get) => 
   builderMode: "ai",
   isDirty: false,
   builderLoading: false,
+  publishing: false,
+  saving: false,
 
   chatMessages: [INITIAL_MESSAGE],
   chatLoading: false,
@@ -151,15 +159,27 @@ export const usePathwayBuilderStore = create<PathwayBuilderState>((set, get) => 
     }
   },
 
+  saveDraft: async () => {
+    const { selectedPathway } = get();
+    if (!selectedPathway) return;
+    set({ saving: true, error: null });
+    try {
+      const updated = await pathwaysApi.updatePathway(selectedPathway.id, { status: "draft" });
+      set({ selectedPathway: updated, saving: false, isDirty: false });
+    } catch (err) {
+      set({ saving: false, error: err instanceof Error ? err.message : "Failed to save draft" });
+    }
+  },
+
   publishPathway: async () => {
     const { selectedPathway } = get();
     if (!selectedPathway) return;
-    set({ builderLoading: true, error: null });
+    set({ publishing: true, error: null });
     try {
       const published = await pathwaysApi.publishPathway(selectedPathway.id);
-      set({ selectedPathway: published, builderLoading: false });
+      set({ selectedPathway: published, publishing: false, isDirty: false });
     } catch (err) {
-      set({ builderLoading: false, error: err instanceof Error ? err.message : "Failed to publish pathway" });
+      set({ publishing: false, error: err instanceof Error ? err.message : "Failed to publish pathway" });
     }
   },
 
@@ -262,34 +282,32 @@ export const usePathwayBuilderStore = create<PathwayBuilderState>((set, get) => 
   // ── AI Chat Actions ─────────────────────────────────────────────────
 
   sendChatMessage: async (prompt) => {
+    const isFirstMessage = get().chatMessages.length <= 1;
     const userMsg: ChatMessage = { role: "user", content: prompt };
     set((s) => ({ chatMessages: [...s.chatMessages, userMsg], chatLoading: true }));
     try {
-      const response = await pathwaysApi.generatePathway({ prompt });
-      const aiMsg: ChatMessage = { role: "ai", content: response.message };
+      const result = await apiRequest<{
+        message: string;
+        config: AIGeneratedPathway | null;
+        surface: string;
+        turn_count: number;
+        session_id: string;
+      }>({
+        method: "POST",
+        path: API_ENDPOINTS.builder.turn,
+        body: {
+          surface: "pathway",
+          message: prompt,
+          reset: isFirstMessage,
+        },
+      });
+      const aiMsg: ChatMessage = { role: "ai", content: result.message };
       set((s) => ({
         chatMessages: [...s.chatMessages, aiMsg],
-        generatedPathway: response.pathway,
+        generatedPathway: result.config ?? s.generatedPathway,
         chatLoading: false,
+        activeSessionId: result.session_id,
       }));
-      // Persist session in background
-      const { activeSessionId, chatMessages } = get();
-      const allMessages = [...chatMessages];
-      if (activeSessionId) {
-        pathwaysApi.updateSession(activeSessionId, {
-          messages: allMessages,
-          generated_pathway: response.pathway,
-          title: prompt.slice(0, 60),
-        }).catch(() => {});
-      } else {
-        pathwaysApi.createSession({ title: prompt.slice(0, 60) }).then((session) => {
-          set({ activeSessionId: session.id });
-          pathwaysApi.updateSession(session.id, {
-            messages: allMessages,
-            generated_pathway: response.pathway,
-          }).catch(() => {});
-        }).catch(() => {});
-      }
     } catch {
       const errMsg: ChatMessage = { role: "ai", content: "Something went wrong generating the pathway. Please try again." };
       set((s) => ({
@@ -337,6 +355,7 @@ export const usePathwayBuilderStore = create<PathwayBuilderState>((set, get) => 
   },
 
   clearChat: () => {
+    apiRequest({ method: "POST", path: API_ENDPOINTS.builder.reset, params: { surface: "pathway" } }).catch(() => {});
     set({
       chatMessages: [INITIAL_MESSAGE],
       generatedPathway: null,

@@ -1,0 +1,532 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e18]:
+    - complementary [ref=e20]:
+      - img "TatvaCare" [ref=e23]
+      - navigation [ref=e24]:
+        - button "Search... ⌘K" [ref=e25]:
+          - img [ref=e26]
+          - generic [ref=e29]: Search...
+          - generic [ref=e30]: ⌘K
+        - generic [ref=e31]:
+          - link "Command Center" [ref=e32] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e33]
+            - text: Command Center
+          - link "Patients" [ref=e35] [cursor=pointer]:
+            - /url: /dashboard/patients
+            - img [ref=e36]
+            - text: Patients
+          - link "Communications" [ref=e41] [cursor=pointer]:
+            - /url: /dashboard/communications
+            - img [ref=e42]
+            - text: Communications
+          - link "Outcomes" [ref=e44] [cursor=pointer]:
+            - /url: /dashboard/outcomes
+            - img [ref=e45]
+            - text: Outcomes
+        - generic [ref=e47]:
+          - paragraph [ref=e48]: Configuration
+          - link "Cohortisation" [ref=e49] [cursor=pointer]:
+            - /url: /dashboard/cohortisation
+            - img [ref=e50]
+            - text: Cohortisation
+          - link "Pathway Builder" [ref=e52] [cursor=pointer]:
+            - /url: /dashboard/pathways
+            - img [ref=e53]
+            - text: Pathway Builder
+      - generic [ref=e57]:
+        - button "Collapse" [ref=e58]:
+          - img [ref=e59]
+          - generic [ref=e62]: Collapse
+        - button "CM Care Manager admin@tatvacare.in" [ref=e64]:
+          - generic [ref=e65]: CM
+          - generic [ref=e66]:
+            - paragraph [ref=e67]: Care Manager
+            - paragraph [ref=e68]: admin@tatvacare.in
+          - img [ref=e69]
+    - main [ref=e73]:
+      - generic [ref=e74]:
+        - generic [ref=e75]:
+          - generic [ref=e76]:
+            - img [ref=e77]
+            - generic [ref=e82]:
+              - generic [ref=e83]: Members
+              - generic [ref=e84]: "573"
+          - generic [ref=e85]:
+            - img [ref=e86]
+            - generic [ref=e89]:
+              - generic [ref=e90]: Risk Score
+              - generic [ref=e91]: "18.2"
+          - generic [ref=e92]:
+            - img [ref=e93]
+            - generic [ref=e95]:
+              - generic [ref=e96]: HbA1c <7%
+              - generic [ref=e97]: 56.4%
+          - generic [ref=e98]:
+            - img [ref=e99]
+            - generic [ref=e102]:
+              - generic [ref=e103]: Care Gaps
+              - generic [ref=e104]: "341"
+          - generic [ref=e105]:
+            - img [ref=e106]
+            - generic [ref=e109]:
+              - generic [ref=e110]: PDC ≥80%
+              - generic [ref=e111]: 88.5%
+        - generic [ref=e112]:
+          - generic [ref=e113]:
+            - generic [ref=e114]:
+              - generic [ref=e115]:
+                - img [ref=e116]
+                - generic [ref=e118]: Action Queue
+              - generic [ref=e119]: 20 pending
+            - generic [ref=e120]:
+              - generic [ref=e121]:
+                - img [ref=e122]
+                - generic [ref=e124]:
+                  - generic [ref=e126]: High risk alert for Fernanda Carvalho
+                  - paragraph [ref=e127]: Risk score exceeds 70 — review for tier escalation
+                  - generic [ref=e129]: "Score: 73"
+                - generic [ref=e130]:
+                  - button "Review Patient" [ref=e131]:
+                    - img
+                    - text: Review Patient
+                  - button "Send Outreach" [ref=e132]:
+                    - img
+                    - text: Send Outreach
+                  - button [ref=e133]:
+                    - img
+              - generic [ref=e134]:
+                - img [ref=e135]
+                - generic [ref=e137]:
+                  - generic [ref=e139]: High risk alert for Leonardo Oliveira
+                  - paragraph [ref=e140]: Risk score exceeds 70 — review for tier escalation
+                  - generic [ref=e142]: "Score: 74"
+                - generic [ref=e143]:
+                  - button "Review Patient" [ref=e144]:
+                    - img
+                    - text: Review Patient
+                  - button "Send Outreach" [ref=e145]:
+                    - img
+                    - text: Send Outreach
+                  - button [ref=e146]:
+                    - img
+              - generic [ref=e147]:
+                - img [ref=e148]
+                - generic [ref=e150]:
+                  - generic [ref=e152]: High risk alert for Letícia Silva
+                  - paragraph [ref=e153]: Risk score exceeds 70 — review for tier escalation
+                  - generic [ref=e155]: "Score: 80"
+                - generic [ref=e156]:
+                  - button "Review Patient" [ref=e157]:
+                    - img
+                    - text: Review Patient
+                  - button "Send Outreach" [ref=e158]:
+                    - img
+                    - text: Send Outreach
+                  - button [ref=e159]:
+                    - img
+              - generic [ref=e160]:
+                - img [ref=e161]
+                - generic [ref=e163]:
+                  - generic [ref=e165]: High risk alert for Thiago Oliveira
+                  - paragraph [ref=e166]: Risk score exceeds 70 — review for tier escalation
+                  - generic [ref=e168]: "Score: 70"
+                - generic [ref=e169]:
+                  - button "Review Patient" [ref=e170]:
+                    - img
+                    - text: Review Patient
+                  - button "Send Outreach" [ref=e171]:
+                    - img
+                    - text: Send Outreach
+                  - button [ref=e172]:
+                    - img
+              - generic [ref=e173]:
+                - img [ref=e174]
+                - generic [ref=e176]:
+                  - generic [ref=e178]: High risk alert for Felipe Rodrigues
+                  - paragraph [ref=e179]: Risk score exceeds 70 — review for tier escalation
+                  - generic [ref=e181]: "Score: 70"
+                - generic [ref=e182]:
+                  - button "Review Patient" [ref=e183]:
+                    - img
+                    - text: Review Patient
+                  - button "Send Outreach" [ref=e184]:
+                    - img
+                    - text: Send Outreach
+                  - button [ref=e185]:
+                    - img
+              - generic [ref=e186]:
+                - img [ref=e187]
+                - generic [ref=e189]:
+                  - generic [ref=e191]: High risk alert for Roberto Melo
+                  - paragraph [ref=e192]: Risk score exceeds 70 — review for tier escalation
+                  - generic [ref=e194]: "Score: 76"
+                - generic [ref=e195]:
+                  - button "Review Patient" [ref=e196]:
+                    - img
+                    - text: Review Patient
+                  - button "Send Outreach" [ref=e197]:
+                    - img
+                    - text: Send Outreach
+                  - button [ref=e198]:
+                    - img
+              - generic [ref=e199]:
+                - img [ref=e200]
+                - generic [ref=e202]:
+                  - generic [ref=e204]: High risk alert for Amanda Almeida
+                  - paragraph [ref=e205]: Risk score exceeds 70 — review for tier escalation
+                  - generic [ref=e207]: "Score: 74"
+                - generic [ref=e208]:
+                  - button "Review Patient" [ref=e209]:
+                    - img
+                    - text: Review Patient
+                  - button "Send Outreach" [ref=e210]:
+                    - img
+                    - text: Send Outreach
+                  - button [ref=e211]:
+                    - img
+              - generic [ref=e212]:
+                - img [ref=e213]
+                - generic [ref=e215]:
+                  - generic [ref=e217]: High risk alert for Roberto Ferreira
+                  - paragraph [ref=e218]: Risk score exceeds 70 — review for tier escalation
+                  - generic [ref=e220]: "Score: 80"
+                - generic [ref=e221]:
+                  - button "Review Patient" [ref=e222]:
+                    - img
+                    - text: Review Patient
+                  - button "Send Outreach" [ref=e223]:
+                    - img
+                    - text: Send Outreach
+                  - button [ref=e224]:
+                    - img
+              - generic [ref=e225]:
+                - img [ref=e226]
+                - generic [ref=e228]:
+                  - generic [ref=e230]: High risk alert for Carlos Araújo
+                  - paragraph [ref=e231]: Risk score exceeds 70 — review for tier escalation
+                  - generic [ref=e233]: "Score: 76"
+                - generic [ref=e234]:
+                  - button "Review Patient" [ref=e235]:
+                    - img
+                    - text: Review Patient
+                  - button "Send Outreach" [ref=e236]:
+                    - img
+                    - text: Send Outreach
+                  - button [ref=e237]:
+                    - img
+              - generic [ref=e238]:
+                - img [ref=e239]
+                - generic [ref=e241]:
+                  - generic [ref=e243]: Order HbA1c lab for Letícia Silva
+                  - paragraph [ref=e244]: HbA1c monitoring overdue — critical for glycaemic control tracking
+                  - generic [ref=e246]: "Score: 80"
+                - generic [ref=e247]:
+                  - button "Send Lab Reminder" [ref=e248]:
+                    - img
+                    - text: Send Lab Reminder
+                  - button "View Patient" [ref=e249]:
+                    - img
+                    - text: View Patient
+                  - button [ref=e250]:
+                    - img
+              - generic [ref=e251]:
+                - img [ref=e252]
+                - generic [ref=e254]:
+                  - generic [ref=e256]: Order HbA1c lab for Roberto Ferreira
+                  - paragraph [ref=e257]: HbA1c monitoring overdue — critical for glycaemic control tracking
+                  - generic [ref=e259]: "Score: 80"
+                - generic [ref=e260]:
+                  - button "Send Lab Reminder" [ref=e261]:
+                    - img
+                    - text: Send Lab Reminder
+                  - button "View Patient" [ref=e262]:
+                    - img
+                    - text: View Patient
+                  - button [ref=e263]:
+                    - img
+              - generic [ref=e264]:
+                - img [ref=e265]
+                - generic [ref=e267]:
+                  - generic [ref=e269]: Order HbA1c lab for Roberto Melo
+                  - paragraph [ref=e270]: HbA1c monitoring overdue — critical for glycaemic control tracking
+                  - generic [ref=e272]: "Score: 76"
+                - generic [ref=e273]:
+                  - button "Send Lab Reminder" [ref=e274]:
+                    - img
+                    - text: Send Lab Reminder
+                  - button "View Patient" [ref=e275]:
+                    - img
+                    - text: View Patient
+                  - button [ref=e276]:
+                    - img
+              - generic [ref=e277]:
+                - img [ref=e278]
+                - generic [ref=e280]:
+                  - generic [ref=e282]: Order HbA1c lab for Carlos Araújo
+                  - paragraph [ref=e283]: HbA1c monitoring overdue — critical for glycaemic control tracking
+                  - generic [ref=e285]: "Score: 76"
+                - generic [ref=e286]:
+                  - button "Send Lab Reminder" [ref=e287]:
+                    - img
+                    - text: Send Lab Reminder
+                  - button "View Patient" [ref=e288]:
+                    - img
+                    - text: View Patient
+                  - button [ref=e289]:
+                    - img
+              - generic [ref=e290]:
+                - img [ref=e291]
+                - generic [ref=e293]:
+                  - generic [ref=e295]: Order HbA1c lab for Leonardo Oliveira
+                  - paragraph [ref=e296]: HbA1c monitoring overdue — critical for glycaemic control tracking
+                  - generic [ref=e298]: "Score: 74"
+                - generic [ref=e299]:
+                  - button "Send Lab Reminder" [ref=e300]:
+                    - img
+                    - text: Send Lab Reminder
+                  - button "View Patient" [ref=e301]:
+                    - img
+                    - text: View Patient
+                  - button [ref=e302]:
+                    - img
+              - generic [ref=e303]:
+                - img [ref=e304]
+                - generic [ref=e306]:
+                  - generic [ref=e308]: Order HbA1c lab for Amanda Almeida
+                  - paragraph [ref=e309]: HbA1c monitoring overdue — critical for glycaemic control tracking
+                  - generic [ref=e311]: "Score: 74"
+                - generic [ref=e312]:
+                  - button "Send Lab Reminder" [ref=e313]:
+                    - img
+                    - text: Send Lab Reminder
+                  - button "View Patient" [ref=e314]:
+                    - img
+                    - text: View Patient
+                  - button [ref=e315]:
+                    - img
+              - generic [ref=e316]:
+                - img [ref=e317]
+                - generic [ref=e319]:
+                  - generic [ref=e321]: Order HbA1c lab for Felipe Rodrigues
+                  - paragraph [ref=e322]: HbA1c monitoring overdue — critical for glycaemic control tracking
+                  - generic [ref=e324]: "Score: 70"
+                - generic [ref=e325]:
+                  - button "Send Lab Reminder" [ref=e326]:
+                    - img
+                    - text: Send Lab Reminder
+                  - button "View Patient" [ref=e327]:
+                    - img
+                    - text: View Patient
+                  - button [ref=e328]:
+                    - img
+              - generic [ref=e329]:
+                - img [ref=e330]
+                - generic [ref=e332]:
+                  - generic [ref=e334]: Order HbA1c lab for Thiago Oliveira
+                  - paragraph [ref=e335]: HbA1c monitoring overdue — critical for glycaemic control tracking
+                  - generic [ref=e337]: "Score: 70"
+                - generic [ref=e338]:
+                  - button "Send Lab Reminder" [ref=e339]:
+                    - img
+                    - text: Send Lab Reminder
+                  - button "View Patient" [ref=e340]:
+                    - img
+                    - text: View Patient
+                  - button [ref=e341]:
+                    - img
+              - generic [ref=e342]:
+                - img [ref=e343]
+                - generic [ref=e345]:
+                  - generic [ref=e347]: Order HbA1c lab for Daniel Carvalho
+                  - paragraph [ref=e348]: HbA1c monitoring overdue — critical for glycaemic control tracking
+                  - generic [ref=e350]: "Score: 66"
+                - generic [ref=e351]:
+                  - button "Send Lab Reminder" [ref=e352]:
+                    - img
+                    - text: Send Lab Reminder
+                  - button "View Patient" [ref=e353]:
+                    - img
+                    - text: View Patient
+                  - button [ref=e354]:
+                    - img
+              - generic [ref=e355]:
+                - img [ref=e356]
+                - generic [ref=e358]:
+                  - generic [ref=e360]: Order HbA1c lab for Marcos Ribeiro
+                  - paragraph [ref=e361]: HbA1c monitoring overdue — critical for glycaemic control tracking
+                  - generic [ref=e363]: "Score: 68"
+                - generic [ref=e364]:
+                  - button "Send Lab Reminder" [ref=e365]:
+                    - img
+                    - text: Send Lab Reminder
+                  - button "View Patient" [ref=e366]:
+                    - img
+                    - text: View Patient
+                  - button [ref=e367]:
+                    - img
+              - generic [ref=e368]:
+                - img [ref=e369]
+                - generic [ref=e371]:
+                  - generic [ref=e373]: Order HbA1c lab for Rafael Santos
+                  - paragraph [ref=e374]: HbA1c monitoring overdue — critical for glycaemic control tracking
+                  - generic [ref=e376]: "Score: 63"
+                - generic [ref=e377]:
+                  - button "Send Lab Reminder" [ref=e378]:
+                    - img
+                    - text: Send Lab Reminder
+                  - button "View Patient" [ref=e379]:
+                    - img
+                    - text: View Patient
+                  - button [ref=e380]:
+                    - img
+          - generic [ref=e381]:
+            - generic [ref=e382]:
+              - img [ref=e384]
+              - generic [ref=e386]: Population Insights
+              - generic [ref=e387]: AI
+            - generic [ref=e389]:
+              - paragraph [ref=e390]:
+                - strong [ref=e391]: Daily Population Health Digest
+              - list [ref=e392]:
+                - listitem [ref=e393]: Our population of 573 members presents with a high average risk score of 18.2, indicating significant clinical complexity and potential for adverse health events.
+                - listitem [ref=e394]: A substantial 341 members (59.5%
+          - generic [ref=e396]:
+            - generic [ref=e397]:
+              - generic [ref=e398]:
+                - img [ref=e399]
+                - generic [ref=e401]: Cohort Distribution
+              - generic [ref=e402]: 573 members
+            - generic [ref=e404]:
+              - generic [ref=e405]:
+                - generic [ref=e408]: Tier 4 — Comprehensive Support
+                - generic [ref=e411]: "16"
+              - generic [ref=e412]:
+                - generic [ref=e415]: Tier 3 — Advanced Diabetes Care
+                - generic [ref=e418]: "131"
+              - generic [ref=e419]:
+                - generic [ref=e422]: Tier 2 — Diabetes Wellness
+                - generic [ref=e425]: "1"
+              - generic [ref=e426]:
+                - generic [ref=e429]: Tier 0 — Prevention Program
+                - generic [ref=e432]: "103"
+              - generic [ref=e433]:
+                - generic [ref=e436]: Tier 1 — Pre-Diabetes Reversal
+                - generic [ref=e439]: "322"
+          - generic [ref=e440]:
+            - generic [ref=e441]:
+              - generic [ref=e442]:
+                - img [ref=e443]
+                - generic [ref=e445]: Reviews Due
+              - generic [ref=e446]: Next 7 days
+            - generic [ref=e447]:
+              - button "Bruno Nascimento Tier 4 — Comprehensive Support · Diabetes Care 6d" [ref=e448]:
+                - generic [ref=e449]:
+                  - text: Bruno Nascimento
+                  - generic [ref=e450]:
+                    - generic [ref=e452]: Tier 4 — Comprehensive Support
+                    - generic [ref=e453]: · Diabetes Care
+                - generic [ref=e454]: 6d
+              - button "Pedro Pereira Tier 4 — Comprehensive Support · Diabetes Care 6d" [ref=e455]:
+                - generic [ref=e456]:
+                  - text: Pedro Pereira
+                  - generic [ref=e457]:
+                    - generic [ref=e459]: Tier 4 — Comprehensive Support
+                    - generic [ref=e460]: · Diabetes Care
+                - generic [ref=e461]: 6d
+              - button "Carolina Santos Tier 4 — Comprehensive Support · Diabetes Care 6d" [ref=e462]:
+                - generic [ref=e463]:
+                  - text: Carolina Santos
+                  - generic [ref=e464]:
+                    - generic [ref=e466]: Tier 4 — Comprehensive Support
+                    - generic [ref=e467]: · Diabetes Care
+                - generic [ref=e468]: 6d
+              - button "Thiago Barbosa Tier 4 — Comprehensive Support · Diabetes Care 6d" [ref=e469]:
+                - generic [ref=e470]:
+                  - text: Thiago Barbosa
+                  - generic [ref=e471]:
+                    - generic [ref=e473]: Tier 4 — Comprehensive Support
+                    - generic [ref=e474]: · Diabetes Care
+                - generic [ref=e475]: 6d
+              - button "Daniel Moreira Tier 4 — Comprehensive Support · Diabetes Care 6d" [ref=e476]:
+                - generic [ref=e477]:
+                  - text: Daniel Moreira
+                  - generic [ref=e478]:
+                    - generic [ref=e480]: Tier 4 — Comprehensive Support
+                    - generic [ref=e481]: · Diabetes Care
+                - generic [ref=e482]: 6d
+              - button "Felipe Araújo Tier 4 — Comprehensive Support · Diabetes Care 6d" [ref=e483]:
+                - generic [ref=e484]:
+                  - text: Felipe Araújo
+                  - generic [ref=e485]:
+                    - generic [ref=e487]: Tier 4 — Comprehensive Support
+                    - generic [ref=e488]: · Diabetes Care
+                - generic [ref=e489]: 6d
+              - button "Amanda Melo Tier 4 — Comprehensive Support · Diabetes Care 6d" [ref=e490]:
+                - generic [ref=e491]:
+                  - text: Amanda Melo
+                  - generic [ref=e492]:
+                    - generic [ref=e494]: Tier 4 — Comprehensive Support
+                    - generic [ref=e495]: · Diabetes Care
+                - generic [ref=e496]: 6d
+              - button "Letícia Barbosa Tier 4 — Comprehensive Support · Diabetes Care 6d" [ref=e497]:
+                - generic [ref=e498]:
+                  - text: Letícia Barbosa
+                  - generic [ref=e499]:
+                    - generic [ref=e501]: Tier 4 — Comprehensive Support
+                    - generic [ref=e502]: · Diabetes Care
+                - generic [ref=e503]: 6d
+              - button "Bruno Ribeiro Tier 4 — Comprehensive Support · Diabetes Care 6d" [ref=e504]:
+                - generic [ref=e505]:
+                  - text: Bruno Ribeiro
+                  - generic [ref=e506]:
+                    - generic [ref=e508]: Tier 4 — Comprehensive Support
+                    - generic [ref=e509]: · Diabetes Care
+                - generic [ref=e510]: 6d
+              - button "Pedro Pereira Tier 4 — Comprehensive Support · Diabetes Care 6d" [ref=e511]:
+                - generic [ref=e512]:
+                  - text: Pedro Pereira
+                  - generic [ref=e513]:
+                    - generic [ref=e515]: Tier 4 — Comprehensive Support
+                    - generic [ref=e516]: · Diabetes Care
+                - generic [ref=e517]: 6d
+              - button "Letícia Silva Tier 4 — Comprehensive Support · Diabetes Care 6d" [ref=e518]:
+                - generic [ref=e519]:
+                  - text: Letícia Silva
+                  - generic [ref=e520]:
+                    - generic [ref=e522]: Tier 4 — Comprehensive Support
+                    - generic [ref=e523]: · Diabetes Care
+                - generic [ref=e524]: 6d
+              - button "Marcos Ribeiro Tier 4 — Comprehensive Support · Diabetes Care 6d" [ref=e525]:
+                - generic [ref=e526]:
+                  - text: Marcos Ribeiro
+                  - generic [ref=e527]:
+                    - generic [ref=e529]: Tier 4 — Comprehensive Support
+                    - generic [ref=e530]: · Diabetes Care
+                - generic [ref=e531]: 6d
+              - button "Juliana Almeida Tier 4 — Comprehensive Support · Diabetes Care 6d" [ref=e532]:
+                - generic [ref=e533]:
+                  - text: Juliana Almeida
+                  - generic [ref=e534]:
+                    - generic [ref=e536]: Tier 4 — Comprehensive Support
+                    - generic [ref=e537]: · Diabetes Care
+                - generic [ref=e538]: 6d
+              - button "Amanda Almeida Tier 4 — Comprehensive Support · Diabetes Care 6d" [ref=e539]:
+                - generic [ref=e540]:
+                  - text: Amanda Almeida
+                  - generic [ref=e541]:
+                    - generic [ref=e543]: Tier 4 — Comprehensive Support
+                    - generic [ref=e544]: · Diabetes Care
+                - generic [ref=e545]: 6d
+              - button "Isabela Costa Tier 4 — Comprehensive Support · Diabetes Care 6d" [ref=e546]:
+                - generic [ref=e547]:
+                  - text: Isabela Costa
+                  - generic [ref=e548]:
+                    - generic [ref=e550]: Tier 4 — Comprehensive Support
+                    - generic [ref=e551]: · Diabetes Care
+                - generic [ref=e552]: 6d
+    - generic [ref=e553]:
+      - heading "Search" [level=2] [ref=e554]
+      - paragraph [ref=e555]: Search across patients, pathways, and actions
+  - region "Notifications alt+T"
+  - alert [ref=e17]

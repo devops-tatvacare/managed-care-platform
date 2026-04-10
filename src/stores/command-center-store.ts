@@ -1,13 +1,15 @@
 import { create } from "zustand";
 import {
   fetchKPIs,
-  fetchActionQueue,
   fetchInsights,
   fetchUpcomingReviews,
+  streamInsights,
 } from "@/services/api/command-center";
+import { apiRequest } from "@/services/api/client";
+import { API_ENDPOINTS } from "@/config/api";
 import { fetchDistribution } from "@/services/api/cohortisation";
 import { fetchPrograms } from "@/services/api/programs";
-import type { CommandCenterKPIs, ActionQueueResponse, AIInsightsResponse, UpcomingReviewsResponse } from "@/services/types/command-center";
+import type { CommandCenterKPIs, ActionQueueItem, ActionQueueResponse, AIInsightsResponse, UpcomingReviewsResponse } from "@/services/types/command-center";
 import type { CohortDistribution } from "@/services/types/cohort";
 import type { ProgramListItem } from "@/services/types/program";
 
@@ -58,20 +60,38 @@ export const useCommandCenterStore = create<CommandCenterState>((set, get) => ({
   loadActionQueue: async () => {
     set({ actionQueueLoading: true });
     try {
-      const actionQueue = await fetchActionQueue(20);
-      set({ actionQueue, actionQueueLoading: false });
+      const data = await apiRequest<{ items: ActionQueueItem[]; total: number }>({
+        method: "GET",
+        path: API_ENDPOINTS.actions.list,
+        params: { status: "open", limit: 20 },
+      });
+      set({ actionQueue: data, actionQueueLoading: false });
     } catch {
       set({ actionQueueLoading: false });
     }
   },
 
   loadInsights: async () => {
-    set({ insightsLoading: true });
+    set({ insightsLoading: true, insights: { markdown: "", generated_at: "", is_cached: false } });
     try {
-      const insights = await fetchInsights();
-      set({ insights, insightsLoading: false });
+      await streamInsights(
+        (chunk) => {
+          const current = get().insights;
+          set({ insights: { ...current!, markdown: current!.markdown + chunk } });
+        },
+        (generatedAt) => {
+          const current = get().insights;
+          set({ insights: { ...current!, generated_at: generatedAt }, insightsLoading: false });
+        },
+      );
     } catch {
-      set({ insightsLoading: false });
+      // Fall back to non-streaming
+      try {
+        const insights = await fetchInsights();
+        set({ insights, insightsLoading: false });
+      } catch {
+        set({ insightsLoading: false });
+      }
     }
   },
 

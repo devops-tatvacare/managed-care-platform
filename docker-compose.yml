@@ -1,14 +1,40 @@
 services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: bradesco_care_admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   backend:
     build: ./backend
+    env_file:
+      - path: ./.env
+        required: false
+      - path: ./.env.local
+        required: false
+      - path: ./backend/.env
+        required: false
+      - path: ./backend/.env.local
+        required: false
     ports:
       - "8000:8000"
-    volumes:
-      - ./backend/data:/app/data
     environment:
-      - DATABASE_URL=sqlite+aiosqlite:///data/care-admin.db
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/bradesco_care_admin
       - CORS_ORIGINS=["http://localhost:3000"]
       - JWT_SECRET=dev-secret-change-in-production
+    depends_on:
+      db:
+        condition: service_healthy
 
   frontend:
     build: .
@@ -16,6 +42,8 @@ services:
       - "3000:3000"
     environment:
       - HOSTNAME=0.0.0.0
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
     depends_on:
       - backend
+
+volumes:
+  pgdata:

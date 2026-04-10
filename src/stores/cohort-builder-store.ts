@@ -208,7 +208,6 @@ export const useCohortBuilderStore = create<CohortBuilderStore>((set, get) => ({
           message: text,
           reset: isFirstMessage,
         },
-        direct: true,  // Bypass Next.js proxy — AI calls are long-running
       });
       set((s) => ({
         chatMessages: [...s.chatMessages, { role: "ai", content: result.message }],
@@ -256,7 +255,7 @@ export const useCohortBuilderStore = create<CohortBuilderStore>((set, get) => ({
   },
 
   clearChat: () => {
-    apiRequest({ method: "POST", path: API_ENDPOINTS.builder.reset, params: { surface: "cohort_program" }, direct: true }).catch(() => {});
+    apiRequest({ method: "POST", path: API_ENDPOINTS.builder.reset, params: { surface: "cohort_program" } }).catch(() => {});
     set({
       chatMessages: [INITIAL_MESSAGE],
       chatLoading: false,

@@ -49,13 +49,26 @@ export function ProgramCard({ program, distribution }: ProgramCardProps) {
         </div>
 
         {distribution && distribution.length > 0 && (
-          <div className="flex h-2 w-full overflow-hidden rounded-full">
-            {distribution.map((d) => (
-              <div
-                key={d.cohort_id}
-                style={{ flex: d.count, backgroundColor: d.cohort_color }}
-              />
-            ))}
+          <div className="space-y-1.5">
+            <div className="flex h-1.5 w-full overflow-hidden rounded-full">
+              {distribution.map((d) => (
+                <div
+                  key={d.cohort_id}
+                  style={{ flex: d.count, backgroundColor: d.cohort_color }}
+                />
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+              {distribution.map((d) => (
+                <span key={d.cohort_id} className="inline-flex items-center gap-1 text-[10px] text-text-muted">
+                  <span
+                    className="inline-block h-1.5 w-1.5 rounded-full"
+                    style={{ backgroundColor: d.cohort_color }}
+                  />
+                  {d.cohort_name}
+                </span>
+              ))}
+            </div>
           </div>
         )}
       </CardContent>

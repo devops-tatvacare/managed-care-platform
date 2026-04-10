@@ -34,8 +34,10 @@ class ThreadSummary(BaseModel):
     last_action_type: str
     last_action_status: str
     last_action_at: str
+    last_triggered_by: str = "manual"
     unread_count: int
     total_actions: int
+    auto_count: int = 0
 
 
 class ThreadListResponse(BaseModel):

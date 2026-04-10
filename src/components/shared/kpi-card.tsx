@@ -17,15 +17,21 @@ export function KpiCard({ label, value, subtitle, trend, icon: Icon, className }
   const TrendIcon = trend?.direction === "up" ? Icons.arrowUp : Icons.arrowDown;
 
   return (
-    <Card className={cn("gap-0 py-0", className)}>
-      <CardHeader className="px-4 py-2.5">
-        <CardTitle className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-text-muted">
-          {Icon && <Icon className="h-3.5 w-3.5 shrink-0" />}
-          {label}
+    <Card variant="elevated" density="flush" className={cn("overflow-hidden", className)}>
+      <CardHeader className="px-[var(--space-panel-padding)] py-3">
+        <CardTitle className="flex items-center justify-between gap-3">
+          <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-text-muted">
+            {label}
+          </span>
+          {Icon && (
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[color:var(--color-surface-border)] bg-[color:var(--color-surface-muted)] text-brand-primary">
+              <Icon className="h-4 w-4 shrink-0" />
+            </span>
+          )}
         </CardTitle>
       </CardHeader>
       <Separator />
-      <CardContent className="px-4 py-3">
+      <CardContent className="px-[var(--space-panel-padding)] py-4">
         <p className="text-2xl font-bold text-text-primary">{value}</p>
         {trend && (
           <p

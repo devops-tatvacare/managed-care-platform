@@ -37,6 +37,8 @@ interface OrchestrationFiltersProps {
   onStatusChangeAction: (value: string) => void;
 }
 
+const triggerClassName = "h-8 w-full rounded-lg border-[color:var(--color-surface-border)] bg-bg-primary text-xs shadow-none";
+
 export function OrchestrationFilters({
   programs,
   cohorts,
@@ -50,9 +52,9 @@ export function OrchestrationFilters({
   onStatusChangeAction,
 }: OrchestrationFiltersProps) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="grid shrink-0 gap-2 sm:grid-cols-2 xl:grid-cols-4">
       <Select value={selectedProgramId} onValueChange={onProgramChangeAction}>
-        <SelectTrigger className="h-8 w-[180px] text-xs">
+        <SelectTrigger className={triggerClassName}>
           <SelectValue placeholder="All Programs" />
         </SelectTrigger>
         <SelectContent>
@@ -64,7 +66,7 @@ export function OrchestrationFilters({
       </Select>
 
       <Select value={selectedCohortId} onValueChange={onCohortChangeAction}>
-        <SelectTrigger className="h-8 w-[160px] text-xs">
+        <SelectTrigger className={triggerClassName}>
           <SelectValue placeholder="All Cohorts" />
         </SelectTrigger>
         <SelectContent>
@@ -76,7 +78,7 @@ export function OrchestrationFilters({
       </Select>
 
       <Select value={selectedChannel} onValueChange={onChannelChangeAction}>
-        <SelectTrigger className="h-8 w-[140px] text-xs">
+        <SelectTrigger className={triggerClassName}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -87,7 +89,7 @@ export function OrchestrationFilters({
       </Select>
 
       <Select value={selectedStatus} onValueChange={onStatusChangeAction}>
-        <SelectTrigger className="h-8 w-[130px] text-xs">
+        <SelectTrigger className={triggerClassName}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

@@ -52,12 +52,11 @@ export function streamScoring(
   const headers: Record<string, string> = {};
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  const streamBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   let cancelled = false;
 
   (async () => {
     try {
-      const resp = await fetch(`${streamBase}${API_ENDPOINTS.cohortisation.stream}`, {
+      const resp = await fetch(`${API_ENDPOINTS.cohortisation.stream}`, {
         method: "GET",
         headers,
       });

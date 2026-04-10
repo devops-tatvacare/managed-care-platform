@@ -37,6 +37,12 @@ async def get_threads(
                     else_=0,
                 )
             ).label("unread_count"),
+            func.sum(
+                case(
+                    (ConciergeAction.triggered_by == "auto", 1),
+                    else_=0,
+                )
+            ).label("auto_count"),
         )
         .where(ConciergeAction.tenant_id == tenant_id)
     )
@@ -53,7 +59,7 @@ async def get_threads(
 
     # Paginated patient IDs ordered by most recent action
     page_q = (
-        select(latest_sq.c.patient_id, latest_sq.c.last_at, latest_sq.c.total_actions, latest_sq.c.unread_count)
+        select(latest_sq.c.patient_id, latest_sq.c.last_at, latest_sq.c.total_actions, latest_sq.c.unread_count, latest_sq.c.auto_count)
         .order_by(desc(latest_sq.c.last_at))
         .offset((page - 1) * page_size)
         .limit(page_size)
@@ -94,8 +100,10 @@ async def get_threads(
             "last_action_type": latest.action_type if latest else "",
             "last_action_status": latest.status if latest else "",
             "last_action_at": latest.created_at.isoformat() if latest else "",
+            "last_triggered_by": latest.triggered_by if latest else "manual",
             "unread_count": r.unread_count or 0,
             "total_actions": r.total_actions or 0,
+            "auto_count": r.auto_count or 0,
         })
 
     return items, total

@@ -6,23 +6,31 @@ export interface CommandCenterKPIs {
   pdc_above_80_rate: number | null;
 }
 
-export interface ActionChip {
-  label: string;
-  action_type: "navigate" | "outreach";
-  target: string;
-}
-
 export interface ActionQueueItem {
   id: string;
   patient_id: string;
   patient_name: string;
-  alert_type: "care_gap" | "overdue_review" | "cohort_change" | "missed_touchpoint";
+  template_id: string;
+  program_id: string;
+  cohort_id: string | null;
+  cohort_name: string | null;
+  priority: number;
   title: string;
-  description: string;
-  priority: "high" | "medium" | "low";
-  cohort_name: string;
-  cohort_color: string;
-  actions: ActionChip[];
+  description: string | null;
+  status: string;
+  assigned_to: string | null;
+  resolution_options: Array<{
+    label: string;
+    action_type: string;
+    icon?: string;
+    channel?: string;
+    template_slug?: string;
+    navigate_to?: string;
+    navigate_tab?: string;
+    requires_reason?: boolean;
+  }>;
+  trigger_data: Record<string, unknown> | null;
+  created_at: string;
 }
 
 export interface ActionQueueResponse {

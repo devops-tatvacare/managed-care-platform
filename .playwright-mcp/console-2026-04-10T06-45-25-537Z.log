@@ -1,0 +1,6 @@
+[   40624ms] [LOG] [SSE-TEST] status: 200 @ :9
+[   40624ms] [LOG] [SSE-TEST] content-type: text/event-stream; charset=utf-8 @ :10
+[   55628ms] [LOG] [SSE-TEST] chunk: :ping
+
+ @ :18
+[   55628ms] [LOG] [SSE-TEST] stream ended @ :16

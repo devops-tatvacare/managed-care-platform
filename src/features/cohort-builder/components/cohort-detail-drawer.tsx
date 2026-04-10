@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Icons } from "@/config/icons";
+import { toast } from "sonner";
 import { CriteriaEditor } from "./criteria-editor";
 
 const REVIEW_CADENCE_OPTIONS = [
@@ -65,30 +66,32 @@ export function CohortDetailDrawer() {
     });
     await saveCriteria(selectedCohortId, criteria);
     selectCohort(null);
+    toast.success("Cohort saved");
   };
 
   const handleDelete = async () => {
     if (!selectedCohortId) return;
     await deleteCohort(selectedCohortId);
+    toast.success("Cohort deleted");
   };
 
   return (
     <Sheet open={open} onOpenChange={(v) => { if (!v) selectCohort(null); }}>
-      <SheetContent className="sm:max-w-md overflow-y-auto">
+      <SheetContent className="sm:max-w-lg overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Edit Cohort</SheetTitle>
         </SheetHeader>
 
-        <div className="mt-6 space-y-4">
+        <div className="mt-4 space-y-4 px-4">
           {/* Name */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-muted">Name</label>
+            <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">Name</span>
             <Input value={name} onChange={(e) => setName(e.target.value)} />
           </div>
 
           {/* Color */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-muted">Color</label>
+            <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">Color</span>
             <div className="flex flex-wrap gap-2">
               {COLOR_SWATCHES.map((c) => (
                 <button
@@ -107,7 +110,7 @@ export function CohortDetailDrawer() {
 
           {/* Description */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-muted">Description</label>
+            <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">Description</span>
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
           </div>
 
@@ -115,13 +118,13 @@ export function CohortDetailDrawer() {
 
           {/* Sort Order */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-muted">Sort Order</label>
+            <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">Sort Order</span>
             <Input type="number" value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} />
           </div>
 
           {/* Review Cadence */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-muted">Review Cadence</label>
+            <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">Review Cadence</span>
             <Select value={reviewCadence} onValueChange={setReviewCadence}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -134,7 +137,7 @@ export function CohortDetailDrawer() {
 
           {/* Score Range */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-muted">Score Range</label>
+            <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">Score Range</span>
             <div className="flex items-center gap-2">
               <Input type="number" placeholder="Min" value={scoreMin} onChange={(e) => setScoreMin(e.target.value)} />
               <span className="text-text-muted">to</span>
@@ -144,15 +147,18 @@ export function CohortDetailDrawer() {
 
           <Separator />
 
-          {/* Criteria placeholder */}
+          {/* Entry Gate Criteria */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-muted">Criteria</label>
+            <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">Entry Gate Criteria</span>
+            <p className="text-[11px] text-text-placeholder">
+              Hard clinical prerequisites that must be met regardless of score.
+            </p>
             <CriteriaEditor criteria={criteria} onChange={setCriteria} />
           </div>
         </div>
 
         {/* Footer */}
-        <div className="mt-6 flex items-center justify-between">
+        <div className="mt-6 flex items-center justify-between px-4">
           <Button variant="destructive" size="sm" onClick={handleDelete}>
             <Icons.close className="mr-1.5 h-3.5 w-3.5" />
             Delete

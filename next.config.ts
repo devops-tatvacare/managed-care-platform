@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  allowedDevOrigins: ["*.trycloudflare.com", "*.ngrok-free.dev"],
   images: {
     unoptimized: true,
   },

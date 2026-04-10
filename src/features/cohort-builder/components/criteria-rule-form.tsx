@@ -39,7 +39,7 @@ function DiagnosisForm({ config, update }: { config: Record<string, unknown>; up
   return (
     <div className="space-y-3">
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-text-muted">ICD-10 Codes (comma-separated)</label>
+        <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">ICD-10 Codes (comma-separated)</span>
         <Input
           value={codesStr}
           onChange={(e) => update("icd10_codes", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
@@ -47,7 +47,7 @@ function DiagnosisForm({ config, update }: { config: Record<string, unknown>; up
         />
       </div>
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-text-muted">Match Type</label>
+        <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">Match Type</span>
         <Select value={String(config.match_type ?? "prefix")} onValueChange={(v) => update("match_type", v)}>
           <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
           <SelectContent>
@@ -61,7 +61,7 @@ function DiagnosisForm({ config, update }: { config: Record<string, unknown>; up
           checked={config.include !== false}
           onCheckedChange={(checked) => update("include", checked)}
         />
-        <label className="text-xs text-text-muted">Include (uncheck to exclude)</label>
+        <span className="text-xs text-text-muted">Include (uncheck to exclude)</span>
       </div>
     </div>
   );
@@ -73,7 +73,7 @@ function LabForm({ config, update }: { config: Record<string, unknown>; update: 
   return (
     <div className="space-y-3">
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-text-muted">Test Type</label>
+        <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">Test Type</span>
         <Select value={String(config.test_type ?? "")} onValueChange={(v) => update("test_type", v)}>
           <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select test" /></SelectTrigger>
           <SelectContent>
@@ -88,7 +88,7 @@ function LabForm({ config, update }: { config: Record<string, unknown>; update: 
       </div>
       <div className="flex items-center gap-2">
         <div className="flex-1 space-y-1.5">
-          <label className="text-xs font-medium text-text-muted">Operator</label>
+          <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">Operator</span>
           <Select value={String(config.operator ?? "gte")} onValueChange={(v) => update("operator", v)}>
             <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -101,7 +101,7 @@ function LabForm({ config, update }: { config: Record<string, unknown>; update: 
           </Select>
         </div>
         <div className="flex-1 space-y-1.5">
-          <label className="text-xs font-medium text-text-muted">Value</label>
+          <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">Value</span>
           <Input
             type="number"
             value={String(config.value ?? 0)}
@@ -121,7 +121,7 @@ function DemographicsForm({ config, update }: { config: Record<string, unknown>;
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <div className="flex-1 space-y-1.5">
-          <label className="text-xs font-medium text-text-muted">BMI Operator</label>
+          <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">BMI Operator</span>
           <Select value={String(config.bmi_operator ?? "gte")} onValueChange={(v) => update("bmi_operator", v)}>
             <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -133,7 +133,7 @@ function DemographicsForm({ config, update }: { config: Record<string, unknown>;
           </Select>
         </div>
         <div className="flex-1 space-y-1.5">
-          <label className="text-xs font-medium text-text-muted">BMI Threshold</label>
+          <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">BMI Threshold</span>
           <Input
             type="number"
             value={config.bmi_threshold != null ? String(config.bmi_threshold) : ""}
@@ -154,7 +154,7 @@ function PharmacyForm({ config, update }: { config: Record<string, unknown>; upd
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <div className="flex-1 space-y-1.5">
-          <label className="text-xs font-medium text-text-muted">PDC Operator</label>
+          <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">PDC Operator</span>
           <Select value={String(config.pdc_operator ?? "gte")} onValueChange={(v) => update("pdc_operator", v)}>
             <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -165,7 +165,7 @@ function PharmacyForm({ config, update }: { config: Record<string, unknown>; upd
           </Select>
         </div>
         <div className="flex-1 space-y-1.5">
-          <label className="text-xs font-medium text-text-muted">PDC Threshold</label>
+          <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">PDC Threshold</span>
           <Input
             type="number"
             step="0.01"
@@ -185,7 +185,7 @@ function UtilisationForm({ config, update }: { config: Record<string, unknown>; 
   return (
     <div className="space-y-3">
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-text-muted">Event Type</label>
+        <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">Event Type</span>
         <Select value={String(config.event_type ?? "er_visit")} onValueChange={(v) => update("event_type", v)}>
           <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
           <SelectContent>
@@ -197,7 +197,7 @@ function UtilisationForm({ config, update }: { config: Record<string, unknown>; 
         </Select>
       </div>
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-text-muted">Count Threshold</label>
+        <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">Count Threshold</span>
         <Input
           type="number"
           value={String(config.count_threshold ?? 1)}
@@ -216,7 +216,7 @@ function FallbackForm({ config, onChange }: { config: Record<string, unknown>; o
 
   return (
     <div className="space-y-1.5">
-      <label className="text-xs font-medium text-text-muted">Configuration (JSON)</label>
+      <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">Configuration (JSON)</span>
       <Textarea
         value={jsonStr}
         onChange={(e) => {

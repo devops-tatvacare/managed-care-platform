@@ -234,4 +234,6 @@ def _serialize_cohort(c) -> CohortSummary:
         score_range_min=c.score_range_min,
         score_range_max=c.score_range_max,
         member_count=c.member_count,
+        pathway_id=str(c.pathway_id) if c.pathway_id else None,
+        pathway_name=c.pathway.name if c.pathway else None,
     )

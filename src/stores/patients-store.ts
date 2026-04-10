@@ -4,12 +4,17 @@ import type {
   PatientDetail,
   PatientLabRecord,
   PatientDiagnosisRecord,
+  PatientFilterOptions,
 } from "@/services/types/patient";
 import * as patientsApi from "@/services/api/patients";
 
 interface PatientFilters {
   search: string;
   pathwayStatus: string | undefined;
+  pathwayName: string | undefined;
+  assignedTo: string | undefined;
+  programId: string | undefined;
+  cohortId: string | undefined;
 }
 
 interface PatientsState {
@@ -20,6 +25,7 @@ interface PatientsState {
   pageSize: number;
   pages: number;
   filters: PatientFilters;
+  filterOptions: PatientFilterOptions | null;
   loading: boolean;
   error: string | null;
 
@@ -31,11 +37,13 @@ interface PatientsState {
 
   // Actions
   loadPatients: () => Promise<void>;
+  loadFilterOptions: () => Promise<void>;
   loadPatient: (id: string) => Promise<void>;
   loadLabs: (id: string) => Promise<void>;
   loadDiagnoses: (id: string) => Promise<void>;
   setPage: (page: number) => void;
   setFilters: (filters: Partial<PatientFilters>) => void;
+  resetFilters: () => void;
   resetDetail: () => void;
 }
 
@@ -45,7 +53,9 @@ export const usePatientsStore = create<PatientsState>((set, get) => ({
   page: 1,
   pageSize: 50,
   pages: 0,
-  filters: { search: "", pathwayStatus: undefined },
+  filterOptions: null,
+
+  filters: { search: "", pathwayStatus: undefined, pathwayName: undefined, assignedTo: undefined, programId: undefined, cohortId: undefined },
   loading: false,
   error: null,
 
@@ -63,6 +73,10 @@ export const usePatientsStore = create<PatientsState>((set, get) => ({
         page_size: pageSize,
         search: filters.search || undefined,
         pathway_status: filters.pathwayStatus,
+        pathway_name: filters.pathwayName,
+        assigned_to: filters.assignedTo,
+        program_id: filters.programId,
+        cohort_id: filters.cohortId,
       });
       set({
         patients: res.items,
@@ -72,6 +86,15 @@ export const usePatientsStore = create<PatientsState>((set, get) => ({
       });
     } catch (err) {
       set({ error: err instanceof Error ? err.message : "Failed to load patients", loading: false });
+    }
+  },
+
+  loadFilterOptions: async () => {
+    try {
+      const options = await patientsApi.fetchPatientFilterOptions();
+      set({ filterOptions: options });
+    } catch {
+      // silently fail — filter options are supplementary
     }
   },
 
@@ -113,6 +136,14 @@ export const usePatientsStore = create<PatientsState>((set, get) => ({
       filters: { ...state.filters, ...filters },
       page: 1,
     }));
+    get().loadPatients();
+  },
+
+  resetFilters: () => {
+    set({
+      filters: { search: "", pathwayStatus: undefined, pathwayName: undefined, assignedTo: undefined, programId: undefined, cohortId: undefined },
+      page: 1,
+    });
     get().loadPatients();
   },
 

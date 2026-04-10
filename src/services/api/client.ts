@@ -1,4 +1,6 @@
-import { API_BASE } from "@/config/api";
+import { SERVER_API_BASE } from "@/config/api";
+
+/** All calls route through the Next.js proxy (/api rewrites) */
 
 interface RequestConfig {
   method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
@@ -14,8 +16,8 @@ function getToken(): string | null {
 }
 
 export async function apiRequest<T>(config: RequestConfig): Promise<T> {
-  const base = API_BASE || window.location.origin;
-  const url = new URL(`${base}${config.path}`);
+  const base = typeof window === "undefined" ? SERVER_API_BASE : window.location.origin;
+  const url = new URL(config.path, base);
 
   if (config.params) {
     for (const [key, value] of Object.entries(config.params)) {

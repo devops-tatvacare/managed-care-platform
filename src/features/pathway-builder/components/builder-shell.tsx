@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { PATHWAY_STATUS } from "@/config/status";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { AIBuilder } from "./ai-builder";
 import { ComponentLibrary } from "./component-library";
 import { VisualCanvas } from "./visual-canvas";
@@ -22,7 +23,11 @@ export function BuilderShell() {
     builderMode,
     setBuilderMode,
     selectedBlockId,
+    saveDraft,
     publishPathway,
+    saving,
+    publishing,
+    isDirty,
   } = usePathwayBuilderStore();
 
   if (!selectedPathway) return null;
@@ -66,17 +71,44 @@ export function BuilderShell() {
 
         {/* Right: action buttons */}
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            <Icons.preview className="mr-1.5 h-3.5 w-3.5" />
-            Preview
-          </Button>
-          <Button variant="outline" size="sm">
-            <Icons.saveDraft className="mr-1.5 h-3.5 w-3.5" />
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={saving || !isDirty}
+            onClick={async () => {
+              try {
+                await saveDraft();
+                toast.success("Draft saved");
+              } catch {
+                toast.error("Failed to save draft");
+              }
+            }}
+          >
+            {saving ? (
+              <Icons.spinner className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Icons.saveDraft className="mr-1.5 h-3.5 w-3.5" />
+            )}
             Save Draft
           </Button>
-          <Button size="sm" onClick={() => publishPathway()}>
-            <Icons.publish className="mr-1.5 h-3.5 w-3.5" />
-            Publish &amp; Rollout
+          <Button
+            size="sm"
+            disabled={publishing || !isDirty}
+            onClick={async () => {
+              try {
+                await publishPathway();
+                toast.success("Pathway published");
+              } catch {
+                toast.error("Failed to publish");
+              }
+            }}
+          >
+            {publishing ? (
+              <Icons.spinner className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Icons.publish className="mr-1.5 h-3.5 w-3.5" />
+            )}
+            Publish
           </Button>
         </div>
       </div>

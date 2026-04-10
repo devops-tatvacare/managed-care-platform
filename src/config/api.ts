@@ -1,7 +1,5 @@
 export const SERVER_API_BASE =
-  process.env.BACKEND_INTERNAL_URL ??
-  process.env.NEXT_PUBLIC_API_URL ??
-  "http://localhost:8000";
+  process.env.BACKEND_INTERNAL_URL ?? "http://localhost:8000";
 
 export const API_ENDPOINTS = {
   auth: {

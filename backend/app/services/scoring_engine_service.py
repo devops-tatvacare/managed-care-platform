@@ -51,7 +51,7 @@ def score_patient(
         cap = comp_config.get("cap", 100)
         raw = min(raw, cap)
         weight = comp_config.get("weight", 0.0)
-        weighted = round(raw * weight, 2)
+        weighted = round(raw * (weight / 100.0), 2)
 
         name = comp_config.get("name", data_source)
         component_results.append(ComponentResult(name=name, raw=raw, weighted=weighted))

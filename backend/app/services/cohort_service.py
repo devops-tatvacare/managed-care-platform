@@ -48,13 +48,14 @@ async def create_cohort(
         tenant_id=tenant_id,
         program_id=program_id,
         name=data["name"],
-        slug=data.get("slug", data["name"].lower().replace(" ", "-")),
+        slug=data.get("slug") or data["name"].lower().replace(" ", "-"),
         description=data.get("description"),
         color=data.get("color", "#e2e8f0"),
         sort_order=data.get("sort_order", 0),
         review_cadence_days=data.get("review_cadence_days", 90),
         score_range_min=data.get("score_range_min"),
         score_range_max=data.get("score_range_max"),
+        pathway_id=uuid.UUID(data["pathway_id"]) if data.get("pathway_id") else None,
     )
     db.add(cohort)
     await db.commit()
@@ -72,6 +73,8 @@ async def update_cohort(
                 "review_cadence_days", "score_range_min", "score_range_max"):
         if key in data:
             setattr(cohort, key, data[key])
+    if "pathway_id" in data:
+        cohort.pathway_id = uuid.UUID(data["pathway_id"]) if data["pathway_id"] else None
     await db.commit()
     await db.refresh(cohort)
     return cohort
@@ -180,6 +183,7 @@ async def get_assignments(
     page_size: int = 50,
     program_id: uuid.UUID | None = None,
     cohort_id: uuid.UUID | None = None,
+    min_score: int | None = None,
 ) -> dict:
     base = select(CohortAssignment).where(
         CohortAssignment.tenant_id == tenant_id,
@@ -189,6 +193,8 @@ async def get_assignments(
         base = base.where(CohortAssignment.program_id == program_id)
     if cohort_id:
         base = base.where(CohortAssignment.cohort_id == cohort_id)
+    if min_score is not None:
+        base = base.where(CohortAssignment.score >= min_score)
 
     total = (await db.execute(select(func.count()).select_from(base.subquery()))).scalar_one()
 
@@ -197,7 +203,7 @@ async def get_assignments(
             selectinload(CohortAssignment.patient),
             selectinload(CohortAssignment.cohort),
         )
-        .order_by(CohortAssignment.assigned_at.desc())
+        .order_by(CohortAssignment.score.desc().nullslast())
         .offset((page - 1) * page_size)
         .limit(page_size)
     )

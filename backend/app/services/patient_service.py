@@ -3,7 +3,59 @@ import uuid
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.cohort import Cohort, CohortAssignment
+from app.models.program import Program
 from app.models.patient import Patient, PatientDiagnosis, PatientLab
+
+
+async def get_patient_filter_options(
+    db: AsyncSession,
+    tenant_id: uuid.UUID,
+) -> dict:
+    pathway_names = (await db.execute(
+        select(Patient.pathway_name).where(
+            Patient.tenant_id == tenant_id,
+            Patient.is_active == True,  # noqa: E712
+            Patient.pathway_name.is_not(None),
+        ).distinct().order_by(Patient.pathway_name)
+    )).scalars().all()
+
+    pathway_statuses = (await db.execute(
+        select(Patient.pathway_status).where(
+            Patient.tenant_id == tenant_id,
+            Patient.is_active == True,  # noqa: E712
+            Patient.pathway_status.is_not(None),
+        ).distinct().order_by(Patient.pathway_status)
+    )).scalars().all()
+
+    assigned_tos = (await db.execute(
+        select(Patient.assigned_to).where(
+            Patient.tenant_id == tenant_id,
+            Patient.is_active == True,  # noqa: E712
+            Patient.assigned_to.is_not(None),
+        ).distinct().order_by(Patient.assigned_to)
+    )).scalars().all()
+
+    programs = (await db.execute(
+        select(Program.id, Program.name).where(
+            Program.tenant_id == tenant_id,
+        ).order_by(Program.name)
+    )).all()
+
+    cohorts = (await db.execute(
+        select(Cohort.id, Cohort.name, Cohort.program_id).where(
+            Cohort.tenant_id == tenant_id,
+            Cohort.is_active == True,  # noqa: E712
+        ).order_by(Cohort.name)
+    )).all()
+
+    return {
+        "pathway_names": list(pathway_names),
+        "pathway_statuses": list(pathway_statuses),
+        "assigned_tos": list(assigned_tos),
+        "programs": [{"id": str(p.id), "name": p.name} for p in programs],
+        "cohorts": [{"id": str(c.id), "name": c.name, "program_id": str(c.program_id)} for c in cohorts],
+    }
 
 
 async def list_patients(
@@ -13,11 +65,27 @@ async def list_patients(
     page_size: int = 50,
     search: str | None = None,
     pathway_status: str | None = None,
+    pathway_name: str | None = None,
+    assigned_to: str | None = None,
+    program_id: str | None = None,
+    cohort_id: str | None = None,
 ) -> tuple[list[Patient], int]:
     stmt = select(Patient).where(
         Patient.tenant_id == tenant_id,
         Patient.is_active == True,  # noqa: E712
     )
+
+    if program_id or cohort_id:
+        stmt = stmt.where(
+            Patient.id.in_(
+                select(CohortAssignment.patient_id).where(
+                    CohortAssignment.tenant_id == tenant_id,
+                    CohortAssignment.is_current == True,  # noqa: E712
+                    *([CohortAssignment.program_id == program_id] if program_id else []),
+                    *([CohortAssignment.cohort_id == cohort_id] if cohort_id else []),
+                )
+            )
+        )
 
     if search:
         search_term = f"%{search}%"
@@ -32,6 +100,12 @@ async def list_patients(
 
     if pathway_status:
         stmt = stmt.where(Patient.pathway_status == pathway_status)
+
+    if pathway_name:
+        stmt = stmt.where(Patient.pathway_name == pathway_name)
+
+    if assigned_to:
+        stmt = stmt.where(Patient.assigned_to == assigned_to)
 
     # Count
     count_stmt = select(func.count()).select_from(stmt.subquery())

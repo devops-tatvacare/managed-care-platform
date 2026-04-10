@@ -28,6 +28,8 @@ class CohortSummary(BaseModel):
     score_range_min: int | None
     score_range_max: int | None
     member_count: int
+    pathway_id: str | None = None
+    pathway_name: str | None = None
 
 
 class ScoringEngineSummary(BaseModel):

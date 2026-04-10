@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { useCohortBuilderStore } from "@/stores/cohort-builder-store";
 import { Icons } from "@/config/icons";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -8,22 +9,22 @@ import { PATHWAY_STATUS } from "@/config/status";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { AIBuilder } from "./ai-builder";
-import { CohortCards } from "./cohort-cards";
-import { ScoringEnginePanel } from "./scoring-engine-panel";
-import { OverrideRulesPanel } from "./override-rules-panel";
+import { CohortTable } from "./cohort-table";
+import { ScoringTable } from "./scoring-table";
+import { OverrideRulesTable } from "./override-rules-table";
 import { LinkedPathwaysPanel } from "./linked-pathways-panel";
 
 const MODE_TABS = [
-  { value: "ai", label: "AI Builder" },
-  { value: "config", label: "Configuration" },
-] as const;
+  { value: "ai", label: "AI Builder", icon: Icons.ai },
+  { value: "config", label: "Configuration", icon: Icons.config },
+];
 
 const CONFIG_TABS = [
-  { value: "cohorts", label: "Cohorts" },
-  { value: "scoring", label: "Scoring Engine" },
-  { value: "overrides", label: "Override Rules" },
-  { value: "pathways", label: "Linked Pathways" },
-] as const;
+  { value: "cohorts", label: "Cohorts", icon: Icons.cohortisation },
+  { value: "scoring", label: "Scoring Engine", icon: Icons.compositeScore },
+  { value: "overrides", label: "Override Rules", icon: Icons.override },
+  { value: "pathways", label: "Linked Pathways", icon: Icons.pathwayBuilder },
+];
 
 export function BuilderShell() {
   const {
@@ -31,7 +32,11 @@ export function BuilderShell() {
     programLoading,
     builderMode,
     setBuilderMode,
+    saveDraft,
     publishProgram,
+    saving,
+    publishing,
+    isDirty,
   } = useCohortBuilderStore();
 
   const [configTab, setConfigTab] = useState<string>("cohorts");
@@ -74,8 +79,9 @@ export function BuilderShell() {
               <TabsTrigger
                 key={tab.value}
                 value={tab.value}
-                className="rounded-none px-4 py-2 text-xs font-semibold text-text-muted data-[state=active]:text-brand-primary data-[state=active]:shadow-none data-[state=active]:after:bg-brand-primary"
+                className="gap-1.5 rounded-none px-4 py-2 text-xs font-semibold text-text-muted data-[state=active]:text-brand-primary data-[state=active]:shadow-none data-[state=active]:after:bg-brand-primary"
               >
+                <tab.icon className="h-3.5 w-3.5" />
                 {tab.label}
               </TabsTrigger>
             ))}
@@ -84,13 +90,44 @@ export function BuilderShell() {
 
         {/* Right: action buttons */}
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            <Icons.saveDraft className="mr-1.5 h-3.5 w-3.5" />
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={saving || !isDirty}
+            onClick={async () => {
+              try {
+                await saveDraft();
+                toast.success("Draft saved");
+              } catch {
+                toast.error("Failed to save draft");
+              }
+            }}
+          >
+            {saving ? (
+              <Icons.spinner className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Icons.saveDraft className="mr-1.5 h-3.5 w-3.5" />
+            )}
             Save Draft
           </Button>
-          <Button size="sm" onClick={() => publishProgram()}>
-            <Icons.publish className="mr-1.5 h-3.5 w-3.5" />
-            Publish v{program.version + 1}
+          <Button
+            size="sm"
+            disabled={publishing || !isDirty}
+            onClick={async () => {
+              try {
+                await publishProgram();
+                toast.success("Program published");
+              } catch {
+                toast.error("Failed to publish");
+              }
+            }}
+          >
+            {publishing ? (
+              <Icons.spinner className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Icons.publish className="mr-1.5 h-3.5 w-3.5" />
+            )}
+            Publish
           </Button>
         </div>
       </div>
@@ -116,8 +153,9 @@ export function BuilderShell() {
                     <TabsTrigger
                       key={tab.value}
                       value={tab.value}
-                      className="rounded-none px-4 py-2 text-xs font-semibold text-text-muted data-[state=active]:text-brand-primary data-[state=active]:shadow-none data-[state=active]:after:bg-brand-primary"
+                      className="gap-1.5 rounded-none px-4 py-2 text-xs font-semibold text-text-muted data-[state=active]:text-brand-primary data-[state=active]:shadow-none data-[state=active]:after:bg-brand-primary"
                     >
+                      <tab.icon className="h-3.5 w-3.5" />
                       {tab.label}
                     </TabsTrigger>
                   ))}
@@ -127,9 +165,9 @@ export function BuilderShell() {
 
             {/* Config tab content */}
             <div className="flex-1 overflow-y-auto p-6">
-              {configTab === "cohorts" && <CohortCards />}
-              {configTab === "scoring" && <ScoringEnginePanel />}
-              {configTab === "overrides" && <OverrideRulesPanel />}
+              {configTab === "cohorts" && <CohortTable />}
+              {configTab === "scoring" && <ScoringTable />}
+              {configTab === "overrides" && <OverrideRulesTable />}
               {configTab === "pathways" && <LinkedPathwaysPanel />}
             </div>
           </>

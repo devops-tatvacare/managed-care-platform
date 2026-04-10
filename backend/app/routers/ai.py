@@ -18,6 +18,16 @@ from app.services import ai_comms_service
 router = APIRouter()
 
 
+@router.post("/cohort-generate")
+async def cohort_generate_deprecated():
+    """Deprecated — use POST /api/ai/builder/turn with surface='cohort_program' instead."""
+    from fastapi.responses import JSONResponse
+    return JSONResponse(
+        status_code=410,
+        content={"detail": "This endpoint is deprecated. Use POST /api/ai/builder/turn with surface='cohort_program'."},
+    )
+
+
 @router.post("/pathway-generate")
 async def generate_pathway(
     request: PathwayGenerateRequest,

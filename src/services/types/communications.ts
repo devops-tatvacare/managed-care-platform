@@ -29,8 +29,10 @@ export interface ThreadSummary {
   last_action_type: string;
   last_action_status: string;
   last_action_at: string;
+  last_triggered_by: "auto" | "manual";
   unread_count: number;
   total_actions: number;
+  auto_count: number;
 }
 
 export interface ThreadListResponse {

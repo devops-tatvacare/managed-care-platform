@@ -14,4 +14,4 @@ class WeightedSumAggregator(Aggregator):
         config: dict[str, Any],
     ) -> int:
         total = sum(cr.weighted for cr in component_results)
-        return round(total)
+        return min(round(total), 100)

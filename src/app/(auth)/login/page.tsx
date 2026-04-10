@@ -26,8 +26,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-bg-secondary">
-      <Card className="w-full max-w-sm">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-bg-secondary">
+      <img
+        src="/primary_background.svg"
+        alt=""
+        aria-hidden
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+      />
+      <Card className="relative z-10 w-full max-w-sm">
         <CardHeader className="text-center">
           <img src="/tatvacare-logo.svg" alt="TatvaCare" className="mx-auto h-8" />
           <p className="text-sm text-text-muted">Care Admin</p>

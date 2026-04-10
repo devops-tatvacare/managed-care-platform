@@ -73,12 +73,11 @@ export function streamAISummary(
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  const streamBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   let cancelled = false;
 
   (async () => {
     try {
-      const resp = await fetch(`${streamBase}${API_ENDPOINTS.patients.aiSummary(patientId)}`, {
+      const resp = await fetch(`${API_ENDPOINTS.patients.aiSummary(patientId)}`, {
         method: "POST",
         headers,
       });

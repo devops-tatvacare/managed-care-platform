@@ -68,3 +68,42 @@ export async function fetchEngine(programId: string): Promise<ScoringEngineSumma
 export async function upsertEngine(programId: string, data: ScoringEngineUpsert): Promise<ScoringEngineSummary> {
   return apiRequest<ScoringEngineSummary>({ method: "PUT", path: API_ENDPOINTS.programs.engine(programId), body: data });
 }
+
+export interface GeneratedProgramConfig {
+  program_name: string;
+  condition: string;
+  description: string;
+  cohorts: Array<{
+    name: string;
+    color: string;
+    sort_order: number;
+    review_cadence_days: number;
+    score_range_min: number;
+    score_range_max: number;
+  }>;
+  scoring_engine: {
+    aggregation_method: string;
+    components: Array<{
+      name: string;
+      label: string;
+      data_source: string;
+      weight: number;
+      cap: number;
+      scoring_table: Array<{ criterion: string; points: number }>;
+    }>;
+  };
+  override_rules: Array<{
+    priority: number;
+    rule: string;
+    action: string;
+  }>;
+  ai_narrative: string;
+}
+
+export async function generateCohortProgram(prompt: string): Promise<GeneratedProgramConfig> {
+  return apiRequest<GeneratedProgramConfig>({
+    method: "POST",
+    path: API_ENDPOINTS.ai.cohortGenerate,
+    body: { prompt },
+  });
+}

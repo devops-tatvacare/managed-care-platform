@@ -152,13 +152,15 @@ async def seed_comms(db: AsyncSession) -> None:
 
     await db.flush()
 
-    # Get 20 patient IDs for actions
+    # Get 20 patients for actions (need names for template resolution)
     result = await db.execute(
-        select(Patient.id)
+        select(Patient)
         .where(Patient.tenant_id == DEFAULT_TENANT_ID, Patient.is_active == True)  # noqa: E712
         .limit(20)
     )
-    patient_ids = [row[0] for row in result.all()]
+    patients = list(result.scalars().all())
+    patient_ids = [p.id for p in patients]
+    patient_map = {p.id: p for p in patients}
 
     if not patient_ids:
         await db.commit()
@@ -168,8 +170,29 @@ async def seed_comms(db: AsyncSession) -> None:
     now = datetime.now(timezone.utc)
     actions_to_add = []
 
+    # Action types that carry a message payload (the "dispatched"/"sent" step)
+    MESSAGE_ACTION_TYPES = {"wa_dispatched", "sms_dispatched", "push_sent"}
+
+    def resolve_template(tpl_content: str, patient: Patient) -> str:
+        """Replace {{variable}} placeholders with real patient data."""
+        text = tpl_content
+        text = text.replace("{{patient_name}}", patient.first_name)
+        meds = patient.active_medications or []
+        med_names = ", ".join(m["name"] for m in meds[:3]) if meds else "seus medicamentos"
+        text = text.replace("{{medications}}", med_names)
+        gaps = patient.care_gaps or []
+        gap_text = ", ".join(gaps[:3]) if gaps else "exames de rotina"
+        text = text.replace("{{care_gaps}}", gap_text)
+        return text
+
+    # Build resolved message pool per patient
+    def get_message(patient: Patient) -> str:
+        tpl = random.choice(TEMPLATE_SEEDS)
+        return resolve_template(tpl["content"], patient)
+
     for i in range(40):
         patient_id = random.choice(patient_ids[:min(len(patient_ids), 18)])
+        patient = patient_map[patient_id]
         channel = random.choice(CHANNELS)
         action_types = CHANNEL_ACTION_TYPES[channel]
         triggered_by = random.choice(["auto", "auto", "auto", "manual"])  # 75% auto
@@ -191,6 +214,11 @@ async def seed_comms(db: AsyncSession) -> None:
             if status in ("success", "failed"):
                 completed_at = base_time + timedelta(minutes=random.randint(1, 120))
 
+            # Only dispatched/sent actions carry a message payload
+            payload = None
+            if action_type in MESSAGE_ACTION_TYPES:
+                payload = {"message": get_message(patient)}
+
             action = ConciergeAction(
                 tenant_id=DEFAULT_TENANT_ID,
                 patient_id=patient_id,
@@ -198,8 +226,8 @@ async def seed_comms(db: AsyncSession) -> None:
                 channel=channel,
                 action_type=action_type,
                 status=status,
-                template_id=random.choice(template_ids) if random.random() > 0.3 else None,
-                payload={"message": f"Seeded action {i}-{step}"} if random.random() > 0.5 else None,
+                template_id=random.choice(template_ids) if action_type in MESSAGE_ACTION_TYPES else None,
+                payload=payload,
                 response={"delivery_id": str(uuid.uuid4())[:8]} if status == "success" else None,
                 error="Delivery failed: recipient unavailable" if status == "failed" else None,
                 created_at=base_time + timedelta(minutes=step * 15),

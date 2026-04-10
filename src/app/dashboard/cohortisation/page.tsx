@@ -10,7 +10,7 @@ export default function CohortisationPage() {
   useEffect(() => {
     loadDashboard();
     loadPrograms();
-    loadAssignments();
+    loadAssignments({ min_score: 50 });
   }, [loadDashboard, loadPrograms, loadAssignments]);
 
   return <PopulationDashboard />;

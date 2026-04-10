@@ -8,6 +8,8 @@ export interface CohortSummary {
   score_range_min: number | null;
   score_range_max: number | null;
   member_count: number;
+  pathway_id: string | null;
+  pathway_name: string | null;
 }
 
 export interface ScoringEngineSummary {
@@ -26,6 +28,7 @@ export interface ScoringComponentConfig {
   field?: string;
   scoring_table: Array<{ criterion: string; points: number; [key: string]: unknown }>;
   bonus_table?: Array<{ criterion: string; points: number; [key: string]: unknown }>;
+  aggregation?: "sum" | "max" | "first_match";
   [key: string]: unknown;
 }
 
@@ -92,6 +95,7 @@ export interface CohortCreate {
   review_cadence_days?: number;
   score_range_min?: number;
   score_range_max?: number;
+  pathway_id?: string | null;
 }
 
 export interface CohortUpdate {
@@ -103,6 +107,7 @@ export interface CohortUpdate {
   review_cadence_days?: number;
   score_range_min?: number;
   score_range_max?: number;
+  pathway_id?: string | null;
 }
 
 export interface CriteriaNode {

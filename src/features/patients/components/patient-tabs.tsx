@@ -12,11 +12,12 @@ import type { PatientDetail, PatientLabRecord } from "@/services/types/patient";
 interface PatientTabsProps {
   patient: PatientDetail;
   labs: PatientLabRecord[];
+  initialTab?: string;
 }
 
-export function PatientTabs({ patient, labs }: PatientTabsProps) {
+export function PatientTabs({ patient, labs, initialTab }: PatientTabsProps) {
   return (
-    <Tabs defaultValue="care-protocols" className="mt-6">
+    <Tabs defaultValue={initialTab ?? "care-protocols"} className="mt-6">
       <TabsList
         variant="line"
         className="w-full justify-start gap-0 rounded-none border-b border-border-default bg-bg-primary px-0"

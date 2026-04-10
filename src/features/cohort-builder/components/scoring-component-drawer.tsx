@@ -91,22 +91,22 @@ export function ScoringComponentDrawer({ component, open, onClose, onSave, onDel
           <SheetTitle>Edit Scoring Component</SheetTitle>
         </SheetHeader>
 
-        <div className="mt-6 space-y-4">
+        <div className="mt-4 space-y-4 px-4">
           {/* Name */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-muted">Internal Name</label>
+            <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">Internal Name</span>
             <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. hba1c_score" />
           </div>
 
           {/* Label */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-muted">Display Label</label>
+            <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">Display Label</span>
             <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. HbA1c Score" />
           </div>
 
           {/* Data Source */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-muted">Data Source</label>
+            <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">Data Source</span>
             <Select value={dataSource} onValueChange={setDataSource}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -119,7 +119,7 @@ export function ScoringComponentDrawer({ component, open, onClose, onSave, onDel
 
           {/* Weight */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-muted">Weight (%)</label>
+            <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">Weight (%)</span>
             <div className="flex items-center gap-3">
               <Slider
                 value={[weight]}
@@ -135,7 +135,7 @@ export function ScoringComponentDrawer({ component, open, onClose, onSave, onDel
 
           {/* Cap */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-text-muted">Point Cap</label>
+            <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">Point Cap</span>
             <Input type="number" value={cap} onChange={(e) => setCap(Number(e.target.value))} />
           </div>
 
@@ -144,7 +144,7 @@ export function ScoringComponentDrawer({ component, open, onClose, onSave, onDel
           {/* Scoring Table */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-medium text-text-muted">Scoring Rules</label>
+              <span className="text-[11px] font-medium text-text-muted uppercase tracking-[0.18em]">Scoring Rules</span>
               <Button variant="ghost" size="xs" onClick={addRow} className="text-text-muted">
                 <Icons.plus className="mr-1 h-3 w-3" />
                 Add Row

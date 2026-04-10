@@ -12,6 +12,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useAuthStore } from "@/stores/auth-store";
+import { useTheme } from "@/hooks/use-theme";
 
 interface AppSidebarProps {
   collapsed: boolean;
@@ -22,6 +23,7 @@ function SidebarInner({ collapsed, onToggle }: AppSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const logout = useAuthStore((s) => s.logout);
+  const { theme, toggle: toggleTheme } = useTheme();
 
   const handleLogout = () => {
     logout();
@@ -38,15 +40,22 @@ function SidebarInner({ collapsed, onToggle }: AppSidebarProps) {
       {/* Brand */}
       <div
         className={cn(
-          "border-b border-sidebar-divider py-4",
-          collapsed ? "flex justify-center px-0" : "px-4",
+          "flex items-center border-b border-sidebar-divider py-4",
+          collapsed ? "justify-center px-3" : "px-4",
         )}
       >
-        {collapsed ? (
-          <img src="/tatvacare-logo.svg" alt="TatvaCare" className="h-5 w-5" />
-        ) : (
-          <img src="/tatvacare-logo.svg" alt="TatvaCare" className="h-6" />
-        )}
+        <div
+          className={cn(
+            "flex items-center justify-center rounded-2xl border border-white/10 bg-white/95 shadow-[0_10px_30px_rgba(15,23,42,0.22)] ring-1 ring-brand-primary/10 backdrop-blur-sm",
+            collapsed ? "h-10 w-10" : "h-11 px-3",
+          )}
+        >
+          {collapsed ? (
+            <img src="/tatvacare-logo.svg" alt="TatvaCare" className="h-5 w-5" />
+          ) : (
+            <img src="/tatvacare-logo.svg" alt="TatvaCare" className="h-6" />
+          )}
+        </div>
       </div>
 
       {/* Nav */}
@@ -107,6 +116,28 @@ function SidebarInner({ collapsed, onToggle }: AppSidebarProps) {
 
       {/* Footer */}
       <div className="border-t border-sidebar-divider">
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          title={collapsed ? (theme === "dark" ? "Light mode" : "Dark mode") : undefined}
+          className={cn(
+            "flex w-full items-center gap-3 py-2 text-[13px] text-sidebar-text transition-colors hover:bg-sidebar-active-bg/50 hover:text-white border-l-[3px] border-transparent",
+            collapsed ? "justify-center px-0" : "px-4",
+          )}
+        >
+          {theme === "dark" ? (
+            <>
+              <Icons.sun className="h-4 w-4 shrink-0" />
+              {!collapsed && <span>Light Mode</span>}
+            </>
+          ) : (
+            <>
+              <Icons.moon className="h-4 w-4 shrink-0" />
+              {!collapsed && <span>Dark Mode</span>}
+            </>
+          )}
+        </button>
+
         {/* Collapse toggle */}
         <button
           onClick={onToggle}

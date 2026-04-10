@@ -10,7 +10,7 @@ import {
   TestTube2, Pill, Activity, UserCheck, Home, ClipboardCheck,
   ShieldX, ArrowRightLeft, ClipboardList, UserPlus, AlertCircle,
   Calculator, TrendingUp, TrendingDown, ExternalLink, ShieldCheck,
-  Eye, Rocket, Save,
+  Eye, Rocket, Save, Moon, Sun,
   Crosshair, HeartPulse, Gauge, ClipboardMinus,
   type LucideIcon,
 } from "lucide-react";
@@ -96,6 +96,8 @@ export const Icons = {
   riskScore: Gauge,
   hba1c: Crosshair,
   review: Calendar,
+  moon: Moon,
+  sun: Sun,
 } as const satisfies Record<string, LucideIcon>;
 
 export type IconName = keyof typeof Icons;

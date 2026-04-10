@@ -34,8 +34,10 @@ export function AIBuilder() {
   const {
     chatMessages,
     chatLoading,
+    generatedConfig,
     sendChatMessage,
     clearChat,
+    applyGeneratedConfig,
   } = useCohortBuilderStore();
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -74,7 +76,7 @@ export function AIBuilder() {
   return (
     <div className="flex h-full">
       {/* ── Left: Chat ──────────────────────────────────────────────── */}
-      <div className="flex flex-1 flex-col border-r border-border-default">
+      <div className="flex flex-1 flex-col">
         {/* Toolbar */}
         <div className="flex items-center gap-1 border-b border-border-default px-3 py-1.5">
           <Button
@@ -158,12 +160,104 @@ export function AIBuilder() {
 
       {/* ── Right: Preview ──────────────────────────────────────────── */}
       <div className="flex w-[45%] shrink-0 flex-col overflow-hidden">
-        <div className="flex flex-1 flex-col items-center justify-center gap-3 text-text-muted">
-          <Icons.ai className="h-10 w-10 opacity-20" />
-          <p className="text-sm">AI-generated program will appear here</p>
-          <p className="text-xs text-text-placeholder">
-            Describe your program or pick a template to start
-          </p>
+        {/* Preview header */}
+        <div className="flex items-center justify-between border-b border-border-default px-4 py-2">
+          <div className="flex items-center gap-2">
+            <Icons.preview className="h-3.5 w-3.5 text-text-muted" />
+            <span className="text-[12px] font-semibold text-text-primary">Preview</span>
+          </div>
+          {generatedConfig && (
+            <Button
+              size="sm"
+              onClick={() => applyGeneratedConfig()}
+              className="gap-1.5"
+            >
+              <Icons.completed className="h-3.5 w-3.5" />
+              Apply to Program
+            </Button>
+          )}
+        </div>
+
+        {/* Preview body */}
+        <div className="flex-1 overflow-y-auto p-4">
+          {!generatedConfig ? (
+            <div className="flex h-full flex-col items-center justify-center gap-3 text-text-muted">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50 dark:bg-indigo-950">
+                <Icons.ai className="h-6 w-6 text-indigo-400" />
+              </div>
+              <p className="text-sm">AI-generated program will appear here</p>
+              <p className="text-xs text-text-placeholder">
+                Describe your program or pick a template to start
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-5">
+              {/* Program header */}
+              <div>
+                <h3 className="text-sm font-bold text-text-primary">{generatedConfig.program_name}</h3>
+                {generatedConfig.condition && (
+                  <p className="mt-0.5 text-xs text-text-muted">{generatedConfig.condition}</p>
+                )}
+                {generatedConfig.description && (
+                  <p className="mt-1 text-xs text-text-secondary">{generatedConfig.description}</p>
+                )}
+              </div>
+
+              {/* Cohorts */}
+              <div className="space-y-2">
+                <h4 className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.18em]">
+                  Cohorts ({generatedConfig.cohorts.length})
+                </h4>
+                <div className="space-y-1.5">
+                  {(generatedConfig.cohorts as Array<Record<string, any>>).map((c: Record<string, any>, i: number) => (
+                    <div key={i} className="flex items-center gap-2 rounded-lg border border-border-default px-3 py-2">
+                      <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: c.color }} />
+                      <span className="text-xs font-medium text-text-primary flex-1">{c.name}</span>
+                      <span className="text-[10px] tabular-nums text-text-muted">{c.score_range_min}–{c.score_range_max}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Scoring */}
+              <div className="space-y-2">
+                <h4 className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.18em]">
+                  Scoring Components ({generatedConfig.scoring_engine.components.length})
+                </h4>
+                <div className="space-y-1.5">
+                  {(generatedConfig.scoring_engine.components as Array<Record<string, any>>).map((c: Record<string, any>, i: number) => (
+                    <div key={i} className="flex items-center justify-between rounded-lg border border-border-default px-3 py-2">
+                      <div>
+                        <span className="text-xs font-medium text-text-primary">{c.label || c.name}</span>
+                        <span className="ml-2 text-[10px] text-text-muted capitalize">{c.data_source.replace(/_/g, " ")}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] tabular-nums font-medium text-brand-primary">{c.weight}%</span>
+                        <span className="text-[10px] tabular-nums text-text-muted">{c.scoring_table.length} rules</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Override Rules */}
+              {generatedConfig.override_rules.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.18em]">
+                    Override Rules ({generatedConfig.override_rules.length})
+                  </h4>
+                  <div className="space-y-1.5">
+                    {(generatedConfig.override_rules as Array<Record<string, any>>).map((r: Record<string, any>, i: number) => (
+                      <div key={i} className="flex items-center justify-between rounded-lg border border-border-default px-3 py-2">
+                        <span className="text-xs text-text-primary">{r.rule}</span>
+                        <span className="text-[10px] capitalize text-text-muted">{r.action.replace(/_/g, " ")}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -21,17 +21,17 @@ interface ClinicalDataTabProps {
 
 function labValueColor(testType: string, value: number): string | undefined {
   const t = testType.toLowerCase();
-  if (t.includes("hba1c") && value > 7) return "text-red-700 font-semibold";
-  if (t.includes("egfr") && value < 60) return "text-yellow-700 font-semibold";
-  if (t.includes("ldl") && value > 100) return "text-red-700 font-semibold";
-  if (t.includes("creatinine") && value > 1.2) return "text-yellow-700 font-semibold";
+  if (t.includes("hba1c") && value > 7) return "text-red-700 dark:text-red-400 font-semibold";
+  if (t.includes("egfr") && value < 60) return "text-yellow-700 dark:text-yellow-400 font-semibold";
+  if (t.includes("ldl") && value > 100) return "text-red-700 dark:text-red-400 font-semibold";
+  if (t.includes("creatinine") && value > 1.2) return "text-yellow-700 dark:text-yellow-400 font-semibold";
   return undefined;
 }
 
 function pdcColor(pdc: number): string {
-  if (pdc >= 0.8) return "text-green-700";
-  if (pdc >= 0.6) return "text-yellow-700";
-  return "text-red-700";
+  if (pdc >= 0.8) return "text-green-700 dark:text-green-400";
+  if (pdc >= 0.6) return "text-yellow-700 dark:text-yellow-400";
+  return "text-red-700 dark:text-red-400";
 }
 
 export function ClinicalDataTab({ patient, labs }: ClinicalDataTabProps) {

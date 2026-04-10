@@ -40,11 +40,11 @@ export interface BlockTypeDefinition {
 // ---------------------------------------------------------------------------
 
 export const BLOCK_CATEGORIES: CategoryDefinition[] = [
-  { key: "eligibility", label: "Eligibility", colorClass: "text-green-700", bgClass: "bg-green-50", borderClass: "border-green-200", iconBgClass: "bg-green-600", icon: "completed" },
-  { key: "action", label: "Actions", colorClass: "text-blue-700", bgClass: "bg-blue-50", borderClass: "border-blue-200", iconBgClass: "bg-blue-600", icon: "send" },
-  { key: "logic", label: "Logic", colorClass: "text-amber-700", bgClass: "bg-amber-50", borderClass: "border-amber-200", iconBgClass: "bg-amber-600", icon: "conditional" },
-  { key: "escalation", label: "Escalation", colorClass: "text-red-700", bgClass: "bg-red-50", borderClass: "border-red-200", iconBgClass: "bg-red-600", icon: "warning" },
-  { key: "schedule", label: "Schedules", colorClass: "text-cyan-700", bgClass: "bg-cyan-50", borderClass: "border-cyan-200", iconBgClass: "bg-cyan-600", icon: "schedule" },
+  { key: "eligibility", label: "Eligibility", colorClass: "text-green-700 dark:text-green-400", bgClass: "bg-green-50 dark:bg-green-950", borderClass: "border-green-200 dark:border-green-700", iconBgClass: "bg-green-600", icon: "completed" },
+  { key: "action", label: "Actions", colorClass: "text-blue-700 dark:text-blue-400", bgClass: "bg-blue-50 dark:bg-blue-950", borderClass: "border-blue-200 dark:border-blue-700", iconBgClass: "bg-blue-600", icon: "send" },
+  { key: "logic", label: "Logic", colorClass: "text-amber-700 dark:text-amber-400", bgClass: "bg-amber-50 dark:bg-amber-950", borderClass: "border-amber-200 dark:border-amber-700", iconBgClass: "bg-amber-600", icon: "conditional" },
+  { key: "escalation", label: "Escalation", colorClass: "text-red-700 dark:text-red-400", bgClass: "bg-red-50 dark:bg-red-950", borderClass: "border-red-200 dark:border-red-700", iconBgClass: "bg-red-600", icon: "warning" },
+  { key: "schedule", label: "Schedules", colorClass: "text-cyan-700 dark:text-cyan-400", bgClass: "bg-cyan-50 dark:bg-cyan-950", borderClass: "border-cyan-200 dark:border-cyan-700", iconBgClass: "bg-cyan-600", icon: "schedule" },
 ];
 
 // ---------------------------------------------------------------------------

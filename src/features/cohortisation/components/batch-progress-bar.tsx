@@ -15,15 +15,15 @@ export function BatchProgressBar({ processed, failed, total, active }: BatchProg
   const pct = Math.round(((processed + failed) / total) * 100);
 
   return (
-    <div className="rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 shadow-sm">
+    <div className="rounded-lg border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950 px-4 py-3 shadow-sm">
       <div className="flex items-center justify-between text-sm">
-        <span className="flex items-center gap-2 font-medium text-indigo-700">
+        <span className="flex items-center gap-2 font-medium text-indigo-700 dark:text-indigo-300">
           <Icons.spinner className="h-4 w-4 animate-spin" />
           Scoring {processed + failed} / {total} patients...
         </span>
-        <span className="tabular-nums text-indigo-600">{pct}%</span>
+        <span className="tabular-nums text-indigo-600 dark:text-indigo-400">{pct}%</span>
       </div>
-      <div className="mt-2 h-2 overflow-hidden rounded-full bg-indigo-100">
+      <div className="mt-2 h-2 overflow-hidden rounded-full bg-indigo-100 dark:bg-indigo-900">
         <div
           className="flex h-full transition-all duration-300 ease-out"
           style={{ width: `${pct}%` }}
@@ -43,7 +43,7 @@ export function BatchProgressBar({ processed, failed, total, active }: BatchProg
         </div>
       </div>
       {failed > 0 && (
-        <p className="mt-1.5 text-xs text-red-600">{failed} failed</p>
+        <p className="mt-1.5 text-xs text-red-600 dark:text-red-400">{failed} failed</p>
       )}
     </div>
   );

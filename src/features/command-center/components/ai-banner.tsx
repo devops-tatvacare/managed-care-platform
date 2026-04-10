@@ -19,26 +19,30 @@ function extractSummary(markdown: string): string {
 
 export function AIBanner({ markdown, loading, onRefreshAction, onDetailsAction }: AIBannerProps) {
   return (
-    <div className="flex shrink-0 items-center gap-3 rounded-xl border border-ai-border bg-gradient-to-br from-indigo-50/60 to-purple-50/40 px-4 py-2.5">
-      <span className="shrink-0 rounded-md bg-brand-primary px-2 py-0.5 text-[9px] font-bold text-white">
+    <div className="relative flex shrink-0 items-center gap-3 overflow-hidden rounded-xl border border-indigo-200/60 dark:border-indigo-800/60 px-4 py-2.5 shadow-sm">
+      {/* Gradient bg */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-indigo-500/[0.06] via-violet-500/[0.04] to-purple-400/[0.02]" />
+      <div className="pointer-events-none absolute -left-4 top-0 h-full w-24 bg-gradient-to-r from-indigo-500/[0.08] to-transparent" />
+
+      <span className="relative shrink-0 rounded-md bg-gradient-to-br from-indigo-500 to-violet-500 px-2 py-0.5 text-[9px] font-bold text-white shadow-sm">
         ✦ AI
       </span>
 
-      <div className="min-w-0 flex-1 truncate text-[11px] text-text-secondary">
+      <div className="relative min-w-0 flex-1 truncate text-[11px] text-slate-600 dark:text-slate-400">
         {loading ? (
-          <Skeleton className="h-3 w-3/4" />
+          <Skeleton className="h-3 w-3/4 bg-indigo-100/50 dark:bg-indigo-900/50" />
         ) : markdown ? (
           <span dangerouslySetInnerHTML={{ __html: formatSummary(extractSummary(markdown)) }} />
         ) : (
-          <span className="text-text-placeholder">No insights available</span>
+          <span className="text-indigo-400">No insights available</span>
         )}
       </div>
 
-      <div className="flex shrink-0 items-center gap-1.5">
+      <div className="relative flex shrink-0 items-center gap-1.5">
         <Button
           variant="outline"
           size="xs"
-          className="border-ai-border bg-brand-primary-light text-brand-primary"
+          className="border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:border-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 dark:hover:bg-indigo-900"
           onClick={onDetailsAction}
         >
           Details ↓
@@ -46,6 +50,7 @@ export function AIBanner({ markdown, loading, onRefreshAction, onDetailsAction }
         <Button
           variant="outline"
           size="xs"
+          className="border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950"
           onClick={onRefreshAction}
           disabled={loading}
         >
@@ -60,6 +65,6 @@ export function AIBanner({ markdown, loading, onRefreshAction, onDetailsAction }
 /** Bold numbers and highlight error phrases */
 function formatSummary(text: string): string {
   return text
-    .replace(/(\d+\.?\d*%?)/g, '<b class="text-text-primary">$1</b>')
-    .replace(/(decline|declining|drop|dropped|alert)/gi, '<span class="text-status-error">$&</span>');
+    .replace(/(\d+\.?\d*%?)/g, '<b class="text-indigo-900 dark:text-indigo-200">$1</b>')
+    .replace(/(decline|declining|drop|dropped|alert)/gi, '<span class="text-red-600 dark:text-red-400 font-medium">$&</span>');
 }

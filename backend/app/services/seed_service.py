@@ -28,6 +28,9 @@ async def seed_all(db: AsyncSession) -> None:
     config = TenantConfig(tenant_id=DEFAULT_TENANT_ID, llm_provider="gemini")
     db.add(config)
 
+    # Flush tenant first — PostgreSQL enforces FK order
+    await db.flush()
+
     owner_role = Role(
         id=OWNER_ROLE_ID,
         tenant_id=DEFAULT_TENANT_ID,
@@ -79,11 +82,14 @@ async def seed_all(db: AsyncSession) -> None:
     from app.services.pathway_seed import seed_pathways
     await seed_pathways(db)
 
-    from app.services.cohort_seed import seed_diabetes_program
+    from app.services.diabetes_seed import seed_diabetes_program
     await seed_diabetes_program(db)
 
     from app.services.comms_seed import seed_comms
     await seed_comms(db)
+
+    from app.services.action_template_seed import seed_action_templates
+    await seed_action_templates(db)
 
     # Emit events for initial cohortisation
     from app.workers.event_emitter import emit_bulk_events
