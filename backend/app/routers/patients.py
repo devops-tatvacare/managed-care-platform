@@ -18,12 +18,15 @@ from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
 from app.models.cohort import Cohort, CohortAssignment
+from app.models.patient import Patient
 from app.services.patient_service import (
     get_patient,
     get_patient_diagnoses,
+    get_patient_filter_options,
     get_patient_labs,
     list_patients,
 )
+from app.services.score_engine import compute_patient_score
 
 router = APIRouter()
 
@@ -45,7 +48,16 @@ def _serialize_patient_list(p) -> dict:
         "pcp_name": p.pcp_name,
         "insurance_plan": p.insurance_plan,
         "active_medications": p.active_medications,
+        "risk_score": p.risk_score,
     }
+
+
+@router.get("/filter-options")
+async def patient_filter_options(
+    auth: AuthContext = Depends(get_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    return await get_patient_filter_options(db, auth.tenant_id)
 
 
 @router.get("", response_model=PatientListResponse)
@@ -56,9 +68,14 @@ async def patients_list(
     page_size: int = Query(50, ge=1, le=100),
     search: str | None = None,
     pathway_status: str | None = None,
+    pathway_name: str | None = None,
+    assigned_to: str | None = None,
+    program_id: str | None = None,
+    cohort_id: str | None = None,
 ):
     patients, total = await list_patients(
-        db, auth.tenant_id, page, page_size, search, pathway_status
+        db, auth.tenant_id, page, page_size, search, pathway_status,
+        pathway_name, assigned_to, program_id, cohort_id,
     )
     return PatientListResponse(
         items=[PatientListItem(**_serialize_patient_list(p)) for p in patients],
@@ -67,6 +84,106 @@ async def patients_list(
         page_size=page_size,
         pages=math.ceil(total / page_size) if total > 0 else 0,
     )
+
+
+@router.post("/bulk-import")
+async def bulk_import(
+    payload: list[dict],
+    auth: AuthContext = Depends(get_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Bulk import patients with labs and diagnoses, then trigger cohortisation."""
+    from app.models.patient import PatientLab, PatientDiagnosis
+    from app.workers.event_emitter import emit_bulk_events
+    from app.events import event_bus
+
+    patient_ids = []
+    for item in payload:
+        pid = uuid.uuid4()
+        patient_ids.append(pid)
+
+        patient = Patient(
+            id=pid,
+            tenant_id=auth.tenant_id,
+            empi_id=item.get("empi_id", f"EMPI-{uuid.uuid4().hex[:8]}"),
+            first_name=item["first_name"],
+            last_name=item["last_name"],
+            date_of_birth=item.get("date_of_birth"),
+            gender=item.get("gender", "U"),
+            email=item.get("email"),
+            phone=item.get("phone"),
+            cpf=item.get("cpf"),
+            address=item.get("address"),
+            insurance_plan=item.get("insurance_plan"),
+            pcp_name=item.get("pcp_name"),
+            preferred_language=item.get("preferred_language", "pt"),
+            preferred_channel=item.get("preferred_channel", "whatsapp"),
+            allergies=item.get("allergies", []),
+            active_medications=item.get("active_medications", []),
+            sdoh_flags=item.get("sdoh_flags", {}),
+            pathway_status=item.get("pathway_status"),
+            pathway_name=item.get("pathway_name"),
+            care_gaps=item.get("care_gaps", []),
+        )
+        db.add(patient)
+
+        for lab in item.get("labs", []):
+            db.add(PatientLab(
+                id=uuid.uuid4(),
+                tenant_id=auth.tenant_id,
+                patient_id=pid,
+                test_type=lab["test_type"],
+                value=lab["value"],
+                unit=lab.get("unit", ""),
+                source_system=lab.get("source_system", "BulkImport"),
+                recorded_at=lab.get("recorded_at"),
+            ))
+
+        for dx in item.get("diagnoses", []):
+            db.add(PatientDiagnosis(
+                id=uuid.uuid4(),
+                tenant_id=auth.tenant_id,
+                patient_id=pid,
+                icd10_code=dx["icd10_code"],
+                description=dx.get("description", ""),
+                diagnosed_at=dx.get("diagnosed_at"),
+                is_active=dx.get("is_active", True),
+            ))
+
+    await db.flush()
+
+    count = await emit_bulk_events(db, auth.tenant_id, patient_ids, "bulk_import")
+    await db.commit()
+
+    await event_bus.publish(auth.tenant_id, "cohortisation", {
+        "type": "batch_started",
+        "data": {"total": count, "scope": "import"},
+    })
+
+    return {"patients_created": len(patient_ids), "events_created": count}
+
+
+@router.post("/batch-compute-scores")
+async def batch_compute_scores(
+    auth: AuthContext = Depends(get_auth),
+    db: AsyncSession = Depends(get_db),
+    program_id: str = Query(...),
+    limit: int = Query(100, le=500),
+):
+    """Batch compute scores for all patients. Manual trigger for testing."""
+    patients_q = await db.execute(
+        select(Patient).where(Patient.tenant_id == auth.tenant_id, Patient.is_active == True).limit(limit)  # noqa: E712
+    )
+    patients = patients_q.scalars().all()
+
+    computed = 0
+    for p in patients:
+        result = await compute_patient_score(db, auth.tenant_id, p.id, uuid.UUID(program_id))
+        if result:
+            computed += 1
+
+    await db.commit()
+    return {"computed": computed, "total_patients": len(patients)}
 
 
 @router.get("/{patient_id}", response_model=PatientDetail)
@@ -90,6 +207,21 @@ async def patient_detail(
         "review_due_date": str(patient.review_due_date) if patient.review_due_date else None,
     })
     return PatientDetail(**data)
+
+
+@router.post("/{patient_id}/compute-score")
+async def patient_compute_score(
+    patient_id: uuid.UUID,
+    auth: AuthContext = Depends(get_auth),
+    db: AsyncSession = Depends(get_db),
+    program_id: str = Query(..., description="Program ID to score against"),
+):
+    """Compute and cache risk score for a single patient."""
+    result = await compute_patient_score(db, auth.tenant_id, patient_id, uuid.UUID(program_id))
+    if result is None:
+        raise HTTPException(status_code=404, detail="No scoring engine found for this program")
+    await db.commit()
+    return result
 
 
 @router.get("/{patient_id}/labs", response_model=list[PatientLabRecord])
