@@ -13,20 +13,34 @@ async def _sse_generator(
     events: AsyncIterator[dict],
     heartbeat_interval: int = 15,
 ) -> AsyncIterator[str]:
-    """Wrap an event iterator in SSE format with periodic heartbeats."""
+    """Wrap an event iterator in SSE format with periodic heartbeats.
+
+    Uses a drain task + internal queue to avoid calling wait_for on
+    the async generator's __anext__(), which would cancel/finalize it on timeout.
+    """
+    buffer: asyncio.Queue[dict] = asyncio.Queue()
+
+    async def _drain():
+        async for item in events:
+            buffer.put_nowait(item)
+
+    drain_task = asyncio.create_task(_drain())
+
     try:
-        while True:
+        while not drain_task.done() or not buffer.empty():
             try:
-                event = await asyncio.wait_for(
-                    events.__anext__(), timeout=heartbeat_interval
-                )
+                event = await asyncio.wait_for(buffer.get(), timeout=heartbeat_interval)
                 yield f"data: {json.dumps(event)}\n\n"
             except asyncio.TimeoutError:
                 yield ":ping\n\n"
-            except StopAsyncIteration:
-                break
     except asyncio.CancelledError:
-        return
+        pass
+    finally:
+        drain_task.cancel()
+        try:
+            await drain_task
+        except asyncio.CancelledError:
+            pass
 
 
 def sse_response(
