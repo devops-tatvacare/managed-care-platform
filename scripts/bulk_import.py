@@ -38,9 +38,16 @@ ICD10_MAP = {
 TIER_WEIGHTS = [0.20, 0.26, 0.30, 0.16, 0.08]
 
 
-def _rand_date(days_back: int) -> str:
+def _rand_datetime(days_back: int) -> str:
+    """ISO datetime string for timestamp fields (recorded_at)."""
     d = datetime.now(timezone.utc) - timedelta(days=random.randint(0, days_back))
     return d.isoformat()
+
+
+def _rand_date(days_back: int) -> str:
+    """ISO date string for date fields (diagnosed_at, date_of_birth)."""
+    d = datetime.now(timezone.utc) - timedelta(days=random.randint(0, days_back))
+    return d.strftime("%Y-%m-%d")
 
 
 def _make_patient(index: int) -> dict:
@@ -53,10 +60,10 @@ def _make_patient(index: int) -> dict:
 
     # Labs — always HbA1c, sometimes eGFR
     hba1c = round(random.uniform(*HBA1C_RANGES[tier]), 1)
-    labs = [{"test_type": "HbA1c", "value": hba1c, "unit": "%", "recorded_at": _rand_date(90)}]
+    labs = [{"test_type": "HbA1c", "value": hba1c, "unit": "%", "recorded_at": _rand_datetime(90)}]
     if random.random() < 0.7:
         egfr = round(random.uniform(*EGFR_RANGES[tier]), 1)
-        labs.append({"test_type": "eGFR", "value": egfr, "unit": "mL/min/1.73m²", "recorded_at": _rand_date(90)})
+        labs.append({"test_type": "eGFR", "value": egfr, "unit": "mL/min/1.73m²", "recorded_at": _rand_datetime(90)})
 
     # Diagnoses
     codes = ICD10_MAP[tier]
