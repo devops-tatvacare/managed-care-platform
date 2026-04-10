@@ -85,7 +85,15 @@ export function AISummaryCard({ patientId }: AISummaryCardProps) {
       )}
 
       {streaming && (
-        <p className="mt-2 text-[13px] text-text-muted animate-pulse">Analyzing patient data...</p>
+        <div className="mt-2.5 space-y-2">
+          <div className="h-3 w-full animate-pulse rounded bg-indigo-200/40 dark:bg-indigo-800/30" />
+          <div className="h-3 w-5/6 animate-pulse rounded bg-indigo-200/40 dark:bg-indigo-800/30" />
+          <div className="h-3 w-4/6 animate-pulse rounded bg-indigo-200/40 dark:bg-indigo-800/30" />
+          <div className="mt-3 flex gap-2">
+            <div className="h-6 w-32 animate-pulse rounded-md bg-indigo-200/30 dark:bg-indigo-800/20" />
+            <div className="h-6 w-28 animate-pulse rounded-md bg-indigo-200/30 dark:bg-indigo-800/20" />
+          </div>
+        </div>
       )}
 
       {!streaming && text && (
