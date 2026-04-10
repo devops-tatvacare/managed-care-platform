@@ -3,6 +3,7 @@
 import uuid
 from datetime import datetime
 
+import sqlalchemy as sa
 from sqlalchemy import Computed, DateTime, ForeignKey, String, Text, func
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.orm import Mapped, mapped_column
@@ -23,7 +24,7 @@ class SearchIndex(Base):
     entity_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
     title: Mapped[str] = mapped_column(Text, nullable=False)
     subtitle: Mapped[str | None] = mapped_column(Text, nullable=True)
-    meta: Mapped[dict] = mapped_column("metadata", JSONB, server_default="'{}'::jsonb", nullable=False)
+    meta: Mapped[dict] = mapped_column("metadata", JSONB, server_default=sa.text("'{}'::jsonb"), nullable=False)
 
     search_vector: Mapped[str | None] = mapped_column(
         TSVECTOR,
