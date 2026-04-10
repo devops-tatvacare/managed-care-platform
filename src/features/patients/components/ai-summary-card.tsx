@@ -32,23 +32,23 @@ export function AISummaryCard({ patientId }: AISummaryCardProps) {
     setStreaming(true);
     setGenerated(false);
 
-    let fullText = "";
+    const chunks: string[] = [];
 
     cancelRef.current = streamAISummary(
       patientId,
       (chunk) => {
-        fullText += chunk;
-        setText(fullText);
+        chunks.push(chunk);
       },
       () => {
         setStreaming(false);
         setGenerated(true);
+        const fullText = chunks.join("");
         try {
           const parsed = JSON.parse(fullText);
-          if (parsed.summary) setText(parsed.summary);
-          if (parsed.actions) setActions(parsed.actions);
+          setText(parsed.summary ?? fullText);
+          setActions(parsed.actions ?? []);
         } catch {
-          // Text was streamed as plain text — keep as-is
+          setText(fullText);
         }
       },
       (err) => {
@@ -84,11 +84,14 @@ export function AISummaryCard({ patientId }: AISummaryCardProps) {
         <p className="mt-2 text-xs text-status-error">{error}</p>
       )}
 
-      {text && (
+      {streaming && (
+        <p className="mt-2 text-[13px] text-text-muted animate-pulse">Analyzing patient data...</p>
+      )}
+
+      {!streaming && text && (
         <div className="mt-2">
           <p className="text-[13px] leading-snug text-text-secondary whitespace-pre-wrap">
             {text}
-            {streaming && <span className="animate-pulse">|</span>}
           </p>
 
           {actions.length > 0 && (
