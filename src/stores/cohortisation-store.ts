@@ -149,7 +149,7 @@ export const useCohortisationStore = create<CohortisationStore>((set, get) => ({
           }
         : s.stats;
 
-      const record = {
+      const record: AssignmentRecord = {
         id: entityId,
         patient_id: entityId,
         patient_name: (data.patient_name as string) ?? "",
@@ -163,6 +163,8 @@ export const useCohortisationStore = create<CohortisationStore>((set, get) => ({
         assignment_type: (data.assignment_type as string) ?? "engine",
         reason: null,
         previous_cohort_id: null,
+        previous_cohort_name: null,
+        pdc_worst: null,
         assigned_at: (data.assigned_at as string) ?? new Date().toISOString(),
         review_due_at: (data.review_due_at as string) ?? null,
       };
