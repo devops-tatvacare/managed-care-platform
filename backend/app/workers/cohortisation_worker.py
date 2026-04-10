@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.database import async_session
+from app.events import event_bus
 from app.models.cohort import (
     Cohort, CohortAssignment, CohortisationEvent, ScoringEngine,
 )
@@ -73,22 +74,51 @@ async def _process_batch(db: AsyncSession) -> int:
 
     # Group by tenant + patient for efficiency
     processed = 0
+    failed = 0
     for event in events:
         try:
-            await _process_event(db, event)
+            result_data = await _process_event(db, event)
             event.status = "completed"
             event.processed_at = datetime.now(timezone.utc)
+            processed += 1
+
+            if result_data:
+                await event_bus.publish(event.tenant_id, "cohortisation", {
+                    "type": "item_processed",
+                    "entity_id": str(event.patient_id),
+                    "data": result_data,
+                })
         except Exception as exc:
             logger.exception(f"Failed to process event {event.id}")
             event.status = "failed"
             event.error = str(exc)
-        processed += 1
+            failed += 1
+
+            await event_bus.publish(event.tenant_id, "cohortisation", {
+                "type": "item_failed",
+                "entity_id": str(event.patient_id),
+                "data": {"error": str(exc)},
+            })
 
     await db.commit()
-    return processed
+
+    # Check if batch is complete (no more pending events)
+    remaining = await db.execute(
+        select(CohortisationEvent)
+        .where(CohortisationEvent.status == "pending")
+        .limit(1)
+    )
+    if not remaining.scalar_one_or_none() and (processed + failed) > 0:
+        tid = events[0].tenant_id
+        await event_bus.publish(tid, "cohortisation", {
+            "type": "batch_complete",
+            "data": {"processed": processed, "failed": failed},
+        })
+
+    return processed + failed
 
 
-async def _process_event(db: AsyncSession, event: CohortisationEvent) -> None:
+async def _process_event(db: AsyncSession, event: CohortisationEvent) -> dict | None:
     """Process a single cohortisation event — score patient against all active programs."""
     # Load patient
     result = await db.execute(
@@ -114,8 +144,12 @@ async def _process_event(db: AsyncSession, event: CohortisationEvent) -> None:
     )
     programs = list(programs_result.scalars().all())
 
+    last_result = None
     for program in programs:
-        await _assign_patient_to_program(db, event.tenant_id, patient, patient_data, program)
+        result = await _assign_patient_to_program(db, event.tenant_id, patient, patient_data, program)
+        if result:
+            last_result = result
+    return last_result
 
 
 async def _assign_patient_to_program(
@@ -124,11 +158,11 @@ async def _assign_patient_to_program(
     patient: Patient,
     patient_data,
     program: Program,
-) -> None:
+) -> dict | None:
     """Assign a patient to a cohort within a program."""
     cohorts = sorted(program.cohorts, key=lambda c: c.sort_order)
     if not cohorts:
-        return
+        return None
 
     score_result: dict | None = None
     matched_cohort: Cohort | None = None
@@ -151,7 +185,7 @@ async def _assign_patient_to_program(
                 break
 
     if not matched_cohort:
-        return  # Patient doesn't match any cohort
+        return None  # Patient doesn't match any cohort
 
     # Get current assignment for this patient+program
     current_result = await db.execute(
@@ -165,7 +199,7 @@ async def _assign_patient_to_program(
 
     # Skip if already assigned to the same cohort
     if current and current.cohort_id == matched_cohort.id:
-        return
+        return None
 
     # Mark old as not current
     if current:
@@ -197,3 +231,16 @@ async def _assign_patient_to_program(
             old_cohort.member_count -= 1
 
     await db.flush()
+
+    return {
+        "patient_name": f"{patient.first_name} {patient.last_name}",
+        "score": assignment.score,
+        "cohort_id": str(matched_cohort.id),
+        "cohort_name": matched_cohort.name,
+        "cohort_color": matched_cohort.color or "#e2e8f0",
+        "assignment_type": assignment_type,
+        "program_id": str(program.id),
+        "program_name": program.name,
+        "assigned_at": assignment.assigned_at.isoformat(),
+        "review_due_at": assignment.review_due_at.isoformat() if assignment.review_due_at else None,
+    }
