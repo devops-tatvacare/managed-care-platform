@@ -61,7 +61,7 @@ export interface ScoringEventData {
 }
 
 export interface SSEEvent {
-  type: "batch_started" | "item_processed" | "item_failed" | "batch_complete";
+  type: "batch_started" | "item_processed" | "item_failed" | "batch_complete" | "narrative_ready";
   entity_id?: string;
   data: Record<string, unknown>;
 }

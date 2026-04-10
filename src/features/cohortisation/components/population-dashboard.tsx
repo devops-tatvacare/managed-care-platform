@@ -33,10 +33,10 @@ import { RiskWorklist } from "./risk-worklist";
 import type { SSEEvent } from "@/services/types/cohort";
 
 const KPI_CELLS = [
-  { key: "total_patients" as const, label: "Members", icon: Icons.patients, color: "text-indigo-500" },
-  { key: "active_programs" as const, label: "Programs", icon: Icons.cohortisation, color: "text-blue-500" },
-  { key: "unassigned" as const, label: "Unassigned", icon: Icons.warning, color: "text-amber-500", warnWhen: (v: number) => v > 0 },
-  { key: "pending_rescore" as const, label: "Pending Re-score", icon: Icons.recurring, color: "text-violet-500" },
+  { key: "total_patients" as const, label: "Members", icon: Icons.patients, color: "text-indigo-500 dark:text-indigo-400" },
+  { key: "active_programs" as const, label: "Programs", icon: Icons.cohortisation, color: "text-blue-500 dark:text-blue-400" },
+  { key: "unassigned" as const, label: "Unassigned", icon: Icons.warning, color: "text-amber-500 dark:text-amber-400", warnWhen: (v: number) => v > 0 },
+  { key: "pending_rescore" as const, label: "Pending Re-score", icon: Icons.recurring, color: "text-violet-500 dark:text-violet-400" },
 ];
 
 export function PopulationDashboard() {
@@ -44,7 +44,7 @@ export function PopulationDashboard() {
     stats, statsLoading, programs, programsLoading, distributions, loadPrograms,
     loadDashboard, loadAssignments,
     batchActive, batchTotal, batchProcessed, batchFailed,
-    onBatchStarted, onItemsFlushed, onBatchComplete,
+    onBatchStarted, onItemsFlushed, onBatchComplete, onNarrativeReady,
     recalculate, recalculating,
   } = useCohortisationStore();
 
@@ -82,6 +82,9 @@ export function PopulationDashboard() {
             break;
           case "item_failed":
             failedCount++;
+            break;
+          case "narrative_ready":
+            onNarrativeReady(event.entity_id ?? "", (event.data.narrative as string) ?? "");
             break;
           case "batch_complete": {
             onBatchComplete();
@@ -125,7 +128,7 @@ export function PopulationDashboard() {
       if (flushTimerRef.current) clearInterval(flushTimerRef.current);
       bufferRef.current = [];
     };
-  }, [onBatchStarted, onItemsFlushed, onBatchComplete, loadDashboard, loadAssignments]);
+  }, [onBatchStarted, onItemsFlushed, onBatchComplete, onNarrativeReady, loadDashboard, loadAssignments]);
 
   const handleCreate = async () => {
     if (!formName.trim()) return;
@@ -191,7 +194,7 @@ export function PopulationDashboard() {
                 {statsLoading ? (
                   <Skeleton className="h-5 w-12" />
                 ) : (
-                  <span className={cn("text-xl font-bold tabular-nums", isWarn ? "text-amber-600" : "text-text-primary")}>
+                  <span className={cn("text-xl font-bold tabular-nums", isWarn ? "text-amber-600 dark:text-amber-400" : "text-text-primary")}>
                     {formatNumber(raw)}
                   </span>
                 )}

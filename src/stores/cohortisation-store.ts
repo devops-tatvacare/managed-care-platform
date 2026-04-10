@@ -48,6 +48,7 @@ interface CohortisationStore {
   onItemsFlushed: (items: { entityId: string; data: Record<string, unknown> }[], failedCount: number) => void;
   onItemFailed: (entityId: string) => void;
   onBatchComplete: () => void;
+  onNarrativeReady: (entityId: string, narrative: string) => void;
 }
 
 function _buildRecord(entityId: string, data: Record<string, unknown>): AssignmentRecord {
@@ -64,6 +65,7 @@ function _buildRecord(entityId: string, data: Record<string, unknown>): Assignme
     score_breakdown: null,
     assignment_type: (data.assignment_type as string) ?? "engine",
     reason: null,
+    narrative: null,
     previous_cohort_id: null,
     previous_cohort_name: null,
     pdc_worst: null,
@@ -214,5 +216,13 @@ export const useCohortisationStore = create<CohortisationStore>((set, get) => ({
 
   onBatchComplete: () => {
     set({ batchActive: false });
+  },
+
+  onNarrativeReady: (entityId: string, narrative: string) => {
+    set((s) => ({
+      assignments: s.assignments.map((a) =>
+        a.patient_id === entityId ? { ...a, narrative } : a
+      ),
+    }));
   },
 }));
