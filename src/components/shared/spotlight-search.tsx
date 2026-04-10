@@ -196,11 +196,11 @@ export function SpotlightSearch() {
                           {item.subtitle}
                         </span>
                       )}
-                      {item.metadata?.status ? (
+                      {"status" in (item.metadata ?? {}) && (
                         <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
                           {String(item.metadata.status)}
                         </span>
-                      ) : null}
+                      )}
                     </CommandItem>
                   ))}
                 </CommandGroup>
