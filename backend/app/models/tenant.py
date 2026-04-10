@@ -1,7 +1,7 @@
 import uuid
 
 from sqlalchemy import Boolean, ForeignKey, String
-from sqlalchemy.dialects.sqlite import JSON
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
@@ -30,6 +30,6 @@ class TenantConfig(Base, TimestampMixin):
     logo_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     primary_color: Mapped[str | None] = mapped_column(String(7), nullable=True)
     llm_provider: Mapped[str] = mapped_column(String(50), default="gemini")
-    llm_config: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    llm_config: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 
     tenant = relationship("Tenant", back_populates="config")

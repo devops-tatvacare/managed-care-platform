@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, func
-from sqlalchemy.dialects.sqlite import JSON
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
@@ -59,7 +59,7 @@ class CohortCriteria(Base):
     )
     group_operator: Mapped[str | None] = mapped_column(String(3), nullable=True)
     rule_type: Mapped[str | None] = mapped_column(String(50), nullable=True)
-    config: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    config: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     sort_order: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
@@ -87,8 +87,8 @@ class ScoringEngine(Base, TimestampMixin):
     program_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("programs.id", ondelete="CASCADE"), nullable=False, unique=True
     )
-    components: Mapped[list] = mapped_column(JSON, nullable=False)
-    tiebreaker_rules: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    components: Mapped[list] = mapped_column(JSONB, nullable=False)
+    tiebreaker_rules: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
     aggregation_method: Mapped[str] = mapped_column(String(20), default="weighted_sum")
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
@@ -113,7 +113,7 @@ class CohortAssignment(Base):
         ForeignKey("cohorts.id", ondelete="CASCADE"), nullable=False, index=True
     )
     score: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    score_breakdown: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    score_breakdown: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     assignment_type: Mapped[str] = mapped_column(String(20), default="engine")
     assigned_by: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("users.id"), nullable=True
@@ -156,7 +156,7 @@ class CohortisationEvent(Base):
         ForeignKey("patients.id", ondelete="CASCADE"), nullable=False, index=True
     )
     event_type: Mapped[str] = mapped_column(String(50), nullable=False)
-    event_data: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    event_data: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="pending")
     processed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     error: Mapped[str | None] = mapped_column(Text, nullable=True)

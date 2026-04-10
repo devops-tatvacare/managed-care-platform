@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, func
-from sqlalchemy.dialects.sqlite import JSON
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
@@ -21,7 +21,7 @@ class Pathway(Base, TimestampMixin):
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     condition: Mapped[str | None] = mapped_column(String(100), nullable=True)
-    target_tiers: Mapped[list] = mapped_column(JSON, default=list)
+    target_tiers: Mapped[list] = mapped_column(JSONB, default=list)
     status: Mapped[str] = mapped_column(String(20), default="draft")
     version: Mapped[int] = mapped_column(Integer, default=1)
     published_at: Mapped[datetime | None] = mapped_column(
@@ -50,8 +50,8 @@ class PathwayBlock(Base, TimestampMixin):
     block_type: Mapped[str] = mapped_column(String(50), nullable=False)
     category: Mapped[str] = mapped_column(String(20), nullable=False)
     label: Mapped[str] = mapped_column(String(200), nullable=False)
-    config: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
-    position: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    config: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    position: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     order_index: Mapped[int] = mapped_column(Integer, default=0)
 
     pathway: Mapped["Pathway"] = relationship("Pathway", back_populates="blocks")

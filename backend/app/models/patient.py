@@ -2,7 +2,7 @@ import uuid
 from datetime import date, datetime
 
 from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, String, func
-from sqlalchemy.dialects.sqlite import JSON
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -23,20 +23,22 @@ class Patient(Base):
     email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     phone: Mapped[str | None] = mapped_column(String(30), nullable=True)
     cpf: Mapped[str | None] = mapped_column(String(14), nullable=True)
-    address: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    address: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     insurance_plan: Mapped[str | None] = mapped_column(String(100), nullable=True)
     pcp_name: Mapped[str | None] = mapped_column(String(150), nullable=True)
     preferred_language: Mapped[str] = mapped_column(String(10), default="pt", nullable=False)
     preferred_channel: Mapped[str] = mapped_column(String(30), default="whatsapp", nullable=False)
-    allergies: Mapped[list | None] = mapped_column(JSON, nullable=True)
-    active_medications: Mapped[list | None] = mapped_column(JSON, nullable=True)
-    sdoh_flags: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    allergies: Mapped[list | None] = mapped_column(JSONB, nullable=True)
+    active_medications: Mapped[list | None] = mapped_column(JSONB, nullable=True)
+    sdoh_flags: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     pathway_status: Mapped[str | None] = mapped_column(String(50), nullable=True)
     pathway_name: Mapped[str | None] = mapped_column(String(150), nullable=True)
-    care_gaps: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    care_gaps: Mapped[list | None] = mapped_column(JSONB, nullable=True)
     last_contact_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     assigned_to: Mapped[str | None] = mapped_column(String(150), nullable=True)
     review_due_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    risk_score: Mapped[float | None] = mapped_column(nullable=True)
+    risk_score_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
