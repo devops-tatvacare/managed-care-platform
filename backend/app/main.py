@@ -6,8 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.database import async_session, engine
-from app.models import Base
+from app.database import async_session
 from app.routers import actions, ai, ai_sessions, auth, cohortisation, command_center, communications, outcomes, pathways, patients, programs, search
 from app.ai_builder.router import router as ai_builder_router
 from app.ai_builder.surfaces import register_all_surfaces
@@ -21,8 +20,6 @@ async def lifespan(app: FastAPI):
     os.makedirs("data", exist_ok=True)
     register_all_surfaces()
     register_search_sync()
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
     async with async_session() as db:
         await seed_all(db)
 
