@@ -43,7 +43,7 @@ export function PopulationDashboard() {
     stats, statsLoading, programs, programsLoading, distributions, loadPrograms,
     loadDashboard, loadAssignments,
     batchActive, batchTotal, batchProcessed, batchFailed,
-    onBatchStarted, onItemProcessed, onItemFailed, onBatchComplete,
+    onBatchStarted, onItemsFlushed, onBatchComplete,
     recalculate, recalculating,
   } = useCohortisationStore();
 
@@ -53,34 +53,66 @@ export function PopulationDashboard() {
   const [formCondition, setFormCondition] = useState("");
   const [formDescription, setFormDescription] = useState("");
 
-  // SSE stream connection
+  // SSE stream connection — buffer events and flush every 500ms to avoid jitter
   const disconnectRef = useRef<(() => void) | null>(null);
+  const bufferRef = useRef<SSEEvent[]>([]);
+  const flushTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    const handleEvent = (event: SSEEvent) => {
-      switch (event.type) {
-        case "batch_started":
-          onBatchStarted((event.data.total as number) ?? 0);
-          break;
-        case "item_processed":
-          onItemProcessed(event.entity_id ?? "", event.data);
-          break;
-        case "item_failed":
-          onItemFailed(event.entity_id ?? "");
-          break;
-        case "batch_complete":
-          onBatchComplete();
-          loadDashboard();
-          loadAssignments();
-          break;
+    const flushBuffer = () => {
+      const events = bufferRef.current;
+      if (events.length === 0) return;
+      bufferRef.current = [];
+
+      // Collect processed items and failed count for a single store update
+      const processedItems: { entityId: string; data: Record<string, unknown> }[] = [];
+      let failedCount = 0;
+
+      for (const event of events) {
+        switch (event.type) {
+          case "batch_started":
+            onBatchStarted((event.data.total as number) ?? 0);
+            break;
+          case "item_processed":
+            processedItems.push({ entityId: event.entity_id ?? "", data: event.data });
+            break;
+          case "item_failed":
+            failedCount++;
+            break;
+          case "batch_complete":
+            onBatchComplete();
+            loadDashboard();
+            loadAssignments();
+            break;
+        }
+      }
+
+      // Single state update for all items in this flush window
+      if (processedItems.length > 0 || failedCount > 0) {
+        onItemsFlushed(processedItems, failedCount);
       }
     };
 
+    const handleEvent = (event: SSEEvent) => {
+      // batch_started and batch_complete flush immediately
+      if (event.type === "batch_started" || event.type === "batch_complete") {
+        flushBuffer();
+        bufferRef.current = [event];
+        flushBuffer();
+        return;
+      }
+      bufferRef.current.push(event);
+    };
+
+    flushTimerRef.current = setInterval(flushBuffer, 500);
     disconnectRef.current = streamScoring(handleEvent);
+
     return () => {
       disconnectRef.current?.();
+      if (flushTimerRef.current) clearInterval(flushTimerRef.current);
+      bufferRef.current = [];
     };
-  }, [onBatchStarted, onItemProcessed, onItemFailed, onBatchComplete, loadDashboard, loadAssignments]);
+  }, [onBatchStarted, onItemsFlushed, onBatchComplete, loadDashboard, loadAssignments]);
 
   const handleCreate = async () => {
     if (!formName.trim()) return;

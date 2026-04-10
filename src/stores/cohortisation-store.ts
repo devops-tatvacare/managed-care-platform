@@ -45,8 +45,41 @@ interface CohortisationStore {
   // Real-time actions
   onBatchStarted: (total: number) => void;
   onItemProcessed: (entityId: string, data: Record<string, unknown>) => void;
+  onItemsFlushed: (items: { entityId: string; data: Record<string, unknown> }[], failedCount: number) => void;
   onItemFailed: (entityId: string) => void;
   onBatchComplete: () => void;
+}
+
+function _buildRecord(entityId: string, data: Record<string, unknown>): AssignmentRecord {
+  return {
+    id: entityId,
+    patient_id: entityId,
+    patient_name: (data.patient_name as string) ?? "",
+    program_id: (data.program_id as string) ?? "",
+    program_name: (data.program_name as string) ?? null,
+    cohort_id: (data.cohort_id as string) ?? "",
+    cohort_name: (data.cohort_name as string) ?? "",
+    cohort_color: (data.cohort_color as string) ?? "#e2e8f0",
+    score: (data.score as number) ?? null,
+    score_breakdown: null,
+    assignment_type: (data.assignment_type as string) ?? "engine",
+    reason: null,
+    previous_cohort_id: null,
+    previous_cohort_name: null,
+    pdc_worst: null,
+    assigned_at: (data.assigned_at as string) ?? new Date().toISOString(),
+    review_due_at: (data.review_due_at as string) ?? null,
+  };
+}
+
+function _upsertAssignment(assignments: AssignmentRecord[], entityId: string, record: AssignmentRecord): AssignmentRecord[] {
+  const idx = assignments.findIndex((a) => a.patient_id === entityId);
+  if (idx >= 0) {
+    const copy = [...assignments];
+    copy[idx] = record;
+    return copy;
+  }
+  return [record, ...assignments];
 }
 
 export const useCohortisationStore = create<CohortisationStore>((set, get) => ({
@@ -139,43 +172,39 @@ export const useCohortisationStore = create<CohortisationStore>((set, get) => ({
   },
 
   onItemProcessed: (entityId: string, data: Record<string, unknown>) => {
+    // Single-item update (used outside batch flush)
     set((s) => {
-      const newProcessed = s.batchProcessed + 1;
+      const record = _buildRecord(entityId, data);
+      const assignments = _upsertAssignment(s.assignments, entityId, record);
+      const stats = s.stats
+        ? { ...s.stats, assigned: s.stats.assigned + 1, unassigned: Math.max(0, s.stats.unassigned - 1) }
+        : s.stats;
+      return { batchProcessed: s.batchProcessed + 1, stats, assignments };
+    });
+  },
+
+  onItemsFlushed: (items, failedCount) => {
+    // Batch update — single set() for all items in the flush window
+    set((s) => {
+      let assignments = s.assignments;
+      for (const { entityId, data } of items) {
+        const record = _buildRecord(entityId, data);
+        assignments = _upsertAssignment(assignments, entityId, record);
+      }
+      const totalNew = items.length;
       const stats = s.stats
         ? {
             ...s.stats,
-            assigned: s.stats.assigned + 1,
-            unassigned: Math.max(0, s.stats.unassigned - 1),
+            assigned: s.stats.assigned + totalNew,
+            unassigned: Math.max(0, s.stats.unassigned - totalNew),
           }
         : s.stats;
-
-      const record: AssignmentRecord = {
-        id: entityId,
-        patient_id: entityId,
-        patient_name: (data.patient_name as string) ?? "",
-        program_id: (data.program_id as string) ?? "",
-        program_name: (data.program_name as string) ?? null,
-        cohort_id: (data.cohort_id as string) ?? "",
-        cohort_name: (data.cohort_name as string) ?? "",
-        cohort_color: (data.cohort_color as string) ?? "#e2e8f0",
-        score: (data.score as number) ?? null,
-        score_breakdown: null,
-        assignment_type: (data.assignment_type as string) ?? "engine",
-        reason: null,
-        previous_cohort_id: null,
-        previous_cohort_name: null,
-        pdc_worst: null,
-        assigned_at: (data.assigned_at as string) ?? new Date().toISOString(),
-        review_due_at: (data.review_due_at as string) ?? null,
+      return {
+        batchProcessed: s.batchProcessed + totalNew,
+        batchFailed: s.batchFailed + failedCount,
+        stats,
+        assignments,
       };
-
-      const existing = s.assignments.findIndex((a) => a.patient_id === entityId);
-      const assignments =
-        existing >= 0
-          ? s.assignments.map((a, i) => (i === existing ? record : a))
-          : [record, ...s.assignments];
-
-      return { batchProcessed: newProcessed, stats, assignments };
     });
   },
 
