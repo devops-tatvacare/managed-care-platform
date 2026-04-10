@@ -93,9 +93,22 @@ async def bulk_import(
     db: AsyncSession = Depends(get_db),
 ):
     """Bulk import patients with labs and diagnoses, then trigger cohortisation."""
+    from datetime import date, datetime, timezone
     from app.models.patient import PatientLab, PatientDiagnosis
     from app.workers.event_emitter import emit_bulk_events
     from app.events import event_bus
+
+    def _parse_date(v):
+        if not v: return None
+        if isinstance(v, date): return v
+        return date.fromisoformat(v)
+
+    def _parse_dt(v):
+        if not v: return None
+        if isinstance(v, datetime): return v
+        dt = datetime.fromisoformat(v)
+        if dt.tzinfo is None: dt = dt.replace(tzinfo=timezone.utc)
+        return dt
 
     patient_ids = []
     for item in payload:
@@ -108,7 +121,7 @@ async def bulk_import(
             empi_id=item.get("empi_id", f"EMPI-{uuid.uuid4().hex[:8]}"),
             first_name=item["first_name"],
             last_name=item["last_name"],
-            date_of_birth=item.get("date_of_birth"),
+            date_of_birth=_parse_date(item.get("date_of_birth")),
             gender=item.get("gender", "U"),
             email=item.get("email"),
             phone=item.get("phone"),
@@ -136,7 +149,7 @@ async def bulk_import(
                 value=lab["value"],
                 unit=lab.get("unit", ""),
                 source_system=lab.get("source_system", "BulkImport"),
-                recorded_at=lab.get("recorded_at"),
+                recorded_at=_parse_dt(lab.get("recorded_at")),
             ))
 
         for dx in item.get("diagnoses", []):
@@ -146,7 +159,7 @@ async def bulk_import(
                 patient_id=pid,
                 icd10_code=dx["icd10_code"],
                 description=dx.get("description", ""),
-                diagnosed_at=dx.get("diagnosed_at"),
+                diagnosed_at=_parse_date(dx.get("diagnosed_at")),
                 is_active=dx.get("is_active", True),
             ))
 
