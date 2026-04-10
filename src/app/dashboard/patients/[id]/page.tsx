@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, use } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { usePatientsStore } from "@/stores/patients-store";
 import { ROUTES } from "@/config/routes";
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { PatientHeader } from "@/features/patients/components/patient-header";
 import { PatientKpiStrip } from "@/features/patients/components/patient-kpi-strip";
+import { AISummaryCard } from "@/features/patients/components/ai-summary-card";
 import { PatientTabs } from "@/features/patients/components/patient-tabs";
 
 interface PageProps {
@@ -23,6 +25,8 @@ interface PageProps {
 
 export default function PatientDetailPage({ params }: PageProps) {
   const { id } = use(params);
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get("tab") ?? undefined;
   const {
     selectedPatient,
     labs,
@@ -83,7 +87,8 @@ export default function PatientDetailPage({ params }: PageProps) {
 
       <PatientHeader patient={selectedPatient} diagnoses={diagnoses} />
       <PatientKpiStrip patient={selectedPatient} />
-      <PatientTabs patient={selectedPatient} labs={labs} />
+      <AISummaryCard patientId={id} />
+      <PatientTabs patient={selectedPatient} labs={labs} initialTab={initialTab} />
     </div>
   );
 }
