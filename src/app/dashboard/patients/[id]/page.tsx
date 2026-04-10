@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { PatientHeader } from "@/features/patients/components/patient-header";
 import { PatientKpiStrip } from "@/features/patients/components/patient-kpi-strip";
-import { AISummaryCard } from "@/features/patients/components/ai-summary-card";
+
 import { PatientTabs } from "@/features/patients/components/patient-tabs";
 
 interface PageProps {
@@ -87,7 +87,6 @@ export default function PatientDetailPage({ params }: PageProps) {
 
       <PatientHeader patient={selectedPatient} diagnoses={diagnoses} />
       <PatientKpiStrip patient={selectedPatient} />
-      <AISummaryCard patientId={id} />
       <PatientTabs patient={selectedPatient} labs={labs} initialTab={initialTab} />
     </div>
   );

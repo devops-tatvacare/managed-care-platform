@@ -1,7 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Accordion,
   AccordionContent,
@@ -13,6 +11,7 @@ import { Icons } from "@/config/icons";
 import { PROTOCOL_STEP_STATUS } from "@/config/status";
 import { cn } from "@/lib/cn";
 import type { PatientDetail } from "@/services/types/patient";
+import { AISummaryCard } from "./ai-summary-card";
 
 interface CareProtocolsTabProps {
   patient: PatientDetail;
@@ -35,54 +34,10 @@ const STATUS_ICONS: Record<string, typeof Icons.completed> = {
 };
 
 export function CareProtocolsTab({ patient }: CareProtocolsTabProps) {
-  const gapList = patient.care_gaps?.slice(0, 3).join(", ") ?? "none identified";
-
   return (
     <div className="space-y-6">
-      {/* AI Summary Card — compact */}
-      <div className="rounded-lg border border-ai-border bg-gradient-to-br from-indigo-50/60 to-purple-50/40 px-4 py-3">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3 min-w-0">
-            <Badge className="shrink-0 bg-brand-primary text-white text-[10px] font-semibold px-2 py-0.5">
-              <Icons.ai className="mr-1 h-3 w-3" />
-              AI SUMMARY
-            </Badge>
-            <p className="text-[13px] text-text-secondary leading-snug">
-              {patient.first_name} is a moderate-complexity patient
-              in the {patient.pathway_name ?? "standard care"} pathway.
-              {patient.care_gaps && patient.care_gaps.length > 0
-                ? ` ${patient.care_gaps.length} open care gaps (${gapList}).`
-                : " No open care gaps."}{" "}
-              {patient.active_medications && patient.active_medications.length > 0
-                ? `${patient.active_medications.length} active medications tracked.`
-                : ""}{" "}
-              Next: complete adherence barrier assessment, schedule overdue specialist referrals.
-            </p>
-          </div>
-          <span className="shrink-0 text-[10px] text-text-placeholder whitespace-nowrap">Updated today</span>
-        </div>
-
-        <div className="mt-2.5 flex items-center gap-2">
-          <Button size="xs" variant="outline" className="border-brand-primary text-brand-primary hover:bg-brand-primary-light">
-            Schedule Ophthalmology
-          </Button>
-          <Button size="xs" variant="outline" className="border-brand-primary text-brand-primary hover:bg-brand-primary-light">
-            Order uACR Lab
-          </Button>
-          <Button size="xs" variant="outline" className="border-border-default text-text-secondary hover:bg-bg-hover">
-            Assign Pharmacist Review
-          </Button>
-          <div className="flex-1" />
-          <div className="flex items-center gap-0.5">
-            <Button variant="ghost" size="icon-xs">
-              <Icons.thumbsUp className="text-text-placeholder" />
-            </Button>
-            <Button variant="ghost" size="icon-xs">
-              <Icons.thumbsDown className="text-text-placeholder" />
-            </Button>
-          </div>
-        </div>
-      </div>
+      {/* AI Clinical Summary — real LLM-powered */}
+      <AISummaryCard patientId={patient.id} />
 
       {/* Protocol Steps */}
       <div>
@@ -102,10 +57,10 @@ export function CareProtocolsTab({ patient }: CareProtocolsTabProps) {
                     <StepIcon
                       className={cn(
                         "h-4 w-4 shrink-0",
-                        step.status === "completed" && "text-green-600",
-                        step.status === "in_progress" && "text-indigo-600",
-                        step.status === "pending" && "text-slate-400",
-                        step.status === "overdue" && "text-red-600",
+                        step.status === "completed" && "text-green-600 dark:text-green-400",
+                        step.status === "in_progress" && "text-indigo-600 dark:text-indigo-400",
+                        step.status === "pending" && "text-slate-400 dark:text-slate-500",
+                        step.status === "overdue" && "text-red-600 dark:text-red-400",
                       )}
                     />
                     <span className="font-medium text-text-primary">{step.title}</span>

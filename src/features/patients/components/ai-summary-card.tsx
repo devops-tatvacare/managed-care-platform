@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/config/icons";
 import { cn } from "@/lib/cn";
@@ -60,73 +59,68 @@ export function AISummaryCard({ patientId }: AISummaryCardProps) {
   }, [patientId]);
 
   return (
-    <Card className="mt-3 border-border-default">
-      <CardHeader className="flex flex-row items-center justify-between py-2.5 px-4">
-        <CardTitle className="flex items-center gap-2 text-xs font-semibold">
-          <span className="text-sm">&#10024;</span>
-          AI Clinical Summary
-        </CardTitle>
-        {!streaming && (
+    <div className="rounded-lg border border-ai-border bg-gradient-to-br from-indigo-50/60 to-purple-50/40 dark:from-indigo-950/60 dark:to-purple-950/40 px-4 py-3">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-text-primary">AI Clinical Summary</span>
+        {!streaming ? (
           <Button
             variant="ghost"
-            size="sm"
-            className="h-7 text-xs"
+            size="icon-xs"
             onClick={handleGenerate}
+            title={generated ? "Regenerate" : "Generate AI summary"}
           >
             {generated ? (
-              <>
-                <Icons.recurring className="mr-1.5 h-3 w-3" />
-                Regenerate
-              </>
+              <Icons.recurring className="h-3.5 w-3.5 text-brand-primary" />
             ) : (
-              "Generate"
+              <Icons.ai className="h-3.5 w-3.5 text-brand-primary" />
             )}
           </Button>
+        ) : (
+          <Icons.spinner className="h-3.5 w-3.5 animate-spin text-text-muted" />
         )}
-        {streaming && (
-          <span className="flex items-center gap-1.5 text-xs text-text-muted">
-            <Icons.spinner className="h-3 w-3 animate-spin" />
-            Generating...
-          </span>
-        )}
-      </CardHeader>
+      </div>
 
-      {(text || error) && (
-        <CardContent className="px-4 pb-3 pt-0">
-          {error ? (
-            <p className="text-xs text-status-error">{error}</p>
-          ) : (
-            <>
-              <p className="text-xs leading-relaxed text-text-secondary whitespace-pre-wrap">
-                {text}
-                {streaming && <span className="animate-pulse">|</span>}
-              </p>
-
-              {actions.length > 0 && (
-                <div className="mt-3 border-t border-border-default pt-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-text-placeholder mb-2">
-                    Recommended Actions
-                  </p>
-                  <div className="flex flex-col gap-1.5">
-                    {actions.map((action, i) => {
-                      const config = URGENCY_CONFIG[action.urgency] ?? URGENCY_CONFIG.next_visit;
-                      return (
-                        <div key={i} className="flex items-start gap-2 text-xs">
-                          <span className={cn("mt-1 h-1.5 w-1.5 shrink-0 rounded-full", config.dot)} />
-                          <span className="flex-1 text-text-secondary">{action.text}</span>
-                          <span className="shrink-0 rounded bg-bg-secondary px-1.5 py-0.5 text-[10px] text-text-muted">
-                            {config.label}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </CardContent>
+      {error && (
+        <p className="mt-2 text-xs text-status-error">{error}</p>
       )}
-    </Card>
+
+      {text && (
+        <div className="mt-2">
+          <p className="text-[13px] leading-snug text-text-secondary whitespace-pre-wrap">
+            {text}
+            {streaming && <span className="animate-pulse">|</span>}
+          </p>
+
+          {actions.length > 0 && (
+            <div className="mt-2.5 flex items-center gap-2 flex-wrap">
+              {actions.map((action, i) => {
+                const config = URGENCY_CONFIG[action.urgency] ?? URGENCY_CONFIG.next_visit;
+                return (
+                  <Button
+                    key={i}
+                    size="xs"
+                    variant="outline"
+                    className={cn(
+                      "text-text-secondary",
+                      action.urgency === "urgent" && "border-red-400 text-red-600 dark:text-red-400",
+                      action.urgency === "this_week" && "border-brand-primary text-brand-primary",
+                    )}
+                  >
+                    <span className={cn("mr-1.5 h-1.5 w-1.5 rounded-full", config.dot)} />
+                    {action.text}
+                  </Button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {!text && !error && !streaming && (
+        <p className="mt-1.5 text-[11px] text-text-placeholder">
+          Click the sparkle to generate a clinical summary
+        </p>
+      )}
+    </div>
   );
 }
