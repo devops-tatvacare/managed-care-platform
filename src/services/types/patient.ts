@@ -19,6 +19,7 @@ export interface PatientListItem {
     frequency: string;
     pdc_90day: number;
   }> | null;
+  risk_score: number | null;
 }
 
 export interface PatientDetail extends PatientListItem {
@@ -55,4 +56,22 @@ export interface PatientListResponse {
   page: number;
   page_size: number;
   pages: number;
+}
+
+export interface PatientFilterOptions {
+  pathway_names: string[];
+  pathway_statuses: string[];
+  assigned_tos: string[];
+  programs: Array<{ id: string; name: string }>;
+  cohorts: Array<{ id: string; name: string; program_id: string }>;
+}
+
+export interface AISummaryAction {
+  text: string;
+  urgency: "urgent" | "this_week" | "next_visit";
+}
+
+export interface AISummaryResponse {
+  summary: string;
+  actions: AISummaryAction[];
 }

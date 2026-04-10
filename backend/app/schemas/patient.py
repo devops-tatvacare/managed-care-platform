@@ -17,6 +17,7 @@ class PatientListItem(BaseModel):
     pcp_name: str | None = None
     insurance_plan: str | None = None
     active_medications: list[dict] | None = None
+    risk_score: float | None = None
 
 
 class PatientDetail(PatientListItem):
@@ -53,3 +54,8 @@ class PatientListResponse(BaseModel):
     page: int
     page_size: int
     pages: int
+
+
+class AISummaryAction(BaseModel):
+    text: str
+    urgency: str  # "urgent" | "this_week" | "next_visit"

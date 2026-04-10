@@ -179,6 +179,93 @@ async def bulk_import(
     return {"patients_created": len(patient_ids), "events_created": count}
 
 
+@router.post("/{patient_id}/ai-summary")
+async def ai_summary(
+    patient_id: uuid.UUID,
+    auth: AuthContext = Depends(get_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Stream an AI clinical summary for a patient."""
+    import json as _json
+    from datetime import date as _date
+    from starlette.responses import StreamingResponse
+    from app.llm import get_provider, PROMPT_REGISTRY
+    from app.models.patient import PatientLab, PatientDiagnosis
+    from app.models.cohort import CohortAssignment
+    from sqlalchemy.orm import selectinload
+
+    # Load patient
+    patient = await get_patient(db, auth.tenant_id, patient_id)
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+
+    # Load current cohort assignment with cohort relation
+    assignment_result = await db.execute(
+        select(CohortAssignment)
+        .where(
+            CohortAssignment.patient_id == patient_id,
+            CohortAssignment.is_current == True,
+        )
+        .options(selectinload(CohortAssignment.cohort))
+        .order_by(CohortAssignment.assigned_at.desc())
+        .limit(1)
+    )
+    assignment = assignment_result.scalar_one_or_none()
+
+    # Load labs
+    labs_result = await db.execute(
+        select(PatientLab)
+        .where(PatientLab.patient_id == patient_id)
+        .order_by(PatientLab.recorded_at.desc())
+        .limit(10)
+    )
+    labs = list(labs_result.scalars().all())
+
+    # Load diagnoses
+    diag_result = await db.execute(
+        select(PatientDiagnosis)
+        .where(PatientDiagnosis.patient_id == patient_id, PatientDiagnosis.is_active == True)
+    )
+    diagnoses = list(diag_result.scalars().all())
+
+    # Build prompt context
+    age = (_date.today() - patient.date_of_birth).days // 365 if patient.date_of_birth else "?"
+    meds = patient.active_medications or []
+    worst_pdc = min((m.get("pdc_90day", 1.0) for m in meds), default=1.0) if meds else 1.0
+    cohort_name = assignment.cohort.name if assignment and assignment.cohort else "Unassigned"
+
+    template = PROMPT_REGISTRY["patient_ai_summary"]
+    system_prompt, user_prompt = template.render(
+        patient_name=f"{patient.first_name} {patient.last_name}",
+        age=str(age),
+        gender=patient.gender or "Unknown",
+        score=str(assignment.score) if assignment else "N/A",
+        cohort_name=cohort_name,
+        narrative=assignment.narrative or "No narrative available" if assignment else "No assignment",
+        diagnoses=", ".join(f"{d.icd10_code} ({d.description})" for d in diagnoses) or "None",
+        labs=", ".join(f"{l.test_type}: {l.value} {l.unit}" for l in labs[:5]) or "None",
+        medications=", ".join(f"{m['name']} {m.get('dose', '')}" for m in meds) or "None",
+        worst_pdc=f"{worst_pdc * 100:.0f}%" if meds else "N/A",
+        sdoh_flags=", ".join(k for k, v in (patient.sdoh_flags or {}).items() if v) or "None",
+        care_gaps=", ".join(patient.care_gaps or []) or "None",
+    )
+
+    async def event_stream():
+        try:
+            provider = get_provider()
+            async for chunk in provider.generate_stream(
+                user_prompt, system=system_prompt, max_tokens=2048,
+            ):
+                yield f"data: {_json.dumps({'text': chunk})}\n\n"
+            yield f"data: {_json.dumps({'done': True})}\n\n"
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).exception("AI summary stream failed")
+            yield f"data: {_json.dumps({'error': str(exc)})}\n\n"
+
+    return StreamingResponse(event_stream(), media_type="text/event-stream")
+
+
 @router.post("/batch-compute-scores")
 async def batch_compute_scores(
     auth: AuthContext = Depends(get_auth),

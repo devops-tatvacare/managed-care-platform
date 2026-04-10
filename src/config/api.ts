@@ -19,6 +19,7 @@ export const API_ENDPOINTS = {
     timeline: (id: string) => `/api/patients/${id}/timeline`,
     communications: (id: string) => `/api/patients/${id}/communications`,
     cohortAssignments: (id: string) => `/api/patients/${id}/cohort-assignments`,
+    aiSummary: (id: string) => `/api/patients/${id}/ai-summary`,
   },
   pathways: {
     list: "/api/pathways",
