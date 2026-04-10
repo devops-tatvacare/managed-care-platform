@@ -13,6 +13,7 @@ from app.models.cohort import (
 from app.models.communication import ConciergeAction, MessageTemplate
 from app.models.outcome_metric import OutcomeMetric
 from app.models.action import ActionTemplate, PatientAction
+from app.models.search_index import SearchIndex
 
 __all__ = [
     "Base", "Tenant", "TenantConfig", "User", "RefreshToken", "Role",
@@ -25,4 +26,5 @@ __all__ = [
     "ConciergeAction", "MessageTemplate",
     "OutcomeMetric",
     "ActionTemplate", "PatientAction",
+    "SearchIndex",
 ]
