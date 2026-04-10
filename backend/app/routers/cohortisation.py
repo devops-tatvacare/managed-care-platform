@@ -146,6 +146,7 @@ async def assignments_list(
             score_breakdown=a.score_breakdown,
             assignment_type=a.assignment_type,
             reason=a.reason,
+            narrative=a.narrative,
             previous_cohort_id=str(a.previous_cohort_id) if a.previous_cohort_id else None,
             previous_cohort_name=prev_cohort_name,
             pdc_worst=pdc_worst,

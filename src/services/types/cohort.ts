@@ -26,6 +26,7 @@ export interface AssignmentRecord {
   score_breakdown: Record<string, { raw: number; weighted: number }> | null;
   assignment_type: string;
   reason: string | null;
+  narrative: string | null;
   previous_cohort_id: string | null;
   previous_cohort_name: string | null;
   pdc_worst: number | null;

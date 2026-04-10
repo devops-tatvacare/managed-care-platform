@@ -6,6 +6,7 @@ from sqlalchemy.dialects.sqlite import JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
+from app.models.pathway import Pathway
 
 
 class Cohort(Base, TimestampMixin):
@@ -29,8 +30,12 @@ class Cohort(Base, TimestampMixin):
     score_range_max: Mapped[int | None] = mapped_column(Integer, nullable=True)
     member_count: Mapped[int] = mapped_column(Integer, default=0)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    pathway_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("pathways.id", ondelete="SET NULL"), nullable=True
+    )
 
     program: Mapped["Program"] = relationship(back_populates="cohorts")
+    pathway: Mapped["Pathway | None"] = relationship("Pathway", lazy="selectin")
     criteria: Mapped[list["CohortCriteria"]] = relationship(
         back_populates="cohort", cascade="all, delete-orphan",
         order_by="CohortCriteria.sort_order"
@@ -114,6 +119,7 @@ class CohortAssignment(Base):
         ForeignKey("users.id"), nullable=True
     )
     reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    narrative: Mapped[str | None] = mapped_column(Text, nullable=True)
     previous_cohort_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("cohorts.id"), nullable=True
     )

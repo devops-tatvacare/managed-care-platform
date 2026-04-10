@@ -62,6 +62,7 @@ class AssignmentRecord(BaseModel):
     score_breakdown: dict[str, Any] | None
     assignment_type: str
     reason: str | None
+    narrative: str | None = None
     previous_cohort_id: str | None
     previous_cohort_name: str | None = None
     pdc_worst: float | None = None
