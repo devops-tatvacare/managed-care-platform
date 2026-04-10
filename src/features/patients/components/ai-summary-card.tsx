@@ -42,13 +42,25 @@ export function AISummaryCard({ patientId }: AISummaryCardProps) {
       () => {
         setStreaming(false);
         setGenerated(true);
-        const fullText = chunks.join("");
+        let raw = chunks.join("");
+        // Strip markdown code fences if present
+        raw = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/, "").trim();
         try {
-          const parsed = JSON.parse(fullText);
-          setText(parsed.summary ?? fullText);
+          const parsed = JSON.parse(raw);
+          setText(parsed.summary ?? raw);
           setActions(parsed.actions ?? []);
         } catch {
-          setText(fullText);
+          // If still not valid JSON, try to extract JSON object from the text
+          const jsonMatch = raw.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            try {
+              const parsed = JSON.parse(jsonMatch[0]);
+              setText(parsed.summary ?? raw);
+              setActions(parsed.actions ?? []);
+              return;
+            } catch { /* fall through */ }
+          }
+          setText(raw);
         }
       },
       (err) => {
