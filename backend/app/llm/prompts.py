@@ -86,6 +86,72 @@ PROMPT_REGISTRY: dict[str, PromptTemplate] = _register(
         ),
     ),
     PromptTemplate(
+        slug="cohort_generate",
+        system=(
+            "You are a clinical program design AI for a healthcare care-management platform. "
+            "Given a natural language description, generate a complete cohortisation program configuration. "
+            "The configuration must include: cohort tier definitions, a composite risk scoring engine with weighted components, "
+            "and tiebreaker/override rules. "
+            "Each cohort needs: name, color (hex), sort_order, review_cadence_days, score_range_min, score_range_max. "
+            "Each scoring component needs: name, label, data_source (one of: lab_range, diagnosis_match, pharmacy_adherence, utilisation, sdoh), "
+            "weight (integer 0-100, all weights must sum to 100), cap (integer, usually 100), "
+            "scoring_table (array of {{criterion, points}}), and optional bonus_table. "
+            "Each override rule needs: priority (integer), rule (descriptive name), action (one of: override_cohort, boost_score, cap_score, flag_review). "
+            "Use clinically appropriate thresholds based on published guidelines (ADA, KDIGO, AHA). "
+            "Return ONLY valid JSON matching the schema. Do not fabricate patient data."
+        ),
+        user=(
+            "Program description:\n{user_prompt}\n\n"
+            "Generate the complete program configuration as JSON with these exact keys:\n"
+            '- "program_name": string\n'
+            '- "condition": string\n'
+            '- "description": string (1-2 sentences)\n'
+            '- "cohorts": array of objects with {{name, color, sort_order, review_cadence_days, score_range_min, score_range_max}}\n'
+            '- "scoring_engine": object with {{aggregation_method: "weighted_sum", components: array of {{name, label, data_source, weight, cap, scoring_table: [{{criterion, points}}]}}}}\n'
+            '- "override_rules": array of {{priority, rule, action}}\n'
+        ),
+    ),
+    PromptTemplate(
+        slug="batch_risk_narrative",
+        system=(
+            "You are a clinical risk analyst AI for a healthcare care-management platform. "
+            "Given a batch of patients with their risk scores and clinical data, generate a concise "
+            "1-2 sentence risk narrative for each patient. "
+            "Each narrative should explain WHY the patient scored the way they did, referencing specific "
+            "lab values, diagnoses, and adherence data. Use clinical language appropriate for care managers. "
+            "Do not fabricate data — only reference values provided in the input. "
+            "Return a JSON array of objects with keys: patient_id (string), narrative (string)."
+        ),
+        user=(
+            "Generate risk narratives for these {count} patients:\n\n"
+            "{patients_json}\n\n"
+            "Return a JSON array: [{{\"patient_id\": \"...\", \"narrative\": \"...\"}}]"
+        ),
+    ),
+    PromptTemplate(
+        slug="patient_ai_summary",
+        system=(
+            "You are a clinical AI assistant for a healthcare care-management platform. "
+            "Given a patient's complete clinical profile, generate: "
+            "1) A comprehensive clinical summary paragraph (3-4 sentences) covering their condition, risk factors, and trajectory. "
+            "2) A list of 2-4 recommended clinical actions with urgency levels. "
+            "Use clinical language appropriate for care managers. Do not fabricate data. "
+            "Return JSON with keys: \"summary\" (string), \"actions\" (array of {{\"text\": string, \"urgency\": \"urgent\"|\"this_week\"|\"next_visit\"}})."
+        ),
+        user=(
+            "Patient: {patient_name}, {age}y {gender}\n"
+            "Risk Score: {score} ({cohort_name})\n"
+            "Risk Narrative: {narrative}\n\n"
+            "Active Diagnoses: {diagnoses}\n"
+            "Latest Labs: {labs}\n"
+            "Active Medications: {medications}\n"
+            "Worst PDC: {worst_pdc}\n"
+            "SDOH Flags: {sdoh_flags}\n"
+            "Care Gaps: {care_gaps}\n\n"
+            "Generate the clinical summary and recommended actions."
+        ),
+    ),
+    PromptTemplate(
         slug="quarterly_insight",
         system=(
             "You are a clinical outcomes analyst for a healthcare payer's care management platform. "
