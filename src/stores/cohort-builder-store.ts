@@ -1,5 +1,8 @@
 import { create } from "zustand";
 import * as programsApi from "@/services/api/programs";
+import { apiRequest } from "@/services/api/client";
+import { API_ENDPOINTS } from "@/config/api";
+import { toast } from "sonner";
 import type {
   ProgramDetail,
   CohortSummary,
@@ -29,6 +32,7 @@ interface CohortBuilderStore {
   // AI Chat
   chatMessages: ChatMessage[];
   chatLoading: boolean;
+  generatedConfig: Record<string, any> | null;
 
   // Editing state
   selectedCohortId: string | null;
@@ -37,7 +41,10 @@ interface CohortBuilderStore {
   // Actions — Program
   loadProgram: (id: string) => Promise<void>;
   updateProgramMeta: (data: { name?: string; description?: string; condition?: string }) => Promise<void>;
+  saveDraft: () => Promise<void>;
   publishProgram: () => Promise<ProgramVersion | null>;
+  publishing: boolean;
+  saving: boolean;
 
   // Actions — Cohorts
   createCohort: (data: CohortCreate) => Promise<CohortSummary | null>;
@@ -52,6 +59,7 @@ interface CohortBuilderStore {
   // Actions — Builder
   setBuilderMode: (mode: BuilderMode) => void;
   sendChatMessage: (text: string) => Promise<void>;
+  applyGeneratedConfig: () => Promise<void>;
   clearChat: () => void;
 
   // Reset
@@ -69,9 +77,12 @@ export const useCohortBuilderStore = create<CohortBuilderStore>((set, get) => ({
   program: null,
   programLoading: false,
   error: null,
-  builderMode: "config",
+  publishing: false,
+  saving: false,
+  builderMode: "ai",
   chatMessages: [INITIAL_MESSAGE],
   chatLoading: false,
+  generatedConfig: null,
   selectedCohortId: null,
   isDirty: false,
 
@@ -90,22 +101,41 @@ export const useCohortBuilderStore = create<CohortBuilderStore>((set, get) => ({
     if (!program) return;
     try {
       const updated = await programsApi.updateProgram(program.id, data);
-      set({ program: updated });
+      set({ program: updated, isDirty: true });
     } catch {
       set({ error: "Failed to update program" });
+    }
+  },
+
+  saveDraft: async () => {
+    const { program } = get();
+    if (!program) return;
+    set({ saving: true });
+    try {
+      await programsApi.updateProgram(program.id, { status: "draft" });
+      await get().loadProgram(program.id);
+      set({ isDirty: false });
+    } catch {
+      set({ error: "Failed to save draft" });
+    } finally {
+      set({ saving: false });
     }
   },
 
   publishProgram: async () => {
     const { program } = get();
     if (!program) return null;
+    set({ publishing: true });
     try {
       const version = await programsApi.publishProgram(program.id);
       await get().loadProgram(program.id);
+      set({ isDirty: false });
       return version;
     } catch {
       set({ error: "Failed to publish" });
       return null;
+    } finally {
+      set({ publishing: false });
     }
   },
 
@@ -115,6 +145,7 @@ export const useCohortBuilderStore = create<CohortBuilderStore>((set, get) => ({
     try {
       const cohort = await programsApi.createCohort(program.id, data);
       await get().loadProgram(program.id);
+      set({ isDirty: true });
       return cohort;
     } catch {
       return null;
@@ -126,6 +157,7 @@ export const useCohortBuilderStore = create<CohortBuilderStore>((set, get) => ({
     if (!program) return;
     await programsApi.updateCohort(program.id, cohortId, data);
     await get().loadProgram(program.id);
+    set({ isDirty: true });
   },
 
   deleteCohort: async (cohortId) => {
@@ -133,7 +165,7 @@ export const useCohortBuilderStore = create<CohortBuilderStore>((set, get) => ({
     if (!program) return;
     await programsApi.deleteCohort(program.id, cohortId);
     await get().loadProgram(program.id);
-    set({ selectedCohortId: null });
+    set({ selectedCohortId: null, isDirty: true });
   },
 
   selectCohort: (cohortId) => set({ selectedCohortId: cohortId }),
@@ -143,6 +175,7 @@ export const useCohortBuilderStore = create<CohortBuilderStore>((set, get) => ({
     if (!program) return;
     await programsApi.replaceCriteria(program.id, cohortId, criteria);
     await get().loadProgram(program.id);
+    set({ isDirty: true });
   },
 
   saveEngine: async (data) => {
@@ -150,33 +183,91 @@ export const useCohortBuilderStore = create<CohortBuilderStore>((set, get) => ({
     if (!program) return;
     await programsApi.upsertEngine(program.id, data);
     await get().loadProgram(program.id);
+    set({ isDirty: true });
   },
 
   setBuilderMode: (mode) => set({ builderMode: mode }),
 
   sendChatMessage: async (text) => {
+    const isFirstMessage = get().chatMessages.length <= 1;
     set((s) => ({
       chatMessages: [...s.chatMessages, { role: "user", content: text }],
       chatLoading: true,
     }));
-    // AI endpoint will be wired in Phase 4C or later — for now, stub response
-    setTimeout(() => {
+    try {
+      const result = await apiRequest<{
+        message: string;
+        config: Record<string, unknown> | null;
+        surface: string;
+        turn_count: number;
+      }>({
+        method: "POST",
+        path: API_ENDPOINTS.builder.turn,
+        body: {
+          surface: "cohort_program",
+          message: text,
+          reset: isFirstMessage,
+        },
+        direct: true,  // Bypass Next.js proxy — AI calls are long-running
+      });
       set((s) => ({
-        chatMessages: [...s.chatMessages, { role: "ai", content: "AI cohort generation will be available soon. For now, use the Configuration tab to set up your program manually." }],
+        chatMessages: [...s.chatMessages, { role: "ai", content: result.message }],
+        chatLoading: false,
+        generatedConfig: result.config as any ?? s.generatedConfig,
+      }));
+    } catch {
+      set((s) => ({
+        chatMessages: [...s.chatMessages, { role: "ai", content: "Failed to generate. Please try again." }],
         chatLoading: false,
       }));
-    }, 500);
+      toast.error("AI generation failed");
+    }
   },
 
-  clearChat: () => set({
-    chatMessages: [INITIAL_MESSAGE],
-    chatLoading: false,
-  }),
+  applyGeneratedConfig: async () => {
+    const { program, generatedConfig } = get();
+    if (!program || !generatedConfig) return;
+
+    try {
+      await programsApi.updateProgram(program.id, {
+        name: generatedConfig.program_name,
+        condition: generatedConfig.condition,
+        description: generatedConfig.description,
+      });
+
+      for (const cohort of generatedConfig.cohorts) {
+        await programsApi.createCohort(program.id, cohort);
+      }
+
+      await programsApi.upsertEngine(program.id, {
+        components: generatedConfig.scoring_engine.components,
+        tiebreaker_rules: (generatedConfig.override_rules ?? []).map(
+          (r: { priority: number; rule: string; action: string }) => ({ ...r, condition: {} }),
+        ),
+        aggregation_method: generatedConfig.scoring_engine.aggregation_method ?? "weighted_sum",
+      } as any);
+
+      await get().loadProgram(program.id);
+      set({ generatedConfig: null, builderMode: "ai", isDirty: true });
+      toast.success("Program configuration applied");
+    } catch {
+      toast.error("Failed to apply configuration");
+    }
+  },
+
+  clearChat: () => {
+    apiRequest({ method: "POST", path: API_ENDPOINTS.builder.reset, params: { surface: "cohort_program" }, direct: true }).catch(() => {});
+    set({
+      chatMessages: [INITIAL_MESSAGE],
+      chatLoading: false,
+      generatedConfig: null,
+    });
+  },
 
   reset: () => set({
-    program: null, programLoading: false, error: null,
-    builderMode: "config",
+    program: null, programLoading: false, error: null, publishing: false, saving: false,
+    builderMode: "ai",
     chatMessages: [INITIAL_MESSAGE],
-    chatLoading: false, selectedCohortId: null, isDirty: false,
+    chatLoading: false, generatedConfig: null, selectedCohortId: null, isDirty: false,
   }),
 }));
