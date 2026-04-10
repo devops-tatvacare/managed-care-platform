@@ -12,6 +12,7 @@ class CohortCreate(BaseModel):
     review_cadence_days: int | None = None
     score_range_min: int | None = None
     score_range_max: int | None = None
+    pathway_id: str | None = None
 
 
 class CohortUpdate(BaseModel):
@@ -23,6 +24,7 @@ class CohortUpdate(BaseModel):
     review_cadence_days: int | None = None
     score_range_min: int | None = None
     score_range_max: int | None = None
+    pathway_id: str | None = None
 
 
 class CriteriaNode(BaseModel):
@@ -40,10 +42,12 @@ class ScoringEngineUpsert(BaseModel):
 
 class RecalculateRequest(BaseModel):
     patient_ids: list[str] | None = None
+    scope: str = "unassigned"  # "all" | "unassigned"
 
 
 class RecalculateResponse(BaseModel):
     events_created: int
+    scope: str
 
 
 class AssignmentRecord(BaseModel):
@@ -59,6 +63,8 @@ class AssignmentRecord(BaseModel):
     assignment_type: str
     reason: str | None
     previous_cohort_id: str | None
+    previous_cohort_name: str | None = None
+    pdc_worst: float | None = None
     assigned_at: str
     review_due_at: str | None
 
