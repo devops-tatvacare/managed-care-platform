@@ -2,10 +2,10 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BrainCircuit, RefreshCw, TrendingDown, TrendingUp } from "lucide-react";
+import { Icons } from "@/config/icons";
+import { RefreshCw, TrendingDown, TrendingUp } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import type { QuarterlyInsightResponse } from "@/services/types/outcomes";
 
@@ -18,109 +18,101 @@ interface AIQuarterlyInsightProps {
 export function AIQuarterlyInsight({ insight, loading, onRefreshAction }: AIQuarterlyInsightProps) {
   if (loading) {
     return (
-      <Card>
-        <CardHeader className="pb-2">
-          <Skeleton className="h-5 w-40" />
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-16 w-full" />
-        </CardContent>
-      </Card>
+      <div className="rounded-lg border border-ai-border bg-gradient-to-br from-indigo-50/60 to-purple-50/40 dark:from-indigo-950/60 dark:to-purple-950/40 px-4 py-3">
+        <Skeleton className="h-4 w-40 mb-3" />
+        <div className="space-y-2">
+          <Skeleton className="h-3 w-full" />
+          <Skeleton className="h-3 w-5/6" />
+          <Skeleton className="h-3 w-4/6" />
+        </div>
+      </div>
     );
   }
 
   if (!insight) {
     return (
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center gap-2 text-sm font-medium">
-            <BrainCircuit className="h-4 w-4 text-brand-primary" />
-            AI Quarterly Insight
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="py-4 text-center text-sm text-text-muted">
-            Generate an AI-powered quarterly analysis
-          </p>
-          <Button variant="outline" size="sm" onClick={onRefreshAction} className="w-full">
-            Generate Insight
+      <div className="rounded-lg border border-ai-border bg-gradient-to-br from-indigo-50/60 to-purple-50/40 dark:from-indigo-950/60 dark:to-purple-950/40 px-4 py-3">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold text-text-primary">AI Quarterly Insight</span>
+          <Button variant="ghost" size="icon-xs" onClick={onRefreshAction} title="Generate quarterly insight">
+            <Icons.ai className="h-3.5 w-3.5 text-brand-primary" />
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+        <p className="mt-1.5 text-[11px] text-text-placeholder">
+          Click the sparkle to generate an AI-powered analysis of population outcomes, cohort migrations, and strategic recommendations for the selected program.
+        </p>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="flex items-center gap-2 text-sm font-medium">
-          <BrainCircuit className="h-4 w-4 text-brand-primary" />
+    <div className="rounded-lg border border-ai-border bg-gradient-to-br from-indigo-50/60 to-purple-50/40 dark:from-indigo-950/60 dark:to-purple-950/40 px-4 py-3">
+      <div className="flex items-center justify-between">
+        <span className="flex items-center gap-2 text-xs font-semibold text-text-primary">
           AI Quarterly Insight
           {insight.is_fallback && (
             <Badge variant="secondary" className="text-[10px]">Fallback</Badge>
           )}
-        </CardTitle>
-        <Button variant="ghost" size="sm" onClick={onRefreshAction}>
-          <RefreshCw className="h-3.5 w-3.5" />
+        </span>
+        <Button variant="ghost" size="icon-xs" onClick={onRefreshAction} title="Regenerate insight">
+          <RefreshCw className="h-3.5 w-3.5 text-brand-primary" />
         </Button>
-      </CardHeader>
-      <CardContent>
-        <ScrollArea className="h-[300px]">
-          <div className="prose prose-sm max-w-none text-text-secondary">
-            <ReactMarkdown>{insight.narrative_markdown}</ReactMarkdown>
+      </div>
+
+      <ScrollArea className="mt-2 max-h-[300px]">
+        <div className="prose prose-sm max-w-none text-[13px] leading-snug text-text-secondary">
+          <ReactMarkdown>{insight.narrative_markdown}</ReactMarkdown>
+        </div>
+
+        {insight.key_improvements.length > 0 && (
+          <div className="mt-3 border-t border-border-default pt-3">
+            <h4 className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-text-placeholder">
+              Key Improvements
+            </h4>
+            <div className="space-y-1.5">
+              {insight.key_improvements.map((imp, i) => (
+                <div key={i} className="flex items-start gap-2 text-xs">
+                  <TrendingUp className="mt-0.5 h-3.5 w-3.5 shrink-0 text-status-success" />
+                  <span className="text-text-secondary">
+                    <strong>{imp.metric}</strong>: {imp.change} — {imp.interpretation}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
+        )}
 
-          {insight.key_improvements.length > 0 && (
-            <div className="mt-4">
-              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
-                Key Improvements
-              </h4>
-              <div className="space-y-1.5">
-                {insight.key_improvements.map((imp, i) => (
-                  <div key={i} className="flex items-start gap-2 text-sm">
-                    <TrendingUp className="mt-0.5 h-3.5 w-3.5 shrink-0 text-status-success" />
-                    <span>
-                      <strong>{imp.metric}</strong>: {imp.change} — {imp.interpretation}
-                    </span>
-                  </div>
-                ))}
-              </div>
+        {insight.concerns.length > 0 && (
+          <div className="mt-3 border-t border-border-default pt-3">
+            <h4 className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-text-placeholder">
+              Areas of Concern
+            </h4>
+            <div className="space-y-1.5">
+              {insight.concerns.map((c, i) => (
+                <div key={i} className="flex items-start gap-2 text-xs">
+                  <TrendingDown className="mt-0.5 h-3.5 w-3.5 shrink-0 text-status-error" />
+                  <span className="text-text-secondary">
+                    <strong>{c.metric}</strong>: {c.issue} — {c.recommendation}
+                  </span>
+                </div>
+              ))}
             </div>
-          )}
+          </div>
+        )}
 
-          {insight.concerns.length > 0 && (
-            <div className="mt-4">
-              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
-                Areas of Concern
-              </h4>
-              <div className="space-y-1.5">
-                {insight.concerns.map((c, i) => (
-                  <div key={i} className="flex items-start gap-2 text-sm">
-                    <TrendingDown className="mt-0.5 h-3.5 w-3.5 shrink-0 text-status-error" />
-                    <span>
-                      <strong>{c.metric}</strong>: {c.issue} — {c.recommendation}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {insight.strategic_recommendations.length > 0 && (
-            <div className="mt-4">
-              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
-                Recommendations
-              </h4>
-              <ul className="ml-4 list-disc space-y-1 text-sm text-text-secondary">
-                {insight.strategic_recommendations.map((rec, i) => (
-                  <li key={i}>{rec}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </ScrollArea>
-      </CardContent>
-    </Card>
+        {insight.strategic_recommendations.length > 0 && (
+          <div className="mt-3 border-t border-border-default pt-3">
+            <h4 className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-text-placeholder">
+              Recommendations
+            </h4>
+            <ul className="ml-4 list-disc space-y-1 text-xs text-text-secondary">
+              {insight.strategic_recommendations.map((rec, i) => (
+                <li key={i}>{rec}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </ScrollArea>
+    </div>
   );
 }

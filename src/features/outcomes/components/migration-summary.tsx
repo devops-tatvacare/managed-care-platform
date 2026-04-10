@@ -39,7 +39,9 @@ export function MigrationSummary({ summary, history, loading }: MigrationSummary
         </CardHeader>
         <CardContent>
           {!summary || summary.total_migrations === 0 ? (
-            <p className="py-4 text-center text-sm text-text-muted">No migrations recorded</p>
+            <p className="py-4 text-center text-xs text-text-muted leading-relaxed">
+              No cohort migrations recorded yet. Migrations appear when the scoring engine re-evaluates patients and their risk tier changes based on updated clinical data.
+            </p>
           ) : (
             <ScrollArea className="h-[200px]">
               <div className="space-y-2">
@@ -75,8 +77,8 @@ export function MigrationSummary({ summary, history, loading }: MigrationSummary
               <TableBody>
                 {history.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="py-4 text-center text-text-muted">
-                      No recent migrations
+                    <TableCell colSpan={4} className="py-4 text-center text-xs text-text-muted">
+                      No recent migrations. When patients are re-scored and move between cohort tiers, their transitions will appear here.
                     </TableCell>
                   </TableRow>
                 ) : (
