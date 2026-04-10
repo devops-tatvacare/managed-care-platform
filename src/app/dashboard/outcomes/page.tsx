@@ -134,21 +134,21 @@ export default function OutcomesPage() {
         {(["clinical", "hedis", "engagement", "financial"] as const).map((tab) => (
           <TabsContent key={tab} value={tab} className="min-h-0 flex-1 overflow-auto">
             <div className="space-y-4">
+              {tab === "clinical" && (
+                <AIQuarterlyInsight
+                  insight={quarterlyInsight}
+                  loading={insightLoading}
+                  onRefreshAction={loadInsight}
+                />
+              )}
               <OutcomesKpiStrip metrics={tabMetrics[tab]} loading={metricsLoading} />
               <OutcomesTable metrics={tabMetrics[tab]} loading={metricsLoading} />
               {tab === "clinical" && (
-                <>
-                  <MigrationSummary
-                    summary={migrationSummary}
-                    history={migrationHistory?.items ?? []}
-                    loading={migrationLoading}
-                  />
-                  <AIQuarterlyInsight
-                    insight={quarterlyInsight}
-                    loading={insightLoading}
-                    onRefreshAction={loadInsight}
-                  />
-                </>
+                <MigrationSummary
+                  summary={migrationSummary}
+                  history={migrationHistory?.items ?? []}
+                  loading={migrationLoading}
+                />
               )}
             </div>
           </TabsContent>
