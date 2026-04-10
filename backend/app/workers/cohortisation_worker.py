@@ -34,11 +34,14 @@ POLL_INTERVAL = 5  # seconds
 BATCH_SIZE = 50
 
 
+NARRATIVE_BATCH_SIZE = 10  # patients per LLM call — keeps prompt small
+
+
 async def _generate_batch_narratives(
     db: AsyncSession,
     scored_patients: list[dict],
 ) -> dict[str, str]:
-    """Call LLM to generate risk narratives for a batch of scored patients.
+    """Call LLM to generate risk narratives in sub-batches of NARRATIVE_BATCH_SIZE.
     Returns {patient_id: narrative} map.
     """
     if not scored_patients:
@@ -51,60 +54,68 @@ async def _generate_batch_narratives(
         if not template:
             return {}
 
-        patients_json = _json.dumps([
-            {
-                "patient_id": str(p["patient_id"]),
-                "name": p["patient_name"],
-                "score": p["score"],
-                "cohort": p["cohort_name"],
-                "top_drivers": [
-                    f"{k}: {v['raw']}/{100} (weighted {v['weighted']})"
-                    for k, v in sorted(
-                        (p.get("breakdown") or {}).items(),
-                        key=lambda x: x[1].get("weighted", 0),
-                        reverse=True,
-                    )[:3]
-                ],
-                "labs": p.get("labs_summary", ""),
-                "diagnoses": p.get("diagnoses_summary", ""),
-            }
-            for p in scored_patients
-        ], indent=2)
-
-        system_prompt, user_prompt = template.render(
-            count=str(len(scored_patients)),
-            patients_json=patients_json,
-        )
-
         provider = get_provider()
-        try:
-            result = await provider.generate(
-                user_prompt, system=system_prompt, max_tokens=4096, parse_json=True,
+        narrative_map: dict[str, str] = {}
+
+        for i in range(0, len(scored_patients), NARRATIVE_BATCH_SIZE):
+            chunk = scored_patients[i : i + NARRATIVE_BATCH_SIZE]
+
+            patients_json = _json.dumps([
+                {
+                    "patient_id": str(p["patient_id"]),
+                    "name": p["patient_name"],
+                    "score": p["score"],
+                    "cohort": p["cohort_name"],
+                    "top_drivers": [
+                        f"{k}: {v['raw']}/100 (wt {v['weighted']})"
+                        for k, v in sorted(
+                            (p.get("breakdown") or {}).items(),
+                            key=lambda x: x[1].get("weighted", 0),
+                            reverse=True,
+                        )[:3]
+                    ],
+                    "labs": p.get("labs_summary", ""),
+                    "diagnoses": p.get("diagnoses_summary", ""),
+                }
+                for p in chunk
+            ])
+
+            system_prompt, user_prompt = template.render(
+                count=str(len(chunk)),
+                patients_json=patients_json,
             )
-        except Exception:
-            logger.warning("LLM returned unparseable response for batch narratives")
-            return {}
 
-        if not result:
-            return {}
-        narratives = result if isinstance(result, list) else result.get("narratives", result) if isinstance(result, dict) else []
-        if not isinstance(narratives, list):
-            return {}
+            try:
+                result = await provider.generate(
+                    user_prompt, system=system_prompt, max_tokens=2048, parse_json=True,
+                )
+            except Exception:
+                logger.warning("LLM call failed for narrative sub-batch %d-%d", i, i + len(chunk))
+                continue
 
-        narrative_map = {str(n["patient_id"]): n["narrative"] for n in narratives if "patient_id" in n and "narrative" in n}
+            if not result:
+                continue
+            narratives = result if isinstance(result, list) else result.get("narratives", result) if isinstance(result, dict) else []
+            if not isinstance(narratives, list):
+                continue
+
+            for n in narratives:
+                if isinstance(n, dict) and "patient_id" in n and "narrative" in n:
+                    narrative_map[str(n["patient_id"])] = n["narrative"]
 
         # Update assignments in DB
-        for p in scored_patients:
-            pid = str(p["patient_id"])
-            narrative = narrative_map.get(pid)
-            if narrative and p.get("assignment_id"):
-                await db.execute(
-                    update(CohortAssignment)
-                    .where(CohortAssignment.id == p["assignment_id"])
-                    .values(narrative=narrative)
-                )
+        if narrative_map:
+            for p in scored_patients:
+                pid = str(p["patient_id"])
+                narrative = narrative_map.get(pid)
+                if narrative and p.get("assignment_id"):
+                    await db.execute(
+                        update(CohortAssignment)
+                        .where(CohortAssignment.id == uuid.UUID(p["assignment_id"]))
+                        .values(narrative=narrative)
+                    )
+            await db.commit()
 
-        await db.commit()
         return narrative_map
     except Exception:
         logger.warning("Batch narrative generation failed", exc_info=True)
