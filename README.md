@@ -16,13 +16,10 @@ You need **Docker Desktop** (or Docker Engine + the `compose` plugin) and a **Ge
 git clone https://github.com/devops-tatvacare/managed-care-platform.git
 cd managed-care-platform
 
-# 1. One-shot setup: checks prereqs, creates .env, builds images
+# 1. One-shot setup: checks prereqs, creates .env, prompts for Gemini key, builds images
 ./scripts/setup.sh
 
-# 2. Add your Gemini key to .env (if you didn't already)
-#    GEMINI_API_KEY=...   ← https://aistudio.google.com/apikey
-
-# 3. Start the stack
+# 2. Start the stack
 docker compose up
 ```
 
@@ -44,7 +41,7 @@ To wipe and start clean: `docker compose down -v`.
 1. Verifies `docker` + `docker compose` are installed and the daemon is running.
 2. Copies `.env.example` → `.env` (only if `.env` doesn't already exist).
 3. Generates a strong `JWT_SECRET` if the placeholder is still in `.env`.
-4. Warns if `GEMINI_API_KEY` is empty.
+4. Prompts for `GEMINI_API_KEY` if missing (skipped automatically in non-interactive shells / CI — set the env var or edit `.env` instead).
 5. Runs `docker compose build` so first `up` is fast.
 
 It is idempotent — safe to re-run.

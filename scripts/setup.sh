@@ -50,11 +50,40 @@ if grep -q "change-me-to-a-32-byte-hex-string" .env; then
   green "✓ Generated JWT_SECRET in .env"
 fi
 
-# 4. Gemini key check
-if ! grep -E '^GEMINI_API_KEY=.+' .env | grep -qv '^GEMINI_API_KEY=$'; then
-  yellow "⚠ GEMINI_API_KEY is empty in .env."
-  yellow "  Get a key at https://aistudio.google.com/apikey and add it before starting."
-  yellow "  AI features (pathway gen, summaries, insights) will 500 without it."
+# 4. Gemini key — prompt interactively if missing
+set_env_var() {
+  # Replace KEY=... line in-place; portable across GNU and BSD sed.
+  local key="$1" val="$2"
+  # Escape sed delimiters in the value.
+  local esc
+  esc=$(printf '%s' "$val" | sed -e 's/[\/&|]/\\&/g')
+  if sed --version >/dev/null 2>&1; then
+    sed -i "s|^${key}=.*|${key}=${esc}|" .env
+  else
+    sed -i '' "s|^${key}=.*|${key}=${esc}|" .env
+  fi
+}
+
+current_gemini="$(grep -E '^GEMINI_API_KEY=' .env | head -1 | cut -d'=' -f2- || true)"
+if [[ -z "${current_gemini}" ]]; then
+  if [[ -t 0 && -t 1 && "${CI:-}" != "true" ]]; then
+    bold "==> Gemini API key"
+    echo "  Get a key at: https://aistudio.google.com/apikey"
+    echo "  (leave blank to skip — AI features will 500 until you add one to .env)"
+    printf "  GEMINI_API_KEY: "
+    read -r entered_key
+    if [[ -n "${entered_key}" ]]; then
+      set_env_var GEMINI_API_KEY "${entered_key}"
+      green "✓ Saved GEMINI_API_KEY to .env"
+    else
+      yellow "⚠ Skipped. Add GEMINI_API_KEY to .env before AI features will work."
+    fi
+  else
+    yellow "⚠ GEMINI_API_KEY is empty in .env (non-interactive shell — skipping prompt)."
+    yellow "  Set it in .env or via env var before starting."
+  fi
+else
+  green "✓ GEMINI_API_KEY already set in .env"
 fi
 
 # 5. Build images
@@ -65,7 +94,6 @@ green ""
 green "✅ Setup complete."
 green ""
 bold "Next steps:"
-echo "  1. (If skipped) add GEMINI_API_KEY to .env"
-echo "  2. Start the stack:   docker compose up"
-echo "  3. Open the app:      http://localhost:3000"
-echo "  4. API docs:          http://localhost:8000/docs"
+echo "  1. Start the stack:   docker compose up"
+echo "  2. Open the app:      http://localhost:3000"
+echo "  3. API docs:          http://localhost:8000/docs"
